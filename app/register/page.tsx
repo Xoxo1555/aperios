@@ -13,7 +13,7 @@ import { BiIcon } from "components/BiIcon";
 
 const SIDE_IMAGE = "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?q=80&w=1600&auto=format&fit=crop";
 
-const COUNTRIES = ["Madagascar", "France", "RÃ©union", "Mayotte", "Belgium", "Switzerland", "Canada", "Germany", "United States", "Other"];
+const COUNTRIES = ["Madagascar", "France", "Réunion", "Mayotte", "Belgium", "Switzerland", "Canada", "Germany", "United States", "Other"];
 
 const FIELD_GROUP = "flex flex-col gap-1.5";
 const FIELD_GROUP_FULL = "flex flex-col gap-1.5 md:col-span-2";
@@ -142,19 +142,19 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-shell surface-dark">
-      {/* Panneau hÃ©roÃ¯que gauche (desktop uniquement) */}
+      {/* Panneau héroïque gauche (desktop uniquement) */}
       <div className="auth-visual" style={{ backgroundImage: `url(${SIDE_IMAGE})` }}>
         <div className="z-50 relative select-none">
           <Logo />
         </div>
         <div className="auth-quote">
           <p>{t("quote_red_island")}</p>
-          <span>Â· Aperio Studio</span>
+          <span>· Aperio Studio</span>
         </div>
         <div className="auth-credit">{t("auth_credit_rice")}</div>
       </div>
 
-      {/* Colonne droite : carte formulaire flottante / centrÃ©e */}
+      {/* Colonne droite : carte formulaire flottante / centrée */}
       <div className="auth-form-col">
         <div className="auth-form-wrap !max-w-[520px] animate-[apFadeUp_0.35s_ease_both]">
           <div className="lg:hidden flex justify-center mb-6">
@@ -203,7 +203,7 @@ export default function RegisterPage() {
               </div>
               <div className={FIELD_GROUP}>
                 <label htmlFor="reg-city" className={LABEL_CLS}>{t("city_region")}</label>
-                <input id="reg-city" className="form-control" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Antananarivo, Parisâ€¦" />
+                <input id="reg-city" className="form-control" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Antananarivo, Paris…" />
               </div>
 
               <div className={FIELD_GROUP_FULL}>
@@ -273,7 +273,7 @@ export default function RegisterPage() {
                     <path d="m9 12 2 2 4-4"/>
                   </svg>
                   <span style={{ fontSize: '12px', color: '#a1a1aa', whiteSpace: 'nowrap' }}>
-                    Email vÃ©rifiÃ© Â· ConfidentialitÃ© garantie Â· DonnÃ©es protÃ©gÃ©es
+                    Email vérifié · Confidentialité garantie · Données protégées
                   </span>
                 </div>
               </div>

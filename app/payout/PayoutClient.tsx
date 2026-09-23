@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { BiIcon } from "components/BiIcon";
 import { useSession } from "components/SessionProvider";
+import Image from "next/image";
 import { useLanguage, type DictKey } from "lib/i18n";
 
 interface Props {
@@ -16,24 +17,73 @@ interface Props {
   };
 }
 
-function monogramTextColor(hexColor: string): string {
-  const h = hexColor.replace("#", "");
-  const n = parseInt(h, 16);
-  const cR = ((n >> 16) & 255) / 255;
-  const cG = ((n >> 8) & 255) / 255;
-  const cB = (n & 255) / 255;
-  const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
-  const L = 0.2126 * lin(cR) + 0.7152 * lin(cG) + 0.0722 * lin(cB);
-  return 1.05 / (L + 0.05) >= 4.5 ? "#ffffff" : "#141416";
-}
-
-const METHODS: { id: string; name: string; hintKey: DictKey; placeholder: string; icon: string; color: string }[] = [
-  { id: "orange-money", name: "Orange Money", hintKey: "payout_method_orange_hint", placeholder: "034 XX XX XX", icon: "OM", color: "#ff6600" },
-  { id: "mvola", name: "Mvola (Telma)", hintKey: "payout_method_mvola_hint", placeholder: "034 XX XX XX", icon: "MV", color: "#009966" },
-  { id: "airtel-money", name: "Airtel Money", hintKey: "payout_method_airtel_hint", placeholder: "033 XX XX XX", icon: "AM", color: "#c81e2b" },
-  { id: "stripe", name: "Stripe", hintKey: "payout_method_stripe_hint", placeholder: "Stripe", icon: "S", color: "#635bff" },
-  { id: "bank-transfer", name: "Bank transfer", hintKey: "payout_method_bank_hint", placeholder: "FR76 XXXX XXXX …", icon: "IBAN", color: "#4f7cff" },
-  { id: "paypal", name: "PayPal", hintKey: "payout_method_paypal_hint", placeholder: "you@email.com", icon: "PP", color: "#003087" },
+const METHODS: { id: string; name: string; hintKey: DictKey; placeholder: string; logo: React.ReactNode }[] = [
+  {
+    id: "orange-money",
+    name: "Orange Money",
+    hintKey: "payout_method_orange_hint",
+    placeholder: "034 XX XX XX",
+    logo: (
+      <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
+        <Image src="/images/payments/orange-money.svg" alt="Orange Money" width={42} height={18} className="object-contain" style={{ width: "auto", height: "auto" }} />
+      </span>
+    ),
+  },
+  {
+    id: "mvola",
+    name: "Mvola (Telma)",
+    hintKey: "payout_method_mvola_hint",
+    placeholder: "034 XX XX XX",
+    logo: (
+      <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
+        <Image src="/images/payments/yas.svg" alt="Mvola" width={42} height={22} className="object-contain" style={{ width: "auto", height: "auto" }} />
+      </span>
+    ),
+  },
+  {
+    id: "airtel-money",
+    name: "Airtel Money",
+    hintKey: "payout_method_airtel_hint",
+    placeholder: "033 XX XX XX",
+    logo: (
+      <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
+        <Image src="/images/payments/airtel.svg" alt="Airtel Money" width={42} height={22} className="object-contain" style={{ width: "auto", height: "auto" }} />
+      </span>
+    ),
+  },
+  {
+    id: "stripe",
+    name: "Stripe",
+    hintKey: "payout_method_stripe_hint",
+    placeholder: "Stripe",
+    logo: (
+      <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
+        <Image src="/images/payments/visa.svg" alt="Visa" width={42} height={16} className="object-contain" style={{ width: "auto", height: "auto" }} />
+      </span>
+    ),
+  },
+  {
+    id: "bank-transfer",
+    name: "Bank transfer",
+    hintKey: "payout_method_bank_hint",
+    placeholder: "FR76 XXXX XXXX …",
+    logo: (
+      <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
+        <BiIcon name="bi-bank" style={{ color: "#4f7cff" }} />
+      </span>
+    ),
+  },
+  {
+    id: "paypal",
+    name: "PayPal",
+    hintKey: "payout_method_paypal_hint",
+    placeholder: "you@email.com",
+    logo: (
+      <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
+        <Image src="/images/payments/paypal.svg" alt="PayPal" width={42} height={20} className="object-contain" style={{ width: "auto", height: "auto" }} />
+      </span>
+    ),
+  },
 ];
 
 export default function PayoutClient({ user }: Props) {
@@ -125,7 +175,7 @@ export default function PayoutClient({ user }: Props) {
             {METHODS.map((m) => (
               <label key={m.id} className={`mount-option ${method === m.id ? "active" : ""}`}>
                 <input type="radio" name="method" className="form-check-input me-2" checked={method === m.id} onChange={() => setMethod(m.id)} />
-                <span className="inline-flex items-center justify-center me-2" style={{ width: 28, height: 22, borderRadius: 4, background: m.color, color: monogramTextColor(m.color), fontSize: "0.62rem", fontWeight: 800 }}>{m.icon}</span>
+                <span className="me-2">{m.logo}</span>
                 <div>
                   <div className="font-bold" style={{ fontSize: "0.85rem" }}>{m.name}</div>
                   <div className="text-muted-2" style={{ fontSize: "0.7rem" }}>{t(m.hintKey)}</div>

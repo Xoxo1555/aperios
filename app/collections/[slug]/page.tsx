@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { and, desc, eq } from "drizzle-orm";
@@ -7,8 +6,7 @@ import { categories, collectionPhotos, collections, photos, users } from "@/db/s
 import { getSessionUser } from "@/lib/auth";
 import { attachTags } from "@/lib/queries";
 import { resolveAssetUrl } from "@/lib/utils";
-import PhotoCard from "@/components/PhotoCard";
-import { BiIcon } from "components/BiIcon";
+import CollectionDetailView from "./CollectionDetailView";
 
 export const dynamic = "force-dynamic";
 
@@ -81,40 +79,11 @@ export default async function CollectionDetailPage({
   const photoDtos = await attachTags(rows);
 
   return (
-    <div className="container py-4">
-      <nav aria-label="breadcrumb" className="mb-3">
-        <ol className="breadcrumb mb-0" style={{ fontSize: "0.85rem" }}>
-          <li className="breadcrumb-item"><Link href="/collections">Collections</Link></li>
-          <li className="breadcrumb-item active" aria-current="page" style={{ color: "var(--ap-muted)" }}>{coll.name}</li>
-        </ol>
-      </nav>
-
-      <div className="flex items-center gap-3 mb-4">
-        <span className="icon-btn" style={{ width: 52, height: 52, borderRadius: 14, background: "rgba(245,158,11,0.12)", borderColor: "rgba(245,158,11,0.35)" }}>
-          <BiIcon name="bi-heart" className="text-gold" style={{ fontSize: "1.3rem" }} />
-        </span>
-        <div>
-          <h1 className="font-display font-bold mb-0">{coll.name}</h1>
-          <p className="text-muted-2 mb-0">
-            {coll.description ?? "A curated collection"} · {photoDtos.length} photos
-          </p>
-        </div>
-      </div>
-
-      {photoDtos.length === 0 ? (
-        <div className="text-center" style={{ background: "var(--ap-card)", border: "1px solid var(--ap-border)", borderRadius: 16, padding: "3rem 1rem", boxShadow: "0 10px 30px rgba(0,0,0,0.06)" }}>
-          <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-3" style={{ width: 72, height: 72, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-            <BiIcon name="bi-bookmark-heart" style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
-          </span>
-          <h2 className="font-display font-bold mb-0" style={{ fontSize: "1.25rem", color: "var(--ap-card-foreground)" }}>This collection is empty.</h2>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {photoDtos.map((p) => (
-            <PhotoCard key={p.id} photo={p} />
-          ))}
-        </div>
-      )}
-    </div>
+    <CollectionDetailView
+      name={coll.name}
+      description={coll.description}
+      photoCount={photoDtos.length}
+      photos={photoDtos}
+    />
   );
 }

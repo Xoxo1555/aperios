@@ -241,7 +241,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
           { label: t("available_balance"), value: s.availableBalanceLabel, icon: "bi-wallet2" },
         ].map((tile) => (
           <div className="col-6 col-md-4 col-lg text-center" key={tile.label} title={tile.hint}>
-            <div className="stat-tile">
+            <div className="stat-tile h-full flex flex-col items-center justify-center py-4">
               <BiIcon name={tile.icon} className="text-gold" style={{ fontSize: "1.2rem" }} />
               <div className="value font-display mt-1">{tile.value}</div>
               <div className="label">{tile.label}</div>
