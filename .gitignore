@@ -7,5 +7,6 @@ node_modules/
 .env.test
 .env.production
 .next/
-dist/Aperio.rar 
+Aperio.rar
+dist/ 
 *.tsbuildinfo
