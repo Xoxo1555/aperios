@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -184,7 +184,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
           aria-haspopup="true"
           onClick={() => setMoreOpen((v) => !v)}
         >
-          <span>Ã¢â‚¬Â¦ {mounted ? t("nav_more") : "Plus"}</span>
+          <span>{mounted ? t("nav_more") : "Plus"}</span>
           <Icon name={faChevronDown} size={14} className="ap-cat-chev" />
         </button>
 
