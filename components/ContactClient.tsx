@@ -29,7 +29,7 @@ export default function ContactClient() {
             <h1 className="font-serif font-bold mb-3" style={{ fontSize: "clamp(2rem, 3.5vw, 2.8rem)" }}>
               {t("contact_title")}<span style={{ color: "var(--ap-gold)" }}>.</span>
             </h1>
-            <p className="text-muted-foreground mb-4" style={{ lineHeight: 1.7, fontSize: "0.98rem" }}>
+            <p className="text-muted-foreground mb-4 text-left sm:text-justify hyphens-auto" style={{ lineHeight: 1.7, fontSize: "0.98rem" }}>
               {t("contact_subtitle")}
             </p>
 
@@ -97,7 +97,7 @@ export default function ContactClient() {
               <h3 className="!text-card-foreground font-bold mb-3" style={{ fontSize: "1.3rem", color: "var(--ap-gold-light)" }}>
                 {t("contact_form_title")}
               </h3>
-              <p className="text-muted-foreground mb-4" style={{ fontSize: "0.9rem" }}>
+              <p className="text-muted-foreground mb-4 text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.9rem" }}>
                 {t("contact_form_sub")}
               </p>
 

@@ -62,7 +62,7 @@ export default function UploadPage() {
         <div className="mx-auto" style={{ maxWidth: 480 }}>
           <FontAwesomeIcon icon={faCamera} style={{ fontSize: "2.5rem", color: "var(--ap-muted)" }} />
           <h1 className="font-display font-bold mt-3 mb-2">{t("creator_only")}</h1>
-          <p className="text-muted-2 mb-4">
+          <p className="text-muted-2 mb-4 text-left sm:text-justify hyphens-auto">
             {t("creator_only_sub")}
           </p>
           <Link href="/profile" className="btn btn-gold">
@@ -139,7 +139,7 @@ export default function UploadPage() {
         <div className="mx-auto" style={{ maxWidth: 480 }}>
           <FontAwesomeIcon icon={faCircleCheck} style={{ fontSize: "2.5rem", color: "var(--ap-green, #2f8f56)" }} />
           <h1 className="font-display font-bold mt-3 mb-2">{t("photo_uploaded")}</h1>
-          <p className="text-muted-2 mb-4">
+          <p className="text-muted-2 mb-4 text-left sm:text-justify hyphens-auto">
             {t("photo_uploaded_sub", { title: uploadedPhoto.title })}
           </p>
 
@@ -174,7 +174,7 @@ export default function UploadPage() {
     <div className="container py-4">
       <div className="mx-auto" style={{ maxWidth: 640 }}>
         <h1 className="font-display font-bold mb-1">{t("upload_photo")}</h1>
-        <p className="text-muted-2 mb-4" style={{ fontSize: "0.92rem" }}>
+        <p className="text-muted-2 mb-4 text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.92rem" }}>
           {t("upload_photo_sub")}
         </p>
 

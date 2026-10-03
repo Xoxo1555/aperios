@@ -88,7 +88,7 @@ export default function LegalPageClient({ variant }: LegalPageClientProps) {
                   <FontAwesomeIcon icon={faChevronRight} className="me-2" style={{ fontSize: "0.75rem" }} />
                   {t(s.title)}
                 </h6>
-                <p className="text-muted-foreground mb-0" style={{ fontSize: "0.92rem", lineHeight: 1.7 }}>
+                <p className="text-muted-foreground mb-0 text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.92rem", lineHeight: 1.7 }}>
                   {s.vars ? t(s.body, s.vars) : t(s.body)}
                 </p>
               </div>

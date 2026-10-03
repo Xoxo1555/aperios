@@ -114,7 +114,7 @@ export default function AboutClient() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2 className="font-serif text-2xl font-bold text-foreground mb-3">{t(s.titleKey)}</h2>
-                <p className="text-muted-foreground leading-relaxed text-base">{t(s.key)}</p>
+                <p className="text-muted-foreground leading-relaxed text-base text-left sm:text-justify hyphens-auto">{t(s.key)}</p>
               </div>
             </div>
           ))}
@@ -129,8 +129,8 @@ export default function AboutClient() {
               <FontAwesomeIcon icon={faPrint} style={{ fontSize: 16 }} className="text-amber-600 dark:text-amber-500" />
               {t("about_craft_title")}
             </span>
-            <p className="text-muted-foreground leading-relaxed text-base mb-4">{t("about_craft_p1")}</p>
-            <p className="text-muted-foreground leading-relaxed text-base">{t("about_craft_p2")}</p>
+            <p className="text-muted-foreground leading-relaxed text-base mb-4 text-left sm:text-justify hyphens-auto">{t("about_craft_p1")}</p>
+            <p className="text-muted-foreground leading-relaxed text-base text-left sm:text-justify hyphens-auto">{t("about_craft_p2")}</p>
           </div>
           <div className="relative w-full max-h-[520px] min-h-[320px] aspect-[4/3] lg:aspect-auto overflow-hidden rounded-2xl border border-border shadow-xl">
             <Image

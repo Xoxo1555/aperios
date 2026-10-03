@@ -231,7 +231,7 @@ const ldProduct: Record<string, unknown> = {
           {photo.description && (
             <div className="mt-4 rounded-2xl p-5" style={{ background: "#141416", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="font-bold mb-3" style={{ color: "#fbbf24", fontFamily: "var(--font-accent)", fontSize: "0.72rem", letterSpacing: "0.08em", textTransform: "uppercase" }}>About this work</div>
-              <p className="mb-0" style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "#E5E5E5", fontFamily: "var(--font-sans)" }}>
+              <p className="mb-0 text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.95rem", lineHeight: 1.7, color: "#E5E5E5", fontFamily: "var(--font-sans)" }}>
                 {photo.description}
               </p>
             </div>

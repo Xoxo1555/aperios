@@ -186,7 +186,7 @@ export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
                           {formatDate(c.createdAt)}
                         </span>
                       </div>
-                      <p className="mb-0 text-foreground text-card-foreground text-base leading-relaxed">{c.content}</p>
+                      <p className="mb-0 text-foreground text-card-foreground text-base leading-relaxed text-left sm:text-justify hyphens-auto">{c.content}</p>
                     </div>
                   </div>
                 </div>

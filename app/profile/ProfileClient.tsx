@@ -256,9 +256,9 @@ export default function ProfileClient({
           </div>
         ) : (
           <>
-            {user.bio && <p className="text-muted-foreground mt-1 mb-0 italic" style={{ fontSize: "0.9rem", maxWidth: 640, lineHeight: 1.65 }}>{user.bio}</p>}
+            {user.bio && <p className="text-muted-foreground mt-1 mb-0 italic text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.9rem", maxWidth: 640, lineHeight: 1.65 }}>{user.bio}</p>}
             {!user.bio && !isCreator && (
-              <p className="text-muted-foreground mt-1 mb-0 italic" style={{ fontSize: "0.85rem" }}>
+              <p className="text-muted-foreground mt-1 mb-0 italic text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.85rem" }}>
                 {t("introduce_yourself")}
               </p>
             )}

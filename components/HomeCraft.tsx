@@ -29,7 +29,7 @@ export default function HomeCraft({ photos, craftCategory, artCategory }: Props)
           <h2 className="text-3xl sm:text-4xl font-serif text-neutral-900 dark:text-white max-w-2xl leading-tight mb-4">
             Beyond the landscapes: the island&apos;s craftsmanship.
           </h2>
-          <p className="text-neutral-600 dark:text-neutral-300 max-w-2xl leading-relaxed">{t("home_craft_desc")}</p>
+          <p className="text-neutral-600 dark:text-neutral-300 max-w-2xl leading-relaxed text-left sm:text-justify hyphens-auto">{t("home_craft_desc")}</p>
           <div className="flex items-center justify-center gap-3 mt-6 flex-wrap">
             {craftCategory && (
               <Link

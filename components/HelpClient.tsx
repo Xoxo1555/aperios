@@ -203,7 +203,7 @@ export default function HelpClient() {
                       }`}
                     >
                       <div className="overflow-hidden">
-                        <p className="px-5 pb-5 text-[0.9rem] leading-relaxed text-muted-foreground">
+                        <p className="px-5 pb-5 text-[0.9rem] leading-relaxed text-muted-foreground text-left sm:text-justify hyphens-auto">
                           {t(item.a)}
                         </p>
                       </div>

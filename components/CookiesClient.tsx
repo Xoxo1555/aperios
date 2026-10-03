@@ -176,7 +176,7 @@ export default function CookiesClient() {
                     </button>
                   )}
                 </div>
-                <p className="text-muted-foreground mt-3 mb-0" style={{ fontSize: "0.88rem", lineHeight: 1.65 }}>
+                <p className="text-muted-foreground mt-3 mb-0 text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.88rem", lineHeight: 1.65 }}>
                   {t(cat.descKey)}
                 </p>
               </div>
