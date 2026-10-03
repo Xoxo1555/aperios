@@ -1,8 +1,9 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode, type Dispatch, type SetStateAction } from "react";
-import { BiIcon } from "components/BiIcon";
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 type ImageType = "avatar" | "cover";
 
@@ -89,7 +90,7 @@ export function LightboxContent({ avatarUrl, coverImage, userName }: LightboxCon
         onClick={closeLightbox}
         aria-label="Close"
       >
-        <BiIcon name="bi-x-lg" style={{ fontSize: "24px" }} />
+        <FontAwesomeIcon icon={faXmark} style={{ fontSize: "24px" }} />
       </button>
       <div className="relative z-10 max-h-[90vh] max-w-[90vw]">
         <Image

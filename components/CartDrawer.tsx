@@ -9,8 +9,9 @@ import { usePrice } from "lib/currency";
 import { useLanguage } from "lib/i18n";
 import { useMounted } from "lib/hooks";
 import { useSession } from "./SessionProvider";
-import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
+import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight, faBagShopping, faMinus, faPlus, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 export default function CartDrawer() {
   const { items, isOpen, setOpen, removeItem, setQty, clear } = useCart();
@@ -74,7 +75,7 @@ export default function CartDrawer() {
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--ap-border)" }}>
           <h5 className="mb-0 font-serif font-bold text-xl text-card-foreground">
             <span className="inline-flex items-center justify-center shrink-0 me-2" style={{ width: 24, height: 24 }}>
-              <BiIcon name="bi-bag" style={{ fontSize: 20, color: "var(--ap-gold)" }} />
+              <FontAwesomeIcon icon={faBagShopping} style={{ fontSize: 20, color: "var(--ap-gold)" }} />
             </span>
             {cartMy}
             <span className="text-stone-300 ms-2" style={{ fontSize: "0.875rem" }}>
@@ -83,7 +84,7 @@ export default function CartDrawer() {
           </h5>
           <button className="icon-btn icon-btn-onlight" aria-label={closeLabel} onClick={() => setOpen(false)}>
             <span className="inline-flex items-center justify-center shrink-0">
-              <BiIcon name="bi-x-lg" style={{ fontSize: 20 }} />
+              <FontAwesomeIcon icon={faXmark} style={{ fontSize: 20 }} />
             </span>
           </button>
         </div>
@@ -92,7 +93,7 @@ export default function CartDrawer() {
           {items.length === 0 ? (
             <div className="text-center py-10 px-4">
               <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-4" style={{ width: 72, height: 72, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-                <BiIcon name="bi-bag" style={{ fontSize: 40, color: "var(--ap-gold)" }} />
+                <FontAwesomeIcon icon={faBagShopping} style={{ fontSize: 40, color: "var(--ap-gold)" }} />
               </span>
               <p className="font-display font-bold text-card-foreground text-base mb-1">{cartEmpty}</p>
               <p className="text-muted-foreground text-sm mb-6">{cartEmptySub}</p>
@@ -133,7 +134,7 @@ export default function CartDrawer() {
                         style={{ minWidth: 36, minHeight: 36 }}
                       >
                         <span className="inline-flex items-center justify-center shrink-0">
-                          <BiIcon name="bi-dash" style={{ fontSize: 14 }} />
+                          <FontAwesomeIcon icon={faMinus} style={{ fontSize: 14 }} />
                         </span>
                       </button>
                       <span className="px-3 py-1.5 text-center text-card-foreground font-medium text-sm" style={{ minWidth: 40, background: "transparent" }}>
@@ -146,7 +147,7 @@ export default function CartDrawer() {
                         style={{ minWidth: 36, minHeight: 36 }}
                       >
                         <span className="inline-flex items-center justify-center shrink-0">
-                          <BiIcon name="bi-plus" style={{ fontSize: 14 }} />
+                          <FontAwesomeIcon icon={faPlus} style={{ fontSize: 14 }} />
                         </span>
                       </button>
                     </div>
@@ -156,7 +157,7 @@ export default function CartDrawer() {
                       aria-label={removeLabel}
                     >
                       <span className="inline-flex items-center justify-center shrink-0">
-                        <BiIcon name="bi-trash" style={{ fontSize: 14 }} />
+                        <FontAwesomeIcon icon={faTrash} style={{ fontSize: 14 }} />
                       </span>
                       <span className="hidden sm:inline">{removeLabel}</span>
                     </button>
@@ -185,7 +186,7 @@ export default function CartDrawer() {
               <button className="py-3 px-6 bg-card hover:bg-card text-card-foreground font-semibold rounded-xl shadow-lg transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2" onClick={goCheckout}>
                 {checkoutLabel}
                 <span className="inline-flex items-center justify-center shrink-0">
-                  <BiIcon name="bi-arrow-right" style={{ fontSize: 16 }} />
+                  <FontAwesomeIcon icon={faArrowRight} style={{ fontSize: 16 }} />
                 </span>
               </button>
               <button className="btn btn-ghost" onClick={clear}>

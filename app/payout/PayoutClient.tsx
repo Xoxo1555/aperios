@@ -2,10 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { BiIcon } from "components/BiIcon";
 import { useSession } from "components/SessionProvider";
 import Image from "next/image";
 import { useLanguage, type DictKey } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faClock } from "@fortawesome/free-regular-svg-icons";
+import { faArrowUp, faBuildingColumns, faLock, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   user: {
@@ -69,7 +71,7 @@ const METHODS: { id: string; name: string; hintKey: DictKey; placeholder: string
     placeholder: "FR76 XXXX XXXX …",
     logo: (
       <span className="inline-flex items-center justify-center bg-white rounded shadow-sm px-1" style={{ width: 50, height: 32, border: "1px solid rgba(0,0,0,0.12)" }}>
-        <BiIcon name="bi-bank" style={{ color: "#4f7cff" }} />
+        <FontAwesomeIcon icon={faBuildingColumns} style={{ color: "#4f7cff" }} />
       </span>
     ),
   },
@@ -137,7 +139,7 @@ export default function PayoutClient({ user }: Props) {
       <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid rgba(125,189,140,0.3)" }}>
         <div className="flex items-center gap-3 mb-3">
           <span className="icon-btn" style={{ width: 56, height: 56, background: "rgba(125,189,140,0.15)", borderColor: "rgba(125,189,140,0.4)" }}>
-            <BiIcon name="bi-check-circle" style={{ fontSize: "1.6rem", color: "var(--ap-green)" }} />
+            <FontAwesomeIcon icon={faCircleCheck} style={{ fontSize: "1.6rem", color: "var(--ap-green)" }} />
           </span>
           <div>
             <h3 className="font-display font-bold mb-0">{t("payout_submitted")}</h3>
@@ -153,7 +155,7 @@ export default function PayoutClient({ user }: Props) {
           <div className="flex justify-between"><span className="text-muted-2">{t("status_label")}</span><span className="badge rounded-pill" style={{ background: "rgba(245,158,11,0.15)", color: "var(--ap-gold-dark)" }}>{success.status}</span></div>
         </div>
         <p className="text-muted-2 mb-0" style={{ fontSize: "0.85rem" }}>
-          <BiIcon name="bi-clock" className="me-1" />{t("payout_processing")}
+          <FontAwesomeIcon icon={faClock} className="me-1" />{t("payout_processing")}
         </p>
         <div className="flex gap-2 mt-3">
           <button className="btn btn-gold" onClick={() => setSuccess(null)}>{t("new_payout")}</button>
@@ -165,8 +167,8 @@ export default function PayoutClient({ user }: Props) {
 
   return (
     <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-      {err && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}><BiIcon name="bi-exclamation-triangle" className="me-2" />{err}</div>}
-      {msg && <div className="alert alert-success py-2 mb-3" style={{ fontSize: "0.85rem" }}><BiIcon name="bi-check-circle" className="me-2" />{msg}</div>}
+      {err && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}><FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />{err}</div>}
+      {msg && <div className="alert alert-success py-2 mb-3" style={{ fontSize: "0.85rem" }}><FontAwesomeIcon icon={faCircleCheck} className="me-2" />{msg}</div>}
 
       <form onSubmit={submit}>
         <div className="mb-3">
@@ -224,10 +226,10 @@ export default function PayoutClient({ user }: Props) {
         </div>
 
         <button className="btn btn-gold btn-lg w-full" type="submit" disabled={busy}>
-          {busy ? <span className="spinner-border spinner-border-sm" /> : <><BiIcon name="bi-arrow-up" className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("confirm_payout")}</>}
+          {busy ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faArrowUp} className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("confirm_payout")}</>}
         </button>
         <p className="text-muted-2 mt-2 mb-0 text-center" style={{ fontSize: "0.75rem" }}>
-          <BiIcon name="bi-lock" className="me-1" />{t("secure_transactions")}
+          <FontAwesomeIcon icon={faLock} className="me-1" />{t("secure_transactions")}
         </p>
       </form>
     </div>

@@ -4,8 +4,10 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "components/SessionProvider";
-import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { useLanguage } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera, faCircleCheck, faCircleUser } from "@fortawesome/free-regular-svg-icons";
+import { faCheck, faDownload, faMedal, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -58,13 +60,13 @@ export default function UploadPage() {
     return (
       <div className="container py-5 text-center">
         <div className="mx-auto" style={{ maxWidth: 480 }}>
-          <BiIcon name="bi-camera" style={{ fontSize: "2.5rem", color: "var(--ap-muted)" }} />
+          <FontAwesomeIcon icon={faCamera} style={{ fontSize: "2.5rem", color: "var(--ap-muted)" }} />
           <h1 className="font-display font-bold mt-3 mb-2">{t("creator_only")}</h1>
           <p className="text-muted-2 mb-4">
             {t("creator_only_sub")}
           </p>
           <Link href="/profile" className="btn btn-gold">
-            <BiIcon name="bi-person-circle" className="me-2" />
+            <FontAwesomeIcon icon={faCircleUser} className="me-2" />
             {t("go_to_profile")}
           </Link>
         </div>
@@ -135,7 +137,7 @@ export default function UploadPage() {
     return (
       <div className="container py-5 text-center">
         <div className="mx-auto" style={{ maxWidth: 480 }}>
-          <BiIcon name="bi-check-circle" style={{ fontSize: "2.5rem", color: "var(--ap-green, #2f8f56)" }} />
+          <FontAwesomeIcon icon={faCircleCheck} style={{ fontSize: "2.5rem", color: "var(--ap-green, #2f8f56)" }} />
           <h1 className="font-display font-bold mt-3 mb-2">{t("photo_uploaded")}</h1>
           <p className="text-muted-2 mb-4">
             {t("photo_uploaded_sub", { title: uploadedPhoto.title })}
@@ -143,14 +145,14 @@ export default function UploadPage() {
 
           {error && (
             <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}>
-              <BiIcon name="bi-exclamation-triangle" className="me-2" />
+              <FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />
               {error}
             </div>
           )}
 
           {published ? (
             <div className="alert alert-success py-2" style={{ fontSize: "0.9rem" }}>
-              <BiIcon name="bi-check-lg" className="me-2" />
+              <FontAwesomeIcon icon={faCheck} className="me-2" />
               {t("published_redirecting")}
             </div>
           ) : (
@@ -178,7 +180,7 @@ export default function UploadPage() {
 
         {error && (
           <div className="alert alert-danger py-2" style={{ fontSize: "0.85rem" }}>
-            <BiIcon name="bi-exclamation-triangle" className="me-2" />
+            <FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />
             {error}
           </div>
         )}
@@ -228,7 +230,7 @@ export default function UploadPage() {
                   onChange={() => setLicenseType("free")}
                 />
                 <span className="role-icon">
-                  <BiIcon name="bi-download" />
+                  <FontAwesomeIcon icon={faDownload} />
                 </span>
                 <span>
                   <span className="role-title">{t("free_download")}</span>
@@ -244,7 +246,7 @@ export default function UploadPage() {
                   onChange={() => setLicenseType("limited")}
                 />
                 <span className="role-icon">
-                  <BiIcon name="bi-award" />
+                  <FontAwesomeIcon icon={faMedal} />
                 </span>
                 <span>
                   <span className="role-title">{t("limited_print")}</span>

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { jsPDF } from "jspdf";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileLines } from "@fortawesome/free-regular-svg-icons";
 
 interface Props {
   serial: string;
@@ -148,7 +149,7 @@ export default function CertificatePdfButton(props: Props) {
         <span className="spinner-border spinner-border-sm" />
       ) : (
         <>
-          <BiIcon name="bi-file-earmark-text" className="me-2" />{t("download_pdf")}
+          <FontAwesomeIcon icon={faFileLines} className="me-2" />{t("download_pdf")}
         </>
       )}
     </button>

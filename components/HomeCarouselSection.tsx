@@ -3,9 +3,10 @@
 import Link from "next/link";
 import FeaturedCarousel from "./FeaturedCarousel";
 import PhotoCard from "./PhotoCard";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage, type DictKey } from "lib/i18n";
 import type { PhotoDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   labelKey: DictKey;
@@ -44,7 +45,7 @@ export default function HomeCarouselSection({
           className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold whitespace-nowrap transition-all hover:opacity-90 active:scale-[0.98] bg-card text-white dark:bg-zinc-100 dark:text-zinc-900"
         >
           {t(linkKey)}
-          <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-arrow-right" /></span>
+          <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faArrowRight} /></span>
         </Link>
       </div>
       {variant === "grid" ? (

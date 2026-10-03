@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "components/SessionProvider";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-regular-svg-icons";
+import { faArrowsRotate, faEnvelopeCircleCheck, faShieldHalved, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 function VerifyForm() {
   const router = useRouter();
@@ -87,7 +89,7 @@ function VerifyForm() {
             className="inline-flex items-center justify-center rounded-lg mb-3"
             style={{ width: 60, height: 60, background: "linear-gradient(135deg, var(--ap-gold), var(--ap-gold-dark))", color: "var(--ap-ivory)" }}
           >
-            <BiIcon name="bi-envelope-check" style={{ fontSize: "1.6rem" }} />
+            <FontAwesomeIcon icon={faEnvelopeCircleCheck} style={{ fontSize: "1.6rem" }} />
           </span>
           <h1 className="font-display font-bold mb-2">{t("verify_your_account")}</h1>
           <p className="text-muted-2 mb-0" style={{ fontSize: "0.92rem", lineHeight: 1.6 }}>
@@ -99,12 +101,12 @@ function VerifyForm() {
 
         {error && (
           <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.86rem" }}>
-            <BiIcon name="bi-exclamation-triangle" className="me-2" />{error}
+            <FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />{error}
           </div>
         )}
         {message && (
           <div className="alert alert-success py-2 mb-3" style={{ fontSize: "0.86rem" }}>
-            <BiIcon name="bi-check-circle" className="me-2" />{message}
+            <FontAwesomeIcon icon={faCircleCheck} className="me-2" />{message}
           </div>
         )}
 
@@ -127,13 +129,13 @@ function VerifyForm() {
             />
           </div>
           <button className="btn btn-gold w-full btn-lg mb-3" type="submit" disabled={busy}>
-            {busy ? <span className="spinner-border spinner-border-sm" /> : <><BiIcon name="bi-shield-check" className="me-2" />{t("confirm_my_registration")}</>}
+            {busy ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faShieldHalved} className="me-2" />{t("confirm_my_registration")}</>}
           </button>
         </form>
 
         <div className="flex justify-between items-center pt-3 border-t">
           <button className="btn btn-ghost btn-sm" onClick={resend} disabled={resending || busy} type="button">
-            {resending ? <span className="spinner-border spinner-border-sm me-1" /> : <BiIcon name="bi-arrow-clockwise" className="me-1" />}
+            {resending ? <span className="spinner-border spinner-border-sm me-1" /> : <FontAwesomeIcon icon={faArrowsRotate} className="me-1" />}
             {t("resend_email")}
           </button>
           <Link href="/login" className="text-muted-2" style={{ fontSize: "0.85rem" }}>

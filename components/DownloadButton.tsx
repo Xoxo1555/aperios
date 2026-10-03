@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BiIcon } from "./BiIcon";
 import { useToast } from "./ui/toast";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
 
 export type DownloadButtonVariant = "gold" | "dark" | "ghost" | "outline";
 export type DownloadButtonSize = "sm" | "md" | "lg";
@@ -146,7 +147,7 @@ export default function DownloadButton({
         <span className="spinner-border spinner-border-sm" aria-hidden />
       ) : showIcon ? (
         <span className="inline-flex items-center justify-center shrink-0">
-          <BiIcon name="bi-download" style={{ fontSize: 16 }} />
+          <FontAwesomeIcon icon={faDownload} style={{ fontSize: 16 }} />
         </span>
       ) : null}
       <span>{loading ? "Téléchargement…" : label}</span>

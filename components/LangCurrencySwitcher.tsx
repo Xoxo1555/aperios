@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { ALL_LANGUAGES, useLanguage, type LangCode } from "lib/i18n";
 import { ALL_CURRENCIES, SUPPORTED_CURRENCIES, useCurrency, type CurrencyCode } from "lib/currency";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCheck, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
 /** Language code → country code for the flag CDN image. */
 const LANG_FLAG: Record<string, string> = {
@@ -76,7 +78,7 @@ export default function LangCurrencySwitcher() {
       >
         <FlagImg code={LANG_FLAG[mounted ? currentLang.code : "en"] ?? "gb"} alt={currentLang.name} />
         <span suppressHydrationWarning>{displayLang} / {displayCurrency}</span>
-        <BiIcon name="bi-chevron-down" style={{ fontSize: 14, opacity: 0.7 }} />
+        <FontAwesomeIcon icon={faChevronDown} style={{ fontSize: 14, opacity: 0.7 }} />
       </button>
 
       {open && (
@@ -105,7 +107,7 @@ export default function LangCurrencySwitcher() {
                         <FlagImg code={LANG_FLAG[l.code] ?? l.code} alt={l.name} />
                         <span style={{ fontSize: "0.85rem" }}>{l.name}</span>
                       </span>
-                      {l.code === lang && <BiIcon name="bi-check" style={{ fontSize: 16, color: "#D97706" }} />}
+                      {l.code === lang && <FontAwesomeIcon icon={faCheck} style={{ fontSize: 16, color: "#D97706" }} />}
                     </button>
                   ))}
                 </div>
@@ -125,7 +127,7 @@ export default function LangCurrencySwitcher() {
                         <FlagImg code={CUR_FLAG[c.code] ?? "xx"} alt={c.code} />
                         <span style={{ fontSize: "0.85rem" }}><span className="font-medium">{c.symbol}</span> {c.code}</span>
                       </span>
-                      {c.code === currency && <BiIcon name="bi-check" style={{ fontSize: 16, color: "#D97706" }} />}
+                      {c.code === currency && <FontAwesomeIcon icon={faCheck} style={{ fontSize: 16, color: "#D97706" }} />}
                     </button>
                   ))}
                 </div>

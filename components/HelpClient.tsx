@@ -2,8 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage, type DictKey } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCamera, faCircleQuestion, faCreditCard, faImage, faLifeRing } from "@fortawesome/free-regular-svg-icons";
+import { faChevronDown, faMagnifyingGlass, faShieldHalved, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 type CategoryId = "licenses" | "prints" | "payments" | "creators";
 
@@ -17,7 +20,7 @@ interface HelpItem {
 interface CategoryMeta {
   id: CategoryId;
   key: DictKey;
-  icon: string;
+  icon: IconDefinition;
 }
 
 export default function HelpClient() {
@@ -28,10 +31,10 @@ export default function HelpClient() {
   const [openId, setOpenId] = useState<string | null>(null);
 
   const categories: CategoryMeta[] = [
-    { id: "licenses", key: "help_cat_licenses", icon: "bi-shield-check" },
-    { id: "prints", key: "help_cat_prints", icon: "bi-image" },
-    { id: "payments", key: "help_cat_payment", icon: "bi-credit-card" },
-    { id: "creators", key: "help_cat_creators", icon: "bi-camera" },
+    { id: "licenses", key: "help_cat_licenses", icon: faShieldHalved },
+    { id: "prints", key: "help_cat_prints", icon: faImage },
+    { id: "payments", key: "help_cat_payment", icon: faCreditCard },
+    { id: "creators", key: "help_cat_creators", icon: faCamera },
   ];
 
   const helpItems: HelpItem[] = [
@@ -72,7 +75,7 @@ export default function HelpClient() {
         {/* ---- Hero ---- */}
         <div className="text-center mb-5 pt-4">
           <span className="gallery-stamp on-light mb-3">
-            <BiIcon name="bi-question-circle" style={{ fontSize: 14 }} />
+            <FontAwesomeIcon icon={faCircleQuestion} style={{ fontSize: 14 }} />
             {t("help_title")}
           </span>
           <h1 className="font-serif font-bold mb-2" style={{ fontSize: "clamp(1.9rem, 4vw, 2.7rem)" }}>
@@ -82,8 +85,7 @@ export default function HelpClient() {
             {t("help_subtitle")}
           </p>
           <div className="relative mx-auto" style={{ maxWidth: 560 }}>
-            <BiIcon
-              name="bi-search"
+            <FontAwesomeIcon icon={faMagnifyingGlass}
               className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
               style={{ color: "var(--ap-gold-2)", fontSize: 20 }}
             />
@@ -102,7 +104,7 @@ export default function HelpClient() {
                 aria-label={t("close")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 transition-colors hover:text-amber-500"
               >
-                <BiIcon name="bi-x" style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={faXmark} style={{ fontSize: 18 }} />
               </button>
             )}
           </div>
@@ -129,7 +131,7 @@ export default function HelpClient() {
                       : "bg-amber-500/15 text-amber-500 group-hover:bg-amber-500/25"
                   }`}
                 >
-                  <BiIcon name={c.icon} style={{ fontSize: 22 }} />
+                  <FontAwesomeIcon icon={c.icon} style={{ fontSize: 22 }} />
                 </span>
                 <span className="block text-sm font-bold leading-snug text-card-foreground">
                   {t(c.key)}
@@ -153,7 +155,7 @@ export default function HelpClient() {
                 style={{ background: "rgba(245,158,11,0.18)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.4)" }}
               >
                 {t(activeCat.key)}
-                <BiIcon name="bi-x" style={{ fontSize: 14 }} />
+                <FontAwesomeIcon icon={faXmark} style={{ fontSize: 14 }} />
               </button>
             )}
           </div>
@@ -161,7 +163,7 @@ export default function HelpClient() {
           {filtered.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-10 text-center">
               <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-4" style={{ width: 72, height: 72, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-                <BiIcon name="bi-search" style={{ fontSize: 28, color: "var(--ap-gold)" }} />
+                <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 28, color: "var(--ap-gold)" }} />
               </span>
               <p className="mb-1 font-display font-bold text-[1.05rem] text-card-foreground">
                 {t("help_no_results")}
@@ -186,12 +188,11 @@ export default function HelpClient() {
                       aria-expanded={open}
                       className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-white/5"
                     >
-                      <BiIcon name="bi-question-circle" className="shrink-0" style={{ color: "var(--ap-gold-2)", fontSize: 20 }} />
+                      <FontAwesomeIcon icon={faCircleQuestion} className="shrink-0" style={{ color: "var(--ap-gold-2)", fontSize: 20 }} />
                       <span className="flex-1 text-[0.95rem] font-bold text-card-foreground">
                         {t(item.q)}
                       </span>
-                      <BiIcon
-                        name="bi-chevron-down"
+                      <FontAwesomeIcon icon={faChevronDown}
                         className={`shrink-0 text-amber-500 transition-transform duration-300 ${open ? "rotate-180" : ""}`}
                         style={{ fontSize: 20 }}
                       />
@@ -219,7 +220,7 @@ export default function HelpClient() {
               className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl"
               style={{ background: "rgba(245,158,11,0.16)", color: "#f59e0b" }}
             >
-              <BiIcon name="bi-life-preserver" style={{ fontSize: 26 }} />
+              <FontAwesomeIcon icon={faLifeRing} style={{ fontSize: 26 }} />
             </div>
             <h5 className="!text-card-foreground font-serif text-2xl font-semibold mb-1">{t("help_support_title")}</h5>
             <p className="mb-4 text-[0.9rem] text-muted-foreground">{t("help_support_sub")}</p>

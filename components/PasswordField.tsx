@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 
 interface Props {
   label?: string;
@@ -44,7 +45,7 @@ export default function PasswordField({
           aria-label={show ? t("hide_password") : t("show_password")}
           onClick={(e) => { e.preventDefault(); setShow((prev) => !prev); }}
         >
-          {show ? <BiIcon name="bi-eye" style={{ fontSize: 20 }} /> : <BiIcon name="bi-eye-slash" style={{ fontSize: 20 }} />}
+          {show ? <FontAwesomeIcon icon={faEye} style={{ fontSize: 20 }} /> : <FontAwesomeIcon icon={faEyeSlash} style={{ fontSize: 20 }} />}
         </button>
       </div>
     </div>

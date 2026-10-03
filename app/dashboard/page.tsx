@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSessionUser } from "lib/auth";
-import DashboardClient from "components/DashboardClient";
-import { BiIcon } from "components/BiIcon";
+import DashboardClient from "components/DashboardClient";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   if (user.role === "buyer") {
     return (
       <div className="container py-5 text-center" style={{ maxWidth: 560 }}>
-        <BiIcon name="bi-lock" style={{ fontSize: "3rem", color: "var(--ap-muted)" }} />
+        <FontAwesomeIcon icon={faLock} style={{ fontSize: "3rem", color: "var(--ap-muted)" }} />
         <h1 className="font-display font-bold mt-3">Creator dashboard</h1>
         <p className="text-muted-2 mb-4">
           Collector accounts are made for browsing, downloading, and collecting.

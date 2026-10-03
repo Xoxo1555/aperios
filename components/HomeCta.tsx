@@ -4,6 +4,9 @@ import Link from "next/link";
 import { useLanguage } from "lib/i18n";
 import { useSession } from "./SessionProvider";
 import BubbleField from "./BubbleField";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera } from "@fortawesome/free-regular-svg-icons";
+import { faTableCells, faUpload } from "@fortawesome/free-solid-svg-icons";
 
 /* Final CTA of the home page. Client component so its labels follow the
    active language, and so the single call-to-action can adapt to the session:
@@ -28,7 +31,7 @@ export default function HomeCta() {
     : isCreator
       ? t("view_dashboard")
       : t("become_creator");
-  const ctaIcon = isCreator ? "bi-grid-1x2-fill" : "bi-upload";
+  const ctaIcon = isCreator ? faTableCells : faUpload;
 
   return (
     <section className="container py-5">
@@ -37,7 +40,7 @@ export default function HomeCta() {
         <BubbleField variant="compact" />
         <div className="relative z-10">
           <div className="gallery-stamp mb-4 mx-auto">
-            <i className="bi bi-camera" />
+            <FontAwesomeIcon icon={faCamera} />
             {t("cta_stamp")}
           </div>
           <h2 className="font-serif font-bold mb-3" style={{ fontSize: "2rem" }}>{t("cta_title")}</h2>
@@ -49,7 +52,7 @@ export default function HomeCta() {
               href={destination}
               className={`btn btn-lg ${isCreator ? "btn-premium" : "btn-gold"}`}
             >
-              <i className={`bi ${ctaIcon} me-2`} style={isCreator ? { fontSize: 18 } : undefined} />
+              <FontAwesomeIcon icon={ctaIcon} className="me-2" style={isCreator ? { fontSize: 18 } : undefined} />
               {ctaLabel}
             </Link>
           </div>

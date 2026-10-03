@@ -26,7 +26,9 @@ import PhotoViewer from "@/components/PhotoViewer";
 import PhotoImage from "@/components/PhotoImage";
 import DownloadButton from "@/components/DownloadButton";
 import { checkArtworkDownloadAccess } from "@/lib/artworkAccess";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCircleCheck as faCircleCheckSolid, faDownload } from "@fortawesome/free-solid-svg-icons";
 
 export const dynamic = "force-dynamic";
 
@@ -254,7 +256,7 @@ const ldProduct: Record<string, unknown> = {
 
           {photo.licenseType === "limited" && (
             <div className="mt-3 limited-note">
-              <BiIcon name="bi-patch-check-fill" className="me-2" />
+              <FontAwesomeIcon icon={faCircleCheckSolid} className="me-2" />
               <strong>Certificate of authenticity included.</strong> Every edition ships with a
               numbered certificate and a verification fingerprint. Verify the work’s
               provenance online on Aperio.
@@ -276,7 +278,7 @@ const ldProduct: Record<string, unknown> = {
           {photo.hasHd && (
             <div className="mt-4 rounded-2xl p-4" style={{ background: "#141416", border: "1px solid rgba(255,255,255,0.08)" }}>
               <div className="flex items-center gap-2 mb-2 font-bold text-sm" style={{ color: "#fbbf24", fontFamily: "var(--font-accent)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-                <BiIcon name="bi-download" style={{ color: "#fbbf24" }} />
+                <FontAwesomeIcon icon={faDownload} style={{ color: "#fbbf24" }} />
                 Fichier original
               </div>
               {canDownloadHd ? (

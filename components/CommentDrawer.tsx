@@ -6,8 +6,10 @@ import { formatDate } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { useMounted } from "lib/hooks";
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
 import type { PhotoDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComment, faCommentDots, faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { faXmark } from "@fortawesome/free-solid-svg-icons";
 
 interface Comment {
   id: number;
@@ -129,7 +131,7 @@ export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
         <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: "var(--ap-border)" }}>
           <h5 className="mb-0 font-serif font-bold text-xl text-foreground text-card-foreground">
             <span className="inline-flex items-center justify-center shrink-0 me-2" style={{ width: 24, height: 24 }}>
-              <BiIcon name="bi-chat-left-dots-fill" style={{ fontSize: 20, color: "var(--ap-gold)" }} />
+              <FontAwesomeIcon icon={faCommentDots} style={{ fontSize: 20, color: "var(--ap-gold)" }} />
             </span>
             {commentsTitle}
             <span className="text-zinc-700 dark:text-zinc-300 ms-2" style={{ fontSize: "0.875rem" }}>
@@ -138,7 +140,7 @@ export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
           </h5>
           <button className="icon-btn icon-btn-onlight" aria-label={closeLabel} onClick={onClose}>
             <span className="inline-flex items-center justify-center shrink-0">
-              <BiIcon name="bi-x-lg" style={{ fontSize: 20 }} />
+              <FontAwesomeIcon icon={faXmark} style={{ fontSize: 20 }} />
             </span>
           </button>
         </div>
@@ -151,7 +153,7 @@ export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
           ) : comments.length === 0 ? (
             <div className="text-center py-8">
               <span className="inline-flex items-center justify-center shrink-0" style={{ fontSize: "3rem", color: "var(--ap-muted)" }}>
-                <BiIcon name="bi-chat-left" />
+                <FontAwesomeIcon icon={faComment} />
               </span>
               <p className="text-zinc-700 dark:text-zinc-300 mt-4 mb-1 text-base">{noCommentsYet}</p>
               <p className="text-zinc-500 text-muted-foreground text-sm">{noCommentsYetSub}</p>
@@ -219,7 +221,7 @@ export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
                 ) : (
                   <>
                     <span className="inline-flex items-center justify-center shrink-0">
-                      <BiIcon name="bi-send-fill" style={{ fontSize: 16 }} />
+                      <FontAwesomeIcon icon={faPaperPlane} style={{ fontSize: 16 }} />
                     </span>
                     {send}
                   </>

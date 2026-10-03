@@ -1,10 +1,12 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faInbox } from "@fortawesome/free-solid-svg-icons";
 
 interface EmptyStateProps {
-  icon?: string;
+  icon?: IconDefinition;
   title: string;
   subtitle?: string;
   action?: ReactNode;
@@ -16,7 +18,7 @@ interface EmptyStateProps {
  * supporting message and an optional call-to-action. Used whenever a search
  * returns no results or a creator gallery / collection is empty.
  */
-export function EmptyState({ icon = "bi-inbox", title, subtitle, action, compact }: EmptyStateProps) {
+export function EmptyState({ icon = faInbox, title, subtitle, action, compact }: EmptyStateProps) {
   return (
     <div
       className="text-center w-full"
@@ -37,7 +39,7 @@ export function EmptyState({ icon = "bi-inbox", title, subtitle, action, compact
           border: "1px solid rgba(245,158,11,0.35)",
         }}
       >
-        <BiIcon name={icon} style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
+        <FontAwesomeIcon icon={icon} style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
       </span>
       <h5 className="font-display font-bold mb-1" style={{ fontSize: compact ? "1.05rem" : "1.25rem", color: "var(--ap-card-foreground)" }}>
         {title}

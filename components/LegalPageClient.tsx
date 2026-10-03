@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useLanguage, type DictKey } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
 
 type LegalVariant = "legal" | "terms" | "privacy";
 
@@ -83,7 +85,7 @@ export default function LegalPageClient({ variant }: LegalPageClientProps) {
             {sections.map((s) => (
               <div key={s.title}>
                 <h6 className="font-bold mb-2" style={{ color: "var(--ap-gold-2)", fontSize: "0.95rem" }}>
-                  <BiIcon name="bi-chevron-right" className="me-2" style={{ fontSize: "0.75rem" }} />
+                  <FontAwesomeIcon icon={faChevronRight} className="me-2" style={{ fontSize: "0.75rem" }} />
                   {t(s.title)}
                 </h6>
                 <p className="text-muted-foreground mb-0" style={{ fontSize: "0.92rem", lineHeight: 1.7 }}>

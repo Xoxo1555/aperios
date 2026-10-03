@@ -3,6 +3,8 @@
 import { useLanguage } from "lib/i18n";
 import { blurDataUrl } from "lib/utils";
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 
 export default function HomeSignature() {
   const { t } = useLanguage();
@@ -25,7 +27,7 @@ export default function HomeSignature() {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(0deg, rgba(10,10,11,0.88) 0%, rgba(10,10,11,0.35) 45%, transparent 65%)" }} />
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "1.5rem", color: "#fff" }}>
           <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.62rem] font-bold uppercase tracking-wider border backdrop-blur-md mb-2" style={{ background: "rgba(245,158,11,0.14)", borderColor: "rgba(245,158,11,0.32)", color: "#f59e0b", fontFamily: "var(--font-accent)" }}>
-            <i className="bi bi-geo-alt-fill" style={{ fontSize: 12 }} />{t("home_isalo_label")}
+            <FontAwesomeIcon icon={faLocationDot} style={{ fontSize: 12 }} />{t("home_isalo_label")}
           </div>
           <h3 className="font-serif font-bold mb-2" style={{ fontSize: "1.5rem", color: "#FFFFFF" }}>{t("home_isalo_title")}</h3>
           <p className="mb-0" style={{ fontSize: "0.88rem", color: "#D6D3D1", lineHeight: 1.5 }}>{t("home_isalo_desc")}</p>

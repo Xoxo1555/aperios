@@ -7,7 +7,9 @@ import { useSession } from "components/SessionProvider";
 import PasswordField from "components/PasswordField";
 import { useLanguage } from "lib/i18n";
 import Logo from "components/Logo";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { faArrowLeft, faArrowsRotate, faKey, faShieldHalved, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -108,9 +110,9 @@ export default function ForgotPasswordPage() {
         {/* Header & Icône Clé */}
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-[#fbbf24]/20 to-[#fbbf24]/5 border border-[#fbbf24]/30 flex items-center justify-center mb-6 shadow-inner">
           {step === "request" ? (
-            <BiIcon name="bi-key" className="text-[#fbbf24]" style={{ fontSize: "24px" }} />
+            <FontAwesomeIcon icon={faKey} className="text-[#fbbf24]" style={{ fontSize: "24px" }} />
           ) : (
-            <BiIcon name="bi-shield-check" className="text-[#fbbf24]" style={{ fontSize: "24px" }} />
+            <FontAwesomeIcon icon={faShieldHalved} className="text-[#fbbf24]" style={{ fontSize: "24px" }} />
           )}
         </div>
 
@@ -130,13 +132,13 @@ export default function ForgotPasswordPage() {
 
         {error && (
           <div className="w-full flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2.5 mb-4 text-red-400 text-sm text-left">
-            <BiIcon name="bi-exclamation-triangle" className="shrink-0" style={{ fontSize: "16px" }} />
+            <FontAwesomeIcon icon={faTriangleExclamation} className="shrink-0" style={{ fontSize: "16px" }} />
             <span>{error}</span>
           </div>
         )}
         {message && (
           <div className="w-full flex items-center gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2.5 mb-4 text-emerald-400 text-sm text-left">
-            <BiIcon name="bi-check-circle" className="shrink-0" style={{ fontSize: "16px" }} />
+            <FontAwesomeIcon icon={faCircleCheck} className="shrink-0" style={{ fontSize: "16px" }} />
             <span>{message}</span>
           </div>
         )}
@@ -164,7 +166,7 @@ export default function ForgotPasswordPage() {
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <BiIcon name="bi-send" style={{ fontSize: "16px" }} />
+                  <FontAwesomeIcon icon={faPaperPlane} style={{ fontSize: "16px" }} />
                   {t("send_reset_code")}
                 </>
               )}
@@ -199,7 +201,7 @@ export default function ForgotPasswordPage() {
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
-                  <BiIcon name="bi-shield-check" style={{ fontSize: "16px" }} />
+                  <FontAwesomeIcon icon={faShieldHalved} style={{ fontSize: "16px" }} />
                   {t("reset_password_btn")}
                 </>
               )}
@@ -210,17 +212,17 @@ export default function ForgotPasswordPage() {
         {step === "reset" ? (
           <div className="w-full flex justify-between items-center mt-6 pt-4 border-t border-border">
             <button className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-card-foreground transition-colors disabled:opacity-50" onClick={resend} disabled={busy} type="button">
-              <BiIcon name="bi-arrow-clockwise" style={{ fontSize: "16px" }} />
+              <FontAwesomeIcon icon={faArrowsRotate} style={{ fontSize: "16px" }} />
               {t("resend_code")}
             </button>
             <Link href="/login" className="mt-6 inline-flex items-center justify-center gap-2 text-sm text-[#D97706] hover:text-card-foreground font-medium transition-colors duration-200">
-              <BiIcon name="bi-arrow-left" />
+              <FontAwesomeIcon icon={faArrowLeft} />
               <span>Retour à la connexion</span>
             </Link>
           </div>
         ) : (
           <Link href="/login" className="mt-6 inline-flex items-center justify-center gap-2 text-sm text-[#D97706] hover:text-card-foreground font-medium transition-colors duration-200">
-            <BiIcon name="bi-arrow-left" />
+            <FontAwesomeIcon icon={faArrowLeft} />
             <span>Retour à la connexion</span>
           </Link>
         )}

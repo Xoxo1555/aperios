@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useLanguage } from "lib/i18n";
 import { blurDataUrl } from "lib/utils";
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
 import type { CategoryDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFromBi } from "lib/faIcon";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   categories: CategoryDto[];
@@ -27,7 +29,7 @@ export default function HomeCategories({ categories }: Props) {
           className="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all hover:opacity-90 active:scale-[0.98] whitespace-nowrap bg-card text-white dark:bg-zinc-100 dark:text-zinc-900"
         >
           {t("home_all_categories")}
-          <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-arrow-right" /></span>
+          <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faArrowRight} /></span>
         </Link>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
@@ -46,7 +48,7 @@ export default function HomeCategories({ categories }: Props) {
               blurDataURL={blurDataUrl()}
             />
             <div className="cat-label">
-              <span className="cat-icon"><BiIcon name={c.icon} /></span>
+              <span className="cat-icon"><FontAwesomeIcon icon={faFromBi(c.icon)} /></span>
               <div className="font-semibold" style={{ fontSize: "0.98rem", fontFamily: "var(--font-sans)" }}>{c.name}</div>
               <div className="line-clamp-1" style={{ fontSize: "0.76rem", opacity: 0.85, color: "#D6D3D1" }}>{c.description}</div>
             </div>

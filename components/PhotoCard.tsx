@@ -8,11 +8,13 @@ import { blurDataUrl, formatNumber } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { useMounted } from "lib/hooks";
 import { usePrice } from "lib/currency";
-import { BiIcon } from "components/BiIcon";
 import { useToast } from "components/ui/toast";
 import CommentDrawer from "./CommentDrawer";
 import Image from "next/image";
 import type { PhotoDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBookmark, faComment, faHeart } from "@fortawesome/free-regular-svg-icons";
+import { faBookmark as faBookmarkSolid, faHeart as faHeartSolid, faShareNodes } from "@fortawesome/free-solid-svg-icons";
 
 export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto; priority?: boolean }) {
   const { user } = useSession();
@@ -232,7 +234,7 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
               onClick={toggleLike}
             >
               <span className="inline-flex items-center justify-center shrink-0">
-                <BiIcon name={liked ? "bi-heart-fill" : "bi-heart"} className={`transition-colors ${liked ? "fill-current text-rose-500" : "text-zinc-400"}`} style={{ fontSize: 14 }} />
+                <FontAwesomeIcon icon={liked ? faHeartSolid : faHeart} className={`transition-colors ${liked ? "fill-current text-rose-500" : "text-zinc-400"}`} style={{ fontSize: 14 }} />
               </span>
               <span className="text-sm font-medium tabular-nums" style={{ color: liked ? "#F43F5E" : "#D6D3D1" }}>
                 {formatNumber(likeCount)}
@@ -246,7 +248,7 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
               onClick={openCommentDrawer}
             >
               <span className="inline-flex items-center justify-center shrink-0">
-                <BiIcon name="bi-chat-left" className="text-zinc-300" style={{ fontSize: 14 }} />
+                <FontAwesomeIcon icon={faComment} className="text-zinc-300" style={{ fontSize: 14 }} />
               </span>
               <span className="text-sm font-medium tabular-nums text-zinc-300">
                 {formatNumber(photo.commentsCount)}
@@ -262,7 +264,7 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
               onClick={toggleBookmark}
             >
               <span className="inline-flex items-center justify-center shrink-0">
-                <BiIcon name={bookmarked ? "bi-bookmark-fill" : "bi-bookmark"} className={`transition-colors ${bookmarked ? "fill-current text-amber-500" : "text-zinc-300"}`} style={{ fontSize: 14 }} />
+                <FontAwesomeIcon icon={bookmarked ? faBookmarkSolid : faBookmark} className={`transition-colors ${bookmarked ? "fill-current text-amber-500" : "text-zinc-300"}`} style={{ fontSize: 14 }} />
               </span>
             </button>
             <button
@@ -273,7 +275,7 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
               onClick={handleShare}
             >
               <span className="inline-flex items-center justify-center shrink-0">
-                <BiIcon name="bi-share" className="text-zinc-300" style={{ fontSize: 14 }} />
+                <FontAwesomeIcon icon={faShareNodes} className="text-zinc-300" style={{ fontSize: 14 }} />
               </span>
             </button>
           </div>

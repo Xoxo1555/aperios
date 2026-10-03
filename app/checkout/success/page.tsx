@@ -5,7 +5,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { usePrice } from "lib/currency";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faHourglassHalf } from "@fortawesome/free-regular-svg-icons";
+import { faArrowUpRightFromSquare, faArrowsRotate, faDownload, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 interface OrderItem {
   id: number;
@@ -54,7 +56,7 @@ function SuccessInner() {
   if (error) {
     return (
       <div className="max-w-[560px] mx-auto px-4 py-14 text-center">
-        <BiIcon name="bi-exclamation-triangle" style={{ fontSize: "3rem", color: "var(--ap-red)" }} />
+        <FontAwesomeIcon icon={faTriangleExclamation} style={{ fontSize: "3rem", color: "var(--ap-red)" }} />
         <h1 className="font-serif font-bold mt-4 text-2xl">{error}</h1>
         <Link href="/" className="btn btn-gold mt-5 whitespace-nowrap">{t("back_to_gallery")}</Link>
       </div>
@@ -65,7 +67,7 @@ function SuccessInner() {
     return (
       <div className="max-w-[700px] mx-auto px-4 py-14 text-center">
         <span className="inline-flex items-center justify-center" style={{ fontSize: "2.25rem", color: "var(--ap-accent)" }}>
-          <BiIcon name="bi-arrow-clockwise" className="animate-spin" style={{ fontSize: "2.25rem" }} />
+          <FontAwesomeIcon icon={faArrowsRotate} className="animate-spin" style={{ fontSize: "2.25rem" }} />
         </span>
         <p className="text-muted-2 mt-4">{t("checking_payment")}</p>
       </div>
@@ -88,9 +90,9 @@ function SuccessInner() {
           }`}
         >
           {isPaid ? (
-            <BiIcon name="bi-check-circle" style={{ fontSize: "2.5rem", color: "var(--ap-green)" }} />
+            <FontAwesomeIcon icon={faCircleCheck} style={{ fontSize: "2.5rem", color: "var(--ap-green)" }} />
           ) : (
-            <BiIcon name="bi-hourglass-split" style={{ fontSize: "2.5rem", color: "var(--ap-accent)" }} />
+            <FontAwesomeIcon icon={faHourglassHalf} style={{ fontSize: "2.5rem", color: "var(--ap-accent)" }} />
           )}
         </span>
         <h1 className="font-serif font-bold mb-1.5 text-2xl sm:text-3xl">{isPaid ? t("payment_confirmed") : t("verification_in_progress")}</h1>
@@ -117,7 +119,7 @@ function SuccessInner() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <BiIcon name="bi-download" className="me-1" />{t("download_hd")}
+                  <FontAwesomeIcon icon={faDownload} className="me-1" />{t("download_hd")}
                 </a>
               </div>
             ))}
@@ -131,7 +133,7 @@ function SuccessInner() {
                     }
                   }}
                 >
-                  <BiIcon name="bi-download" className="me-1" />{t("download_hd_certified")}
+                  <FontAwesomeIcon icon={faDownload} className="me-1" />{t("download_hd_certified")}
                 </button>
                 <button
                   className="btn btn-ghost w-full whitespace-nowrap"
@@ -157,7 +159,7 @@ function SuccessInner() {
                   <div className="text-muted-2 text-xs mt-0.5 truncate">{t("fingerprint_short")} {c.watermarkHash.slice(0, 16)}…</div>
                 </div>
                 <Link href={`/certificates/${c.serialNumber}`} className="btn btn-ghost btn-sm shrink-0 whitespace-nowrap">
-                  {t("view")} <BiIcon name="bi-box-arrow-up-right" className="ms-1" />
+                  {t("view")} <FontAwesomeIcon icon={faArrowUpRightFromSquare} className="ms-1" />
                 </Link>
               </div>
             ))}
@@ -179,7 +181,7 @@ export default function CheckoutSuccessPage() {
     <Suspense fallback={
       <div className="max-w-[700px] mx-auto px-4 py-14 text-center">
         <span className="inline-flex items-center justify-center" style={{ fontSize: "2.25rem", color: "var(--ap-accent)" }}>
-          <BiIcon name="bi-arrow-clockwise" className="animate-spin" style={{ fontSize: "2.25rem" }} />
+          <FontAwesomeIcon icon={faArrowsRotate} className="animate-spin" style={{ fontSize: "2.25rem" }} />
         </span>
       </div>
     }>

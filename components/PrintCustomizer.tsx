@@ -9,7 +9,9 @@ import { round2 } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { usePrice } from "lib/currency";
 import type { MountDto, PhotoDto, PrintSizeDto } from "lib/types";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-regular-svg-icons";
+import { faBagShopping, faCircleCheck as faCircleCheckSolid, faLock } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   photo: PhotoDto;
@@ -72,7 +74,7 @@ export default function PrintCustomizer({ photo, sizes, mounts }: Props) {
       <div className="limited-note mb-3">
         <div className="flex justify-between items-center mb-1">
           <span className="font-bold text-sm">
-            <span className="inline-flex items-center justify-center shrink-0 me-1"><BiIcon name="bi-patch-check" /></span>
+            <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faCircleCheckSolid} /></span>
             {t("limited_edition_label")}
           </span>
           <span className="badge-limited badge rounded-pill text-sm">
@@ -175,10 +177,10 @@ export default function PrintCustomizer({ photo, sizes, mounts }: Props) {
         </div>
       </div>
       <button className="btn btn-gold btn-lg w-full" onClick={addToCart} disabled={added}>
-        {added ? <><span className="inline-flex items-center justify-center shrink-0 me-2"><BiIcon name="bi-check-circle" /></span>{t("added_to_cart")}</> : <><span className="inline-flex items-center justify-center shrink-0 me-2"><BiIcon name="bi-bag" /></span>{t("add_to_cart")}</>}
+        {added ? <><span className="inline-flex items-center justify-center shrink-0 me-2"><FontAwesomeIcon icon={faCircleCheck} /></span>{t("added_to_cart")}</> : <><span className="inline-flex items-center justify-center shrink-0 me-2"><FontAwesomeIcon icon={faBagShopping} /></span>{t("add_to_cart")}</>}
       </button>
       <p className="text-muted-2 mt-2 mb-0 text-center text-sm">
-        <span className="inline-flex items-center justify-center shrink-0 me-1"><BiIcon name="bi-lock" /></span> {t("secure_payment_hint")}
+        <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faLock} /></span> {t("secure_payment_hint")}
       </p>
     </div>
   );

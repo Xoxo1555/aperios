@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage } from "lib/i18n";
 import { useSession } from "./SessionProvider";
 import { usePrice } from "lib/currency";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faCircleUp, faCircleUser, faEye, faHeart, faSquare, faTruck } from "@fortawesome/free-regular-svg-icons";
+import { faBagShopping, faBuildingColumns, faCalculator, faChartLine, faEuroSign, faExpand, faLockOpen, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface PricingClientProps {
   commissionPct: number;
@@ -58,7 +60,7 @@ export default function PricingClient({
             <div className="bg-card border border-border shadow-xl rounded-3xl p-8 flex flex-col justify-between">
               <div>
                 <h2 className="text-card-foreground font-bold text-xl flex items-center gap-2 mb-2">
-                  <BiIcon name="bi-person-circle" />
+                  <FontAwesomeIcon icon={faCircleUser} />
                   {t("pricing_creators_title")}
                 </h2>
                 <p className="text-muted-foreground text-sm mb-6">
@@ -72,7 +74,7 @@ export default function PricingClient({
               <div className="space-y-4">
                 <div className="bg-secondary border border-border rounded-2xl p-4 text-card-foreground flex items-center gap-4">
                   <span className="shrink-0 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl p-2.5">
-                    <BiIcon name="bi-arrow-up-circle" className="text-xl" />
+                    <FontAwesomeIcon icon={faCircleUp} className="text-xl" />
                   </span>
                   <div className="min-w-0">
                     <div className="text-2xl leading-none mb-1">{creatorSharePct}%</div>
@@ -87,7 +89,7 @@ export default function PricingClient({
 
                 <div className="bg-emerald-500/15 border border-emerald-600/30 rounded-2xl p-4 text-emerald-800 dark:bg-emerald-950/40 dark:border-emerald-500/30 dark:text-emerald-400 flex items-center gap-4">
                   <span className="shrink-0 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl p-2.5">
-                    <BiIcon name="bi-heart" className="text-xl" />
+                    <FontAwesomeIcon icon={faHeart} className="text-xl" />
                   </span>
                   <div className="min-w-0">
                     <div className="text-2xl leading-none mb-1">100%</div>
@@ -98,7 +100,7 @@ export default function PricingClient({
                 </div>
 
                 <div className="flex items-center justify-center gap-2 text-center text-sm text-muted-foreground">
-                  <BiIcon name="bi-check-circle" className="w-4 h-4 text-amber-500/80 shrink-0" style={{ flexShrink: 0 }} />
+                  <FontAwesomeIcon icon={faCircleCheck} className="w-4 h-4 text-amber-500/80 shrink-0" style={{ flexShrink: 0 }} />
                   <span>{t("pricing_creators_li_3")}</span>
                 </div>
               </div>
@@ -108,7 +110,7 @@ export default function PricingClient({
             <div className="bg-card border border-border shadow-xl rounded-3xl p-8 space-y-4">
               <div>
                 <h2 className="text-card-foreground font-bold text-xl flex items-center gap-2 mb-2">
-                  <BiIcon name="bi-bag" />
+                  <FontAwesomeIcon icon={faBagShopping} />
                   {t("pricing_buyers_title")}
                 </h2>
                 <p className="text-muted-foreground text-sm mb-6">{t("pricing_buyers_li_1")}</p>
@@ -116,7 +118,7 @@ export default function PricingClient({
 
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-secondary border border-border">
                 <span className="shrink-0 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl p-2.5">
-                  <BiIcon name="bi-unlock" className="text-xl" />
+                  <FontAwesomeIcon icon={faLockOpen} className="text-xl" />
                 </span>
                 <div className="min-w-0">
                   <div className="text-xl font-bold text-amber-500 leading-none mb-1">0€</div>
@@ -126,7 +128,7 @@ export default function PricingClient({
 
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-secondary border border-border">
                 <span className="shrink-0 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl p-2.5">
-                  <BiIcon name="bi-calculator" className="text-xl" />
+                  <FontAwesomeIcon icon={faCalculator} className="text-xl" />
                 </span>
                 <div className="font-semibold text-card-foreground text-sm leading-snug">
                   {t("pricing_buyers_li_2")}
@@ -135,7 +137,7 @@ export default function PricingClient({
 
               <div className="flex items-center gap-4 p-4 rounded-2xl bg-secondary border border-border">
                 <span className="shrink-0 bg-amber-500/10 text-amber-500 border border-amber-500/30 rounded-xl p-2.5">
-                  <BiIcon name="bi-truck" className="text-xl" />
+                  <FontAwesomeIcon icon={faTruck} className="text-xl" />
                 </span>
                 <div className="text-sm text-muted-foreground leading-snug">
                   {t("pricing_buyers_li_3", { threshold: String(freeShippingThreshold) })}
@@ -155,14 +157,14 @@ export default function PricingClient({
             className="font-display font-bold text-center mb-8"
             style={{ fontSize: "1.6rem", color: "var(--ap-gold)" }}
           >
-            <BiIcon name="bi-calculator" className="me-2" />
+            <FontAwesomeIcon icon={faCalculator} className="me-2" />
             {t("pricing_formula_title")}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto my-12">
             {([
-              { key: "pricing_formula_li_1", icon: "bi-currency-euro" },
-              { key: "pricing_formula_li_2", icon: "bi-aspect-ratio" },
-              { key: "pricing_formula_li_3", icon: "bi-bounding-box" },
+              { key: "pricing_formula_li_1", icon: faEuroSign },
+              { key: "pricing_formula_li_2", icon: faExpand },
+              { key: "pricing_formula_li_3", icon: faSquare },
             ] as const).map((step, i) => (
               <div
                 key={step.key}
@@ -172,7 +174,7 @@ export default function PricingClient({
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="bg-amber-100 dark:bg-amber-500/15 border border-amber-300/80 dark:border-amber-500/30 rounded-2xl w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                  <BiIcon name={step.icon} className="text-amber-600 dark:text-amber-400" style={{ fontSize: "1.5rem" }} />
+                  <FontAwesomeIcon icon={step.icon} className="text-amber-600 dark:text-amber-400" style={{ fontSize: "1.5rem" }} />
                 </span>
                 <p className="text-muted-foreground font-medium text-sm leading-relaxed mb-0">
                   {t(step.key)}
@@ -185,7 +187,7 @@ export default function PricingClient({
         {/* Earnings simulator */}
         <div className="bg-card border border-border rounded-3xl p-8 md:p-10 shadow-xl max-w-5xl mx-auto my-12 text-card-foreground">
           <h3 className="text-2xl font-bold text-card-foreground flex items-center gap-3">
-            <BiIcon name="bi-graph-up-arrow" className="text-amber-500" />
+            <FontAwesomeIcon icon={faChartLine} className="text-amber-500" />
             {t("pricing_simulator_title")}
           </h3>
           <p className="text-muted-foreground text-sm mt-1 mb-8">{t("pricing_simulator_sub")}</p>
@@ -212,14 +214,14 @@ export default function PricingClient({
             <div className="md:col-span-2 space-y-3">
               <div className="bg-emerald-500/15 border border-emerald-600/30 text-emerald-800 font-bold rounded-xl p-4 flex items-center justify-between gap-4 dark:bg-emerald-950/40 dark:border-emerald-500/30 dark:text-emerald-400">
                 <span className="flex items-center gap-2 text-sm min-w-0">
-                  <BiIcon name="bi-person-circle" />
+                  <FontAwesomeIcon icon={faCircleUser} />
                   {t("pricing_sim_artist", { share: String(creatorSharePct) })}
                 </span>
                  <span className="text-xl whitespace-nowrap">{price(artistShare)}</span>
               </div>
               <div className="bg-secondary border border-border text-card-foreground font-bold rounded-xl p-4 flex items-center justify-between gap-4">
                 <span className="flex items-center gap-2 text-sm min-w-0">
-                  <BiIcon name="bi-bank" />
+                  <FontAwesomeIcon icon={faBuildingColumns} />
                   {t("pricing_sim_fee", { fee: String(commissionPct) })}
                 </span>
                  <span className="text-xl whitespace-nowrap">{price(aperioFee)}</span>
@@ -234,7 +236,7 @@ export default function PricingClient({
             className="font-display font-bold mb-3"
             style={{ fontSize: "1.3rem", color: "var(--ap-gold)" }}
           >
-            <BiIcon name="bi-eye" className="me-2" />
+            <FontAwesomeIcon icon={faEye} className="me-2" />
             {t("pricing_transparency_title")}
           </h3>
           <p
@@ -251,14 +253,14 @@ export default function PricingClient({
             href={creatorHref}
             className="bg-card text-card-foreground hover:opacity-90 font-semibold px-6 py-3.5 rounded-xl shadow-md transition-all inline-flex items-center gap-2"
           >
-            <BiIcon name="bi-person-add" />
+            <FontAwesomeIcon icon={faUserPlus} />
             {isCreator ? t("view_dashboard") : t("become_creator")}
           </Link>
           <Link
             href="/prints"
             className="bg-card hover:bg-secondary text-card-foreground border border-border font-semibold px-6 py-3.5 rounded-xl shadow-sm transition-all inline-flex items-center gap-2"
           >
-            <BiIcon name="bi-bag" />
+            <FontAwesomeIcon icon={faBagShopping} />
             {t("fine_art_prints")}
           </Link>
         </div>

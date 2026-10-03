@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faClock, faEnvelope, faPaperPlane } from "@fortawesome/free-regular-svg-icons";
+import { faLocationDot, faPhone } from "@fortawesome/free-solid-svg-icons";
 
 export default function ContactClient() {
   const { t } = useLanguage();
@@ -34,7 +36,7 @@ export default function ContactClient() {
             <div className="grid gap-4 mt-4">
               <div className="flex gap-3 items-start">
                 <span className="icon-btn" style={{ width: 44, height: 44, flexShrink: 0, color: "var(--ap-gold-2)", background: "rgba(245,158,11,0.12)", borderColor: "rgba(245,158,11,0.35)" }}>
-                  <BiIcon name="bi-geo-alt" />
+                  <FontAwesomeIcon icon={faLocationDot} />
                 </span>
                 <div>
                   <div className="font-bold" style={{ fontSize: "0.95rem", color: "var(--ap-gold-light)" }}>{t("contact_gallery_title")}</div>
@@ -48,7 +50,7 @@ export default function ContactClient() {
 
               <div className="flex gap-3 items-start">
                 <span className="icon-btn" style={{ width: 44, height: 44, flexShrink: 0, color: "var(--ap-gold-2)", background: "rgba(245,158,11,0.12)", borderColor: "rgba(245,158,11,0.35)" }}>
-                  <BiIcon name="bi-telephone" />
+                  <FontAwesomeIcon icon={faPhone} />
                 </span>
                 <div>
                   <div className="font-bold" style={{ fontSize: "0.95rem", color: "var(--ap-gold-light)" }}>{t("contact_phone_title")}</div>
@@ -62,7 +64,7 @@ export default function ContactClient() {
 
               <div className="flex gap-3 items-start">
                 <span className="icon-btn" style={{ width: 44, height: 44, flexShrink: 0, color: "var(--ap-gold-2)", background: "rgba(245,158,11,0.12)", borderColor: "rgba(245,158,11,0.35)" }}>
-                  <BiIcon name="bi-envelope" />
+                  <FontAwesomeIcon icon={faEnvelope} />
                 </span>
                 <div>
                   <div className="font-bold" style={{ fontSize: "0.95rem", color: "var(--ap-gold-light)" }}>{t("contact_email_title")}</div>
@@ -76,7 +78,7 @@ export default function ContactClient() {
 
               <div className="flex gap-3 items-start">
                 <span className="icon-btn" style={{ width: 44, height: 44, flexShrink: 0, color: "var(--ap-gold-2)", background: "rgba(245,158,11,0.12)", borderColor: "rgba(245,158,11,0.35)" }}>
-                  <BiIcon name="bi-clock" />
+                  <FontAwesomeIcon icon={faClock} />
                 </span>
                 <div>
                   <div className="font-bold" style={{ fontSize: "0.95rem", color: "var(--ap-gold-light)" }}>{t("contact_hours_title")}</div>
@@ -126,7 +128,7 @@ export default function ContactClient() {
                   <div className="col-12">
                     <button className="btn btn-gold w-full" type="submit">
                       <span className="inline-flex items-center justify-center shrink-0">
-                        <BiIcon name="bi-send" className="me-2" />
+                        <FontAwesomeIcon icon={faPaperPlane} className="me-2" />
                       </span>
                       {t("contact_submit")}
                     </button>

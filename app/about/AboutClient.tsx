@@ -1,19 +1,21 @@
 "use client";
 
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
 import Link from "next/link";
 import { useLanguage } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera, faEye } from "@fortawesome/free-regular-svg-icons";
+import { faBullseye, faFeather, faPaintbrush, faPrint } from "@fortawesome/free-solid-svg-icons";
 
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1516426122078-c23e76319801?q=80&w=1600&auto=format&fit=crop";
 const CRAFT_IMAGE = "/images/art/sculpture-1.jpg";
 
 const SECTIONS = [
-  { key: "about_vision", titleKey: "about_vision_title", icon: "bi-eye" },
-  { key: "about_mission", titleKey: "about_mission_title", icon: "bi-bullseye" },
-  { key: "about_concept", titleKey: "about_concept_title", icon: "bi-brush" },
-  { key: "about_manifesto_poem", titleKey: "about_manifesto_title", icon: "bi-feather" },
+  { key: "about_vision", titleKey: "about_vision_title", icon: faEye },
+  { key: "about_mission", titleKey: "about_mission_title", icon: faBullseye },
+  { key: "about_concept", titleKey: "about_concept_title", icon: faPaintbrush },
+  { key: "about_manifesto_poem", titleKey: "about_manifesto_title", icon: faFeather },
 ] as const;
 
 const STATS = [
@@ -62,7 +64,7 @@ export default function AboutClient() {
         <div className="relative z-10 w-full">
           <div className="container pb-20 pt-28">
             <span className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-border text-zinc-200 text-xs uppercase px-4 py-1.5 rounded-full font-serif">
-              <BiIcon name="bi-camera" style={{ fontSize: 16 }} />
+              <FontAwesomeIcon icon={faCamera} style={{ fontSize: 16 }} />
               Aperio · Art Gallery · Photography
             </span>
             <h1 className="mt-6 !text-white font-extrabold font-serif text-4xl sm:text-5xl lg:text-6xl max-w-3xl drop-shadow-md">
@@ -108,7 +110,7 @@ export default function AboutClient() {
             >
               <div>
                 <span className="inline-flex items-center gap-2 bg-card/80 text-card-foreground border border-border font-medium px-3 py-1 rounded-full text-sm w-fit mb-4">
-                  <BiIcon name={s.icon} className="text-amber-600 dark:text-amber-500" />
+                  <FontAwesomeIcon icon={s.icon} className="text-amber-600 dark:text-amber-500" />
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h2 className="font-serif text-2xl font-bold text-foreground mb-3">{t(s.titleKey)}</h2>
@@ -124,7 +126,7 @@ export default function AboutClient() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <span className="inline-flex items-center gap-2 bg-card/80 text-card-foreground border border-border font-medium px-3 py-1 rounded-full text-sm w-fit mb-4">
-              <BiIcon name="bi-printer" style={{ fontSize: 16 }} className="text-amber-600 dark:text-amber-500" />
+              <FontAwesomeIcon icon={faPrint} style={{ fontSize: 16 }} className="text-amber-600 dark:text-amber-500" />
               {t("about_craft_title")}
             </span>
             <p className="text-muted-foreground leading-relaxed text-base mb-4">{t("about_craft_p1")}</p>

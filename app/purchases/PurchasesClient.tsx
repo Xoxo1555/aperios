@@ -5,7 +5,9 @@ import Image from "next/image";
 import { langLocale, useLanguage, type DictKey } from "lib/i18n";
 import { usePrice } from "lib/currency";
 import { formatDate } from "lib/utils";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faImage } from "@fortawesome/free-regular-svg-icons";
+import { faBagShopping, faDownload } from "@fortawesome/free-solid-svg-icons";
 
 export interface PurchaseRow {
   orderNumber: string;
@@ -39,7 +41,7 @@ export default function PurchasesClient({ rows }: { rows: PurchaseRow[] }) {
   return (
     <div className="container py-4" style={{ maxWidth: 900 }}>
       <div className="gallery-label">
-        <BiIcon name="bi-download" className="me-1 text-gold" />HD
+        <FontAwesomeIcon icon={faDownload} className="me-1 text-gold" />HD
       </div>
       <h1 className="font-display font-bold mb-1">{t("my_hd_purchases")}</h1>
       <p className="text-muted-2 mb-4" style={{ fontSize: "0.95rem" }}>
@@ -49,7 +51,7 @@ export default function PurchasesClient({ rows }: { rows: PurchaseRow[] }) {
       {grouped.size === 0 ? (
         <div className="text-center" style={{ background: "var(--ap-card)", border: "1px solid var(--ap-border)", borderRadius: 16, padding: "3rem 1rem", boxShadow: "0 10px 30px rgba(0,0,0,0.06)" }}>
           <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-3" style={{ width: 72, height: 72, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-            <BiIcon name="bi-bag" style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
+            <FontAwesomeIcon icon={faBagShopping} style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
           </span>
           <h2 className="font-display font-bold mb-1" style={{ fontSize: "1.25rem", color: "var(--ap-card-foreground)" }}>{t("purchases_empty_title")}</h2>
           <p className="text-muted-2 mb-4" style={{ maxWidth: 460, marginLeft: "auto", marginRight: "auto" }}>{t("purchases_empty_sub")}</p>
@@ -67,7 +69,7 @@ export default function PurchasesClient({ rows }: { rows: PurchaseRow[] }) {
                   </div>
                 </div>
                 <span className="badge rounded-pill" style={{ fontSize: "0.7rem", background: "rgba(125,189,140,0.15)", color: "var(--ap-green)", border: "1px solid rgba(125,189,140,0.4)", textTransform: "capitalize" }}>
-                  <BiIcon name="bi-check-circle" className="me-1" />
+                  <FontAwesomeIcon icon={faCircleCheck} className="me-1" />
                   {t(STATUS_KEY[items[0].status] ?? "status_paid")}
                 </span>
               </div>
@@ -79,7 +81,7 @@ export default function PurchasesClient({ rows }: { rows: PurchaseRow[] }) {
                       <Image src={item.imageUrl} alt={item.title ?? ""} width={56} height={56} className="object-cover" unoptimized={process.env.NODE_ENV === "development"} style={{ borderRadius: 6 }} />
                     ) : (
                       <span className="inline-flex items-center justify-center" style={{ width: 56, height: 56, borderRadius: 6, background: "var(--ap-surface)" }}>
-                        <BiIcon name="bi-image" className="text-muted-2" />
+                        <FontAwesomeIcon icon={faImage} className="text-muted-2" />
                       </span>
                     )}
                     <div className="grow">
@@ -89,7 +91,7 @@ export default function PurchasesClient({ rows }: { rows: PurchaseRow[] }) {
                       </div>
                     </div>
                     <a className="btn btn-gold btn-sm" href={`/api/photos/${item.photoId}/file`} download>
-                      <BiIcon name="bi-download" className="me-1" />{t("download_hd")}
+                      <FontAwesomeIcon icon={faDownload} className="me-1" />{t("download_hd")}
                     </a>
                   </div>
                 ))}

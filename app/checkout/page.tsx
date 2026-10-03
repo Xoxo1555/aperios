@@ -10,7 +10,10 @@ import { usePrice, useCurrency } from "lib/currency";
 import { useLanguage, type DictKey } from "lib/i18n";
 import Image from "next/image";
 import type { MountDto, PrintSizeDto } from "lib/types";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCircleCheck, faTruck } from "@fortawesome/free-regular-svg-icons";
+import { faArrowLeft, faArrowsRotate, faBagShopping, faCircleCheck as faCircleCheckSolid, faCirclePlus, faLock, faMobile, faPhone, faTriangleExclamation, faWallet } from "@fortawesome/free-solid-svg-icons";
 
 type PendingState =
   | { mode: "manual_confirmation"; orderNumber: string; amount: number; currency: string; instructions: string }
@@ -123,7 +126,7 @@ export default function CheckoutPage() {
           hintKey: "pay_method_wallet_hint" as DictKey,
           logo: (
             <span className="inline-flex items-center justify-center rounded" style={{ width: 50, height: 32, border: "1px solid var(--ap-border)" }}>
-              <BiIcon name="bi-wallet2" style={{ fontSize: "1.1rem", color: "var(--ap-gold)" }} />
+              <FontAwesomeIcon icon={faWallet} style={{ fontSize: "1.1rem", color: "var(--ap-gold)" }} />
             </span>
           ),
         },
@@ -276,7 +279,7 @@ export default function CheckoutPage() {
       <div className="container py-5" style={{ maxWidth: 640 }}>
         <div className="bg-surface rounded-2xl p-5 border text-center" style={{ borderColor: "var(--ap-border)" }}>
           <span className="inline-flex items-center justify-center rounded-circle mb-4" style={{ width: 80, height: 80, background: "rgba(245,158,11,0.12)", border: "1px solid var(--ap-border)" }}>
-            <BiIcon name="bi-smartphone" style={{ fontSize: "2.2rem", color: "var(--ap-gold)" }} />
+            <FontAwesomeIcon icon={faMobile} style={{ fontSize: "2.2rem", color: "var(--ap-gold)" }} />
           </span>
           <h1 className="font-display font-bold mb-1">
             {pending.mode === "pending_customer_confirmation" ? t("checkout_confirm_phone") : t("checkout_finalize_payment")}
@@ -296,7 +299,7 @@ export default function CheckoutPage() {
           {error && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}>{error}</div>}
           <div className="flex gap-2 justify-center flex-wrap">
             <button className="btn btn-gold" onClick={checkStatus} disabled={checkingStatus}>
-              {checkingStatus ? <span className="spinner-border spinner-border-sm" /> : <>{t("checkout_check_status")} <BiIcon name="bi-arrow-clockwise" className="ms-1" /></>}
+              {checkingStatus ? <span className="spinner-border spinner-border-sm" /> : <>{t("checkout_check_status")} <FontAwesomeIcon icon={faArrowsRotate} className="ms-1" /></>}
             </button>
             <button className="btn btn-ghost" onClick={() => router.push("/")}>{t("back_to_gallery")}</button>
           </div>
@@ -313,7 +316,7 @@ export default function CheckoutPage() {
       <div className="container py-5" style={{ maxWidth: 560 }}>
         <div className="text-center" style={{ background: "var(--ap-card)", border: "1px solid var(--ap-border)", borderRadius: 18, padding: "3rem 1.5rem", boxShadow: "0 10px 30px rgba(0,0,0,0.06)" }}>
           <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-3" style={{ width: 72, height: 72, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-            <BiIcon name="bi-bag" style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
+            <FontAwesomeIcon icon={faBagShopping} style={{ fontSize: "1.9rem", color: "var(--ap-gold)" }} />
           </span>
           <h1 className="font-display font-bold mb-1" style={{ color: "var(--ap-card-foreground)" }}>{t("cart_empty")}</h1>
           <p className="text-muted-2 mb-4">{t("checkout_empty_sub")}</p>
@@ -331,14 +334,14 @@ export default function CheckoutPage() {
         {t("checkout_sub")}
       </p>
 
-      {error && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}><BiIcon name="bi-exclamation-triangle" className="me-2" />{error}</div>}
-      {validationErrors.cart && <div className="alert alert-warning py-2 mb-3" style={{ fontSize: "0.85rem" }}><BiIcon name="bi-exclamation-triangle" className="me-2" />{validationErrors.cart}</div>}
+      {error && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}><FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />{error}</div>}
+      {validationErrors.cart && <div className="alert alert-warning py-2 mb-3" style={{ fontSize: "0.85rem" }}><FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />{validationErrors.cart}</div>}
 
       <form onSubmit={placeOrder}>
         <div className="row g-4">
           <div className="col-lg-7">
             <div className="bg-surface rounded-2xl p-4 mb-4" style={{ border: "1px solid var(--ap-border)" }}>
-              <h5 className="font-display font-bold mb-3"><BiIcon name="bi-truck" className="me-2 text-gold" />{t("checkout_shipping_details")}</h5>
+              <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faTruck} className="me-2 text-gold" />{t("checkout_shipping_details")}</h5>
               <div className="row g-3">
                 <div className="col-md-6">
                   <label className="form-label">{t("full_name")} <span className="text-danger">*</span></label>
@@ -378,7 +381,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-              <h5 className="font-display font-bold mb-3"><BiIcon name="bi-lock" className="me-2 text-gold" />{t("payment_method")}</h5>
+              <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faLock} className="me-2 text-gold" />{t("payment_method")}</h5>
 
               <div className="grid gap-2 mb-3">
                 {paymentMethods.map((m) => (
@@ -396,7 +399,7 @@ export default function CheckoutPage() {
               {payment === "card" ? (
                 <div className="p-3 bg-surface-2 rounded-lg" style={{ border: "1px solid var(--ap-border)" }}>
                   <div style={{ fontSize: "0.85rem" }}>
-                    <BiIcon name="bi-lock" className="text-gold me-1" />
+                    <FontAwesomeIcon icon={faLock} className="text-gold me-1" />
                     {t("checkout_stripe_note")}
                   </div>
                 </div>
@@ -404,22 +407,22 @@ export default function CheckoutPage() {
                 <div className="p-3 bg-surface-2 rounded-lg" style={{ border: "1px solid var(--ap-border)" }}>
                   <div className="flex justify-between items-center mb-2">
                     <span style={{ fontSize: "0.85rem" }}>
-                      <BiIcon name="bi-wallet2" className="text-gold me-1" />
+                      <FontAwesomeIcon icon={faWallet} className="text-gold me-1" />
                       {t("checkout_wallet_balance", { balance: price(walletBalance ?? 0) })}
                     </span>
                     {walletSufficient ? (
                       <span className="badge rounded-pill" style={{ fontSize: "0.68rem", background: "rgba(52,211,153,0.15)", color: "var(--ap-green)" }}>
-                        <BiIcon name="bi-check-circle" className="me-1" />{t("checkout_verified")}
+                        <FontAwesomeIcon icon={faCircleCheck} className="me-1" />{t("checkout_verified")}
                       </span>
                     ) : (
                       <Link href="/wallet" className="btn btn-ghost btn-sm">
-                        <BiIcon name="bi-plus-circle" className="me-1" />{t("reload_wallet")}
+                        <FontAwesomeIcon icon={faCirclePlus} className="me-1" />{t("reload_wallet")}
                       </Link>
                     )}
                   </div>
                   {!walletSufficient && (
                     <div className="alert alert-warning py-2 mb-0" style={{ fontSize: "0.82rem" }}>
-                      <BiIcon name="bi-exclamation-triangle" className="me-1" />{t("checkout_wallet_insufficient")}
+                      <FontAwesomeIcon icon={faTriangleExclamation} className="me-1" />{t("checkout_wallet_insufficient")}
                     </div>
                   )}
                 </div>
@@ -432,9 +435,9 @@ export default function CheckoutPage() {
               )}
 
               <div className="flex flex-wrap gap-2 mt-4 p-3 rounded-lg" style={{ background: "rgba(125,189,140,0.08)", border: "1px solid rgba(125,189,140,0.3)" }}>
-                <span style={{ fontSize: "0.75rem", color: "var(--ap-green)" }}><BiIcon name="bi-lock" className="me-1" />{t("checkout_ssl")}</span>
-                <span style={{ fontSize: "0.75rem", color: "var(--ap-green)" }}><BiIcon name="bi-patch-check" className="me-1" />{t("checkout_verified")}</span>
-                <span style={{ fontSize: "0.75rem", color: "var(--ap-green)" }}><BiIcon name="bi-phone" className="me-1" />{t("checkout_support")}</span>
+                <span style={{ fontSize: "0.75rem", color: "var(--ap-green)" }}><FontAwesomeIcon icon={faLock} className="me-1" />{t("checkout_ssl")}</span>
+                <span style={{ fontSize: "0.75rem", color: "var(--ap-green)" }}><FontAwesomeIcon icon={faCircleCheckSolid} className="me-1" />{t("checkout_verified")}</span>
+                <span style={{ fontSize: "0.75rem", color: "var(--ap-green)" }}><FontAwesomeIcon icon={faPhone} className="me-1" />{t("checkout_support")}</span>
               </div>
             </div>
           </div>
@@ -477,10 +480,10 @@ export default function CheckoutPage() {
                   type="submit"
                   disabled={busy || (payment === "wallet" && !walletSufficient)}
                 >
-                  {busy ? <span className="spinner-border spinner-border-sm" /> : <><BiIcon name="bi-lock" className="ms-1" />{payment === "wallet" ? t("pay_with_wallet") : t("pay_amount", { amount: price(totals.total) })}</>}
+                  {busy ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faLock} className="ms-1" />{payment === "wallet" ? t("pay_with_wallet") : t("pay_amount", { amount: price(totals.total) })}</>}
                 </button>
                 <button className="btn btn-ghost w-full mt-2" type="button" onClick={() => setOpen(true)}>
-                  <BiIcon name="bi-arrow-left" className="me-1" />{t("back_to_cart")}
+                  <FontAwesomeIcon icon={faArrowLeft} className="me-1" />{t("back_to_cart")}
                 </button>
               </div>
             </div>

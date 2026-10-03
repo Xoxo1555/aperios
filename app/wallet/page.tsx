@@ -5,7 +5,8 @@ import { getSessionUser } from "lib/auth";
 import { getWalletBalance, getWalletTransactions } from "lib/wallet";
 import type { WalletTransactionDto } from "lib/types";
 import WalletClient from "./WalletClient";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Wallet · Aperio" };
@@ -23,7 +24,7 @@ export default async function WalletPage() {
     <div className="container py-4" style={{ maxWidth: 860 }}>
       <div className="flex items-center gap-2 mb-3">
         <Link href="/profile" className="text-muted-2" style={{ fontSize: "0.88rem" }}>
-          <BiIcon name="bi-chevron-left" />Back to profile
+          <FontAwesomeIcon icon={faChevronLeft} />Back to profile
         </Link>
       </div>
       <WalletClient

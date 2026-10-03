@@ -10,9 +10,12 @@ import { formatNumber, resizeUrl } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { useToast } from "components/ui/toast";
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
 import CommentDrawer from "./CommentDrawer";
 import type { CollectionDto, MountDto, PhotoDto, PrintSizeDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFromBi } from "lib/faIcon";
+import { faBookmark, faComment, faEye, faFolder, faHeart } from "@fortawesome/free-regular-svg-icons";
+import { faBookmark as faBookmarkSolid, faCheck, faCircleInfo, faCloudArrowDown, faDownload, faHeart as faHeartSolid, faLock, faMugHot, faPlus, faShareNodes, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   photo: PhotoDto;
@@ -221,14 +224,14 @@ export default function PhotoViewer({
               {photo.licenseType === "free" ? t("royalty_free_photo") : t("limited_edition_label")}
             </span>
             <span className="text-muted-foreground dark:text-zinc-600">·</span>
-            <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-1"><BiIcon name="bi-eye" style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("views_count", { count: formatNumber(photo.views) })}</span>
+            <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faEye} style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("views_count", { count: formatNumber(photo.views) })}</span>
             <span className="text-muted-foreground dark:text-zinc-600">·</span>
-            <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-1"><BiIcon name="bi-cloud-download" style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("downloads_count", { count: formatNumber(dlCount) })}</span>
+            <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faCloudArrowDown} style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("downloads_count", { count: formatNumber(dlCount) })}</span>
             {photo.category && (
               <>
                 <span className="text-muted-foreground dark:text-zinc-600">·</span>
                 <Link href={`/${photo.licenseType === "free" ? "photos" : "prints"}?category=${photo.category.slug}`} className="inline-flex items-center text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-500 transition-colors">
-                  <span className="inline-flex items-center justify-center shrink-0 me-1"><BiIcon name={photo.category.icon} /></span>
+                  <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faFromBi(photo.category.icon)} /></span>
                   {photo.category.name}
                 </Link>
               </>
@@ -244,7 +247,7 @@ export default function PhotoViewer({
             title={liked ? t("unlike") : t("like")}
           >
             <span className="inline-flex items-center justify-center shrink-0">
-              <BiIcon name={liked ? "bi-heart-fill" : "bi-heart"} className={liked ? "fill-current text-rose-500 dark:text-rose-500" : "text-white group-hover:text-rose-500 dark:group-hover:text-rose-500"} style={{ fontSize: 18 }} />
+              <FontAwesomeIcon icon={liked ? faHeartSolid : faHeart} className={liked ? "fill-current text-rose-500 dark:text-rose-500" : "text-white group-hover:text-rose-500 dark:group-hover:text-rose-500"} style={{ fontSize: 18 }} />
             </span>
             <span
               style={{
@@ -270,7 +273,7 @@ export default function PhotoViewer({
             style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
           >
             <span className="inline-flex items-center justify-center shrink-0">
-              <BiIcon name="bi-chat-left" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+              <FontAwesomeIcon icon={faComment} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
             </span>
             <span
               style={{
@@ -297,7 +300,7 @@ export default function PhotoViewer({
             title={bookmarked ? t("unbookmark") : t("bookmark")}
           >
             <span className="inline-flex items-center justify-center shrink-0">
-              <BiIcon name={bookmarked ? "bi-bookmark-fill" : "bi-bookmark"} className={bookmarked ? "fill-current text-amber-500" : "text-white group-hover:text-amber-400"} style={{ fontSize: 18 }} />
+              <FontAwesomeIcon icon={bookmarked ? faBookmarkSolid : faBookmark} className={bookmarked ? "fill-current text-amber-500" : "text-white group-hover:text-amber-400"} style={{ fontSize: 18 }} />
             </span>
             <span
               style={{
@@ -323,7 +326,7 @@ export default function PhotoViewer({
             style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
           >
             <span className="inline-flex items-center justify-center shrink-0">
-              <BiIcon name="bi-share" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+              <FontAwesomeIcon icon={faShareNodes} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
             </span>
             <span
               style={{
@@ -345,7 +348,7 @@ export default function PhotoViewer({
           <div style={{ position: "relative" }}>
             <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 text-white" aria-label={t("save_to_collection")} onClick={() => setSaveOpen(!saveOpen)} style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
               <span className="inline-flex items-center justify-center shrink-0">
-                <BiIcon name="bi-bookmark-plus" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={faBookmark} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
               </span>
             </button>
             {saveOpen && (
@@ -363,8 +366,8 @@ export default function PhotoViewer({
                       className="dropdown-item flex justify-between items-center"
                       onClick={() => toggleCollection(c)}
                     >
-                      <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-2"><BiIcon name="bi-folder" /></span>{c.name}</span>
-                      {savedIds.has(c.id) && <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-check-lg" className="text-gold" /></span>}
+                      <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-2"><FontAwesomeIcon icon={faFolder} /></span>{c.name}</span>
+                      {savedIds.has(c.id) && <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faCheck} className="text-gold" /></span>}
                     </button>
                   ))}
                 </div>
@@ -378,7 +381,7 @@ export default function PhotoViewer({
                     onKeyDown={(e) => e.key === "Enter" && createCollection()}
                   />
                   <button className="btn btn-gold btn-sm" onClick={createCollection}>
-                    <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-plus-lg" /></span>
+                    <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faPlus} /></span>
                   </button>
                 </div>
               </div>
@@ -393,7 +396,7 @@ export default function PhotoViewer({
               style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
             >
               <span className="inline-flex items-center justify-center shrink-0">
-                <BiIcon name="bi-cloud-download" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={faCloudArrowDown} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
               </span>
             </button>
           )}
@@ -425,7 +428,7 @@ export default function PhotoViewer({
         </div>
         {photo.licenseType === "free" && photo.photographer.donationLink && (
           <a className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 hover:scale-105 bg-card text-card-foreground border border-border" href={photo.photographer.donationLink} target="_blank" rel="noreferrer" style={{ fontFamily: "var(--font-accent)", whiteSpace: "nowrap" }}>
-            <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-cup-hot" style={{ fontSize: 14 }} /></span> {t("support")}
+            <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faMugHot} style={{ fontSize: 14 }} /></span> {t("support")}
           </a>
         )}
       </div>
@@ -435,7 +438,7 @@ export default function PhotoViewer({
         <div className="rounded-2xl p-4 mb-4" style={{ background: "#141416", border: "1px solid rgba(255,255,255,0.08)" }}>
           <div className="flex justify-between items-center mb-3">
             <div className="font-bold flex items-center gap-1.5 text-sm" style={{ color: "#fbbf24", fontFamily: "var(--font-accent)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
-              <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-download" style={{ color: "#fbbf24", fontSize: 14 }} /></span>
+              <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faDownload} style={{ color: "#fbbf24", fontSize: 14 }} /></span>
               {t("purchase_hd_title")}
             </div>
             <span className="rounded-full px-2.5 py-1 text-sm" style={{ background: "rgba(245,158,11,0.14)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.30)", fontFamily: "var(--font-accent)", fontWeight: 700 }}>
@@ -465,14 +468,14 @@ export default function PhotoViewer({
 
           {purchaseError && (
             <div className="alert alert-danger py-2 mb-2 flex items-center gap-1 text-sm">
-              <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-exclamation-triangle" /></span>{purchaseError}
+              <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faTriangleExclamation} /></span>{purchaseError}
             </div>
           )}
           <button className="btn btn-gold w-full" onClick={purchaseHd} disabled={purchasing}>
-            {purchasing ? <span className="spinner-border spinner-border-sm" /> : <><span className="inline-flex items-center justify-center shrink-0 me-2"><BiIcon name="bi-download" /></span>{t("buy_hd_photo")}</>}
+            {purchasing ? <span className="spinner-border spinner-border-sm" /> : <><span className="inline-flex items-center justify-center shrink-0 me-2"><FontAwesomeIcon icon={faDownload} /></span>{t("buy_hd_photo")}</>}
           </button>
           <div className="flex items-center justify-center gap-2 text-center text-sm mt-2" style={{ color: "#A3A3A3" }}>
-            <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-lock" className="text-amber-500" style={{ flexShrink: 0 }} /></span>
+            <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faLock} className="text-amber-500" style={{ flexShrink: 0 }} /></span>
             <span>{t("digital_delivery_note")}</span>
           </div>
         </div>
@@ -492,7 +495,7 @@ export default function PhotoViewer({
                   style={{ textAlign: "left" }}
                 >
                   <span className="font-bold flex items-center text-sm">
-                    <span className="inline-flex items-center justify-center shrink-0 me-2 text-gold"><BiIcon name="bi-cloud-download" /></span>
+                    <span className="inline-flex items-center justify-center shrink-0 me-2 text-gold"><FontAwesomeIcon icon={faCloudArrowDown} /></span>
                     {p.label}
                   </span>
                   <span className="text-muted-2 mt-1 text-sm">
@@ -503,7 +506,7 @@ export default function PhotoViewer({
             ))}
           </div>
           <div className="flex items-center justify-center gap-2 text-center text-sm mt-3 mb-3 px-3 py-2 rounded-full" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.18)", color: "#E5E5E5" }}>
-            <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-info-circle" className="text-amber-400/90" style={{ flexShrink: 0 }} /></span>
+            <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faCircleInfo} className="text-amber-400/90" style={{ flexShrink: 0 }} /></span>
             <span><strong style={{ color: "#FFFFFF" }}>{t("free_to_use")}</strong> · {t("free_use_note", { name: photo.photographer.name })}</span>
           </div>
         </>

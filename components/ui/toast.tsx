@@ -1,13 +1,13 @@
 "use client";
 
-import { BiIcon } from "components/BiIcon";
-
 import {
   createContext,
   useContext,
   useState,
   type ReactNode,
 } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCheck, faCircleInfo, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 export type ToastVariant = "default" | "success" | "danger";
 
@@ -93,11 +93,11 @@ function ToastUI({
     >
       <div className="flex items-center space-x-3">
         {toast.variant === "success" ? (
-          <BiIcon name="bi-check" style={{ fontSize: 20 }} />
+          <FontAwesomeIcon icon={faCheck} style={{ fontSize: 20 }} />
         ) : toast.variant === "danger" ? (
-          <BiIcon name="bi-x-lg" style={{ fontSize: 20 }} />
+          <FontAwesomeIcon icon={faXmark} style={{ fontSize: 20 }} />
         ) : (
-          <BiIcon name="bi-info-circle" style={{ fontSize: 20 }} />
+          <FontAwesomeIcon icon={faCircleInfo} style={{ fontSize: 20 }} />
         )}
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">{toast.title}</p>
@@ -110,7 +110,7 @@ function ToastUI({
           className="rounded-md p-1 opacity-70 hover:opacity-100 transition-opacity"
           aria-label="Close"
         >
-          <BiIcon name="bi-x-lg" style={{ fontSize: 16 }} className="ml-1" />
+          <FontAwesomeIcon icon={faXmark} style={{ fontSize: 16 }} className="ml-1" />
         </button>
       </div>
     </div>

@@ -2,7 +2,8 @@
 
 import { useTheme } from "lib/theme";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMoon, faSun } from "@fortawesome/free-regular-svg-icons";
 
 export default function ThemeToggle({ className = "" }: { className?: string }) {
   /* isDark dérive directement de l'attribut [data-theme] de <html> (source
@@ -20,7 +21,7 @@ export default function ThemeToggle({ className = "" }: { className?: string }) 
       title={t(isDark ? "switch_to_light" : "switch_to_dark")}
       className={`ap-theme-toggle relative inline-flex shrink-0 items-center justify-center rounded-full w-10 h-10 p-0 transition-all bg-neutral-800/80 hover:bg-neutral-700 text-white border border-neutral-700/60 ${className}`}
     >
-      <BiIcon name={isDark ? "bi-moon-stars" : "bi-sun"} style={{ fontSize: 18 }} className="text-amber-400" />
+      <FontAwesomeIcon icon={isDark ? faMoon : faSun} style={{ fontSize: 18 }} className="text-amber-400" />
     </button>
   );
 }

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useLanguage } from "lib/i18n";
 import BubbleField from "./BubbleField";
 import AuroraGlow from "./AuroraGlow";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 
 export default function HomeHero() {
   const { t } = useLanguage();
@@ -59,7 +61,7 @@ export default function HomeHero() {
                   aria-label={t("search_aria")}
                   style={{ background: "#18181b", color: "#FFFFFF", fontFamily: "var(--font-accent)", letterSpacing: "0.04em" }}
                 >
-                  <i className="bi bi-search" style={{ fontSize: 16 }} />
+                  <FontAwesomeIcon icon={faMagnifyingGlass} style={{ fontSize: 16 }} />
                   {t("search_aria")}
                 </button>
               </div>

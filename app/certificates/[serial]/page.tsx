@@ -18,7 +18,8 @@ import { formatDate, blurDataUrl } from "@/lib/utils";
 import { formatInCurrency } from "@/lib/money";
 import { getActiveCurrency } from "@/lib/server-currency";
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck as faCircleCheckSolid, faShieldHalved } from "@fortawesome/free-solid-svg-icons";
 
 export const dynamic = "force-dynamic";
 
@@ -197,7 +198,7 @@ export default async function CertificatePage({
 
           <div className="mt-4 p-3" style={{ background: "#f3efe3", borderRadius: 8, fontSize: "0.78rem", color: "#6b6474" }}>
             <div className="font-bold mb-1" style={{ color: "#5a6272" }}>
-              <BiIcon name="bi-shield-check" className="me-1" /> Verification hash
+              <FontAwesomeIcon icon={faShieldHalved} className="me-1" /> Verification hash
             </div>
             <code style={{ fontSize: "0.72rem", wordBreak: "break-all" }}>{cert.watermarkHash}</code>
             <div className="mt-1" style={{ color: "#8a7a4d" }}>
@@ -222,7 +223,7 @@ export default async function CertificatePage({
       </div>
 
       <p className="text-center text-muted-2 mt-4" style={{ fontSize: "0.8rem" }}>
-        <BiIcon name="bi-patch-check-fill" className="me-1" />
+        <FontAwesomeIcon icon={faCircleCheckSolid} className="me-1" />
         Every Aperio print ships with a physical certificate matching this record.
       </p>
     </div>

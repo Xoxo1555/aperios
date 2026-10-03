@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "lib/i18n";
 import { blurDataUrl } from "lib/utils";
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExpand, faMagnifyingGlassPlus, faMinus, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   src: string;
@@ -44,20 +45,20 @@ export default function Lightbox({ src, alt, open, onClose }: Props) {
     <div className="lightbox" role="dialog" aria-modal="true" aria-label={alt} onClick={onClose}>
       <div className="lightbox-toolbar" onClick={(e) => e.stopPropagation()}>
         <div className="lightbox-hint">
-          <BiIcon name="bi-zoom-in" className="me-1" /> {Math.round(scale * 100)}%
+          <FontAwesomeIcon icon={faMagnifyingGlassPlus} className="me-1" /> {Math.round(scale * 100)}%
         </div>
         <div className="flex items-center gap-2">
           <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("zoom_in")} onClick={() => setScale((s) => Math.min(4, s + 0.5))} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
-            <BiIcon name="bi-plus-lg" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+            <FontAwesomeIcon icon={faPlus} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
           <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("zoom_out")} onClick={() => setScale((s) => Math.max(1, s - 0.5))} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
-            <BiIcon name="bi-dash-lg" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+            <FontAwesomeIcon icon={faMinus} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
           <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("actual_size")} onClick={() => setScale(1)} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
-            <BiIcon name="bi-expand" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+            <FontAwesomeIcon icon={faExpand} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
           <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("close")} onClick={onClose} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
-            <BiIcon name="bi-x-lg" className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
+            <FontAwesomeIcon icon={faXmark} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
         </div>
       </div>

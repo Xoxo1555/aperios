@@ -9,7 +9,9 @@ import PasswordField from "components/PasswordField";
 import PhoneInput from "components/PhoneInput";
 import GoogleButton from "components/GoogleButton";
 import { useLanguage, type DictKey } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThumbsUp } from "@fortawesome/free-regular-svg-icons";
+import { faCheck, faCircleInfo, faInbox, faPalette, faShieldHalved, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 const SIDE_IMAGE = "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?q=80&w=1600&auto=format&fit=crop";
 
@@ -111,7 +113,7 @@ export default function RegisterPage() {
         <div className="auth-form-col">
           <div className="auth-form-wrap animate-[apFadeUp_0.35s_ease_both]">
             <span className="inline-flex items-center justify-center rounded-xl mb-4 w-14 h-14 bg-green-50 border border-green-200">
-              <BiIcon name="bi-mailbox" style={{ fontSize: 28, color: "var(--ap-green)" }} />
+              <FontAwesomeIcon icon={faInbox} style={{ fontSize: 28, color: "var(--ap-green)" }} />
             </span>
             <h1 className="font-serif font-bold mb-2 text-3xl">{t("check_your_inbox")}</h1>
             <p className="text-muted-2 mb-4 text-sm leading-relaxed">
@@ -119,7 +121,7 @@ export default function RegisterPage() {
             </p>
             <div className="p-4 mb-5 rounded-xl text-left bg-[#f8f6f0] border border-border">
               <div className="flex items-center gap-2 mb-2 font-semibold text-sm text-gray-900">
-                <BiIcon name="bi-info-circle" style={{ fontSize: 16, color: "rgba(245,158,11,0.9)" }} className="shrink-0" />
+                <FontAwesomeIcon icon={faCircleInfo} style={{ fontSize: 16, color: "rgba(245,158,11,0.9)" }} className="shrink-0" />
                 {t("verification_instructions")}:
               </div>
               <ul className="mb-0 pl-5 list-disc text-muted-2 text-[0.86rem] leading-relaxed space-y-1">
@@ -130,7 +132,7 @@ export default function RegisterPage() {
             </div>
             <div className="grid gap-2">
               <button className="btn btn-gold btn-lg whitespace-nowrap" onClick={() => router.push(`/verify-email?email=${encodeURIComponent(registeredEmail)}`)}>
-                <BiIcon name="bi-shield-check" style={{ fontSize: 20 }} className="me-2" />{t("enter_my_confirmation_code")}
+                <FontAwesomeIcon icon={faShieldHalved} style={{ fontSize: 20 }} className="me-2" />{t("enter_my_confirmation_code")}
               </button>
               <Link href="/login" className="btn btn-ghost whitespace-nowrap">{t("already_verified_account")}</Link>
             </div>
@@ -170,7 +172,7 @@ export default function RegisterPage() {
 
           {(error || googleError) && (
             <div role="alert" className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 mb-4 text-red-700 text-sm">
-              <BiIcon name="bi-exclamation-triangle" style={{ fontSize: 16 }} className="shrink-0" />
+              <FontAwesomeIcon icon={faTriangleExclamation} style={{ fontSize: 16 }} className="shrink-0" />
               <span>{error || googleError}</span>
             </div>
           )}
@@ -211,12 +213,12 @@ export default function RegisterPage() {
                 <div className="grid gap-2">
                   <label className={`role-card ${role === "buyer" ? "active" : ""}`}>
                     <input type="radio" name="role" className="form-check-input sr-only" checked={role === "buyer"} onChange={() => setRole("buyer")} />
-                    <span className="role-icon"><BiIcon name="bi-hand-thumbs-up" style={{ fontSize: 20 }} /></span>
+                    <span className="role-icon"><FontAwesomeIcon icon={faThumbsUp} style={{ fontSize: 20 }} /></span>
                     <span className="min-w-0"><span className="role-title">{t("role_collector")}</span><span className="role-desc">{t("role_collector_desc")}</span></span>
                   </label>
                   <label className={`role-card ${role === "photographer" ? "active" : ""}`}>
                     <input type="radio" name="role" className="form-check-input sr-only" checked={role === "photographer"} onChange={() => setRole("photographer")} />
-                    <span className="role-icon"><BiIcon name="bi-palette" style={{ fontSize: 20 }} /></span>
+                    <span className="role-icon"><FontAwesomeIcon icon={faPalette} style={{ fontSize: 20 }} /></span>
                     <span className="min-w-0"><span className="role-title">{t("role_artist")}</span><span className="role-desc">{t("role_artist_desc")}</span></span>
                   </label>
                 </div>
@@ -240,7 +242,7 @@ export default function RegisterPage() {
                   </p>
                   {interests.length === 0 && (
                     <p className="mb-2 flex items-center gap-1 text-[0.78rem] text-[var(--ap-gold-dark)]">
-                      <BiIcon name="bi-info-circle" style={{ fontSize: 14 }} className="shrink-0" />{t("choose_at_least_one")}
+                      <FontAwesomeIcon icon={faCircleInfo} style={{ fontSize: 14 }} className="shrink-0" />{t("choose_at_least_one")}
                     </p>
                   )}
                   <div className="flex flex-wrap gap-2">
@@ -250,7 +252,7 @@ export default function RegisterPage() {
                         <button key={it.value} type="button"
                           className={`chip inline-flex items-center gap-1.5 whitespace-nowrap transition-all duration-200 ${selected ? "!border-[var(--ap-accent)] !bg-[rgba(154,123,28,0.12)] !text-[var(--ap-gold-dark)]" : ""}`}
                           onClick={() => toggleInterest(it.value)}>
-                          {selected && <BiIcon name="bi-check" style={{ fontSize: 16 }} />} {t(it.labelKey)}
+                          {selected && <FontAwesomeIcon icon={faCheck} style={{ fontSize: 16 }} />} {t(it.labelKey)}
                         </button>
                       );
                     })}

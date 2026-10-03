@@ -8,8 +8,10 @@ import { formatNumber, blurDataUrl } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { usePrice } from "lib/currency";
 import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
 import type { PhotoDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBookmark, faComment, faHeart } from "@fortawesome/free-regular-svg-icons";
+import { faBagShopping, faBookmark as faBookmarkSolid, faChevronLeft, faChevronRight, faCloudArrowDown, faHeart as faHeartSolid, faShareNodes } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   photos: PhotoDto[];
@@ -215,19 +217,19 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
                   <span>{p.photographer.name}</span>
                   <span className="ms-auto flex items-center gap-2">
                     <span className="flex items-center gap-1" style={{ color: likedIds.has(p.id) ? "#d62828" : "var(--ap-muted)" }}>
-                      <BiIcon name={likedIds.has(p.id) ? "bi-heart-fill" : "bi-heart"} style={{ fontSize: 14 }} />
+                      <FontAwesomeIcon icon={likedIds.has(p.id) ? faHeartSolid : faHeart} style={{ fontSize: 14 }} />
                       {formatNumber(p.likesCount)}
                     </span>
                     <span className="flex items-center gap-1" style={{ color: "var(--ap-muted)" }}>
-                      <BiIcon name="bi-chat-left" style={{ fontSize: 14 }} />
+                      <FontAwesomeIcon icon={faComment} style={{ fontSize: 14 }} />
                       {formatNumber(p.commentsCount)}
                     </span>
                     <span className="flex items-center gap-1" style={{ color: bookmarkedIds.has(p.id) ? "#d97706" : "var(--ap-muted)" }}>
-                      <BiIcon name={bookmarkedIds.has(p.id) ? "bi-bookmark-fill" : "bi-bookmark"} style={{ fontSize: 14 }} />
+                      <FontAwesomeIcon icon={bookmarkedIds.has(p.id) ? faBookmarkSolid : faBookmark} style={{ fontSize: 14 }} />
                       {formatNumber(p.bookmarksCount)}
                     </span>
                     <span className="flex items-center gap-1" style={{ color: "var(--ap-muted)" }}>
-                      <BiIcon name="bi-share" style={{ fontSize: 14 }} />
+                      <FontAwesomeIcon icon={faShareNodes} style={{ fontSize: 14 }} />
                       {formatNumber(p.sharesCount)}
                     </span>
                   </span>
@@ -237,11 +239,11 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
             <div className="carousel-actions">
               {p.licenseType === "free" ? (
                 <button className="btn btn-gold btn-sm" onClick={(e) => download(e, p)}>
-                  <BiIcon name="bi-cloud-download" className="me-1" /> {t("download")}
+                  <FontAwesomeIcon icon={faCloudArrowDown} className="me-1" /> {t("download")}
                 </button>
               ) : (
                 <Link href={`/photo/${p.slug}`} className="btn btn-gold btn-sm">
-                  <BiIcon name="bi-bag" className="me-1" /> {price(p.basePrice)}
+                  <FontAwesomeIcon icon={faBagShopping} className="me-1" /> {price(p.basePrice)}
                 </Link>
               )}
               <button
@@ -250,14 +252,14 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
                 onClick={(e) => toggleLike(e, p)}
                 style={likedIds.has(p.id) ? { background: "rgba(214,40,40,0.9)", border: "none", color: "#fff" } : undefined}
               >
-                <BiIcon name={likedIds.has(p.id) ? "bi-heart-fill" : "bi-heart"} style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={likedIds.has(p.id) ? faHeartSolid : faHeart} style={{ fontSize: 18 }} />
               </button>
               <button
                 className="icon-btn icon-btn-onlight"
                 aria-label={t("comment")}
                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/photo/${p.slug}#comments`); }}
               >
-                <BiIcon name="bi-chat-left" style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={faComment} style={{ fontSize: 18 }} />
               </button>
               <button
                 className="icon-btn icon-btn-onlight"
@@ -265,24 +267,24 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
                 onClick={(e) => toggleBookmark(e, p)}
                 style={bookmarkedIds.has(p.id) ? { background: "rgba(245,158,11,0.9)", border: "none", color: "#fff" } : undefined}
               >
-                <BiIcon name={bookmarkedIds.has(p.id) ? "bi-bookmark-fill" : "bi-bookmark"} style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={bookmarkedIds.has(p.id) ? faBookmarkSolid : faBookmark} style={{ fontSize: 18 }} />
               </button>
               <button
                 className="icon-btn icon-btn-onlight"
                 aria-label={t("share")}
                 onClick={(e) => handleShare(e, p)}
               >
-                <BiIcon name="bi-share" style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={faShareNodes} style={{ fontSize: 18 }} />
               </button>
             </div>
           </div>
         ))}
       </div>
       <button className="carousel-arrow left" aria-label={t("previous")} onClick={() => scrollBy(-1)}>
-        <BiIcon name="bi-chevron-compact-left" />
+        <FontAwesomeIcon icon={faChevronLeft} />
       </button>
       <button className="carousel-arrow right" aria-label={t("next")} onClick={() => scrollBy(1)}>
-        <BiIcon name="bi-chevron-compact-right" />
+        <FontAwesomeIcon icon={faChevronRight} />
       </button>
       {accent && <span className="carousel-accent">{accent}</span>}
     </div>

@@ -1,7 +1,5 @@
 "use client";
 
-import { BiIcon } from "components/BiIcon";
-
 import { useCallback, useEffect, useState, type ChangeEvent, type FormEvent } from "react";
 import Link from "next/link";
 import * as exifr from "exifr";
@@ -10,6 +8,11 @@ import { useLanguage, type DictKey } from "lib/i18n";
 import { usePrice } from "lib/currency";
 import Image from "next/image";
 import type { CategoryDto } from "lib/types";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCamera, faCircleQuestion, faEye, faImages } from "@fortawesome/free-regular-svg-icons";
+import { faCloudArrowDown, faCloudUpload, faHeart as faHeartSolid, faMoneyBillWave, faReceipt, faRocket, faWallet } from "@fortawesome/free-solid-svg-icons";
 
 interface DashboardData {
   stats: {
@@ -226,28 +229,28 @@ export default function DashboardClient({ userName }: { userName: string }) {
           <p className="text-muted-2 mb-0">{t("welcome_creator", { name: userName })}</p>
         </div>
         <a href="#upload" className="btn btn-gold">
-          <BiIcon name="bi-cloud-upload" className="me-2" />{t("publish_a_photo")}
+          <FontAwesomeIcon icon={faCloudUpload} className="me-2" />{t("publish_a_photo")}
         </a>
       </div>
 
       {/* Stats */}
       <div className="row g-3 mb-4">
         {[
-          { label: t("stat_published_photos"), value: s.photoCount, icon: "bi-images" },
-          { label: t("stat_downloads"), value: formatNumber(s.downloads), icon: "bi-cloud-arrow-down" },
-          { label: t("stat_likes"), value: formatNumber(s.likes), icon: "bi-heart-fill" },
-          { label: t("stat_views"), value: formatNumber(s.views), icon: "bi-eye" },
-          { label: t("stat_net_earnings"), value: s.revenueLabel, icon: "bi-cash-stack", hint: t("stat_net_earnings_hint", { gross: s.grossSales }) },
-          { label: t("available_balance"), value: s.availableBalanceLabel, icon: "bi-wallet2" },
+          { label: t("stat_published_photos"), value: s.photoCount, icon: faImages },
+          { label: t("stat_downloads"), value: formatNumber(s.downloads), icon: faCloudArrowDown },
+          { label: t("stat_likes"), value: formatNumber(s.likes), icon: faHeartSolid },
+          { label: t("stat_views"), value: formatNumber(s.views), icon: faEye },
+          { label: t("stat_net_earnings"), value: s.revenueLabel, icon: faMoneyBillWave, hint: t("stat_net_earnings_hint", { gross: s.grossSales }) },
+          { label: t("available_balance"), value: s.availableBalanceLabel, icon: faWallet },
         ].map((tile) => (
           <div className="col-6 col-md-4 col-lg text-center" key={tile.label} title={tile.hint}>
             <div className="stat-tile h-full flex flex-col items-center justify-center py-4">
-              <BiIcon name={tile.icon} className="text-gold" style={{ fontSize: "1.2rem" }} />
+              <FontAwesomeIcon icon={tile.icon} className="text-gold" style={{ fontSize: "1.2rem" }} />
               <div className="value font-display mt-1">{tile.value}</div>
               <div className="label">{tile.label}</div>
               {tile.hint && (
                 <div className="flex justify-center">
-                  <BiIcon name="bi-question-circle" className="text-muted-2" style={{ fontSize: "0.75rem" }} />
+                  <FontAwesomeIcon icon={faCircleQuestion} className="text-muted-2" style={{ fontSize: "0.75rem" }} />
                 </div>
               )}
             </div>
@@ -260,7 +263,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
         <div className="col-lg-6">
           <div className="bg-surface rounded-2xl p-4" id="upload" style={{ border: "1px solid var(--ap-border)" }}>
             <h5 className="font-display font-bold mb-3">
-              <BiIcon name="bi-cloud-upload" className="me-2 text-gold" />{t("publishing_wizard")}
+              <FontAwesomeIcon icon={faCloudUpload} className="me-2 text-gold" />{t("publishing_wizard")}
             </h5>
             {saved && <div className="alert alert-success py-2" style={{ fontSize: "0.85rem" }}>{saved}</div>}
             {uploadError && <div className="alert alert-danger py-2" style={{ fontSize: "0.85rem" }}>{uploadError}</div>}
@@ -275,7 +278,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
                   <input className="form-control" type="file" accept="image/*" onChange={handleFile} />
                   {exifMsg && (
                     <div className="form-text" style={{ fontSize: "0.75rem" }}>
-                      <BiIcon name="bi-camera" className="me-1" />{exifMsg}
+                      <FontAwesomeIcon icon={faCamera} className="me-1" />{exifMsg}
                     </div>
                   )}
                   {preview && (
@@ -360,7 +363,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
                 )}
                 <div className="col-12">
                   <button className="btn btn-gold w-full" type="submit" disabled={uploading}>
-                    {uploading ? <span className="spinner-border spinner-border-sm" /> : <><BiIcon name="bi-rocket" className="me-2" />{t("publish_photo")}</>}
+                    {uploading ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faRocket} className="me-2" />{t("publish_photo")}</>}
                   </button>
                 </div>
               </div>
@@ -371,7 +374,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
         {/* Photos + orders */}
         <div className="col-lg-6">
           <div className="bg-surface rounded-2xl p-4 mb-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-images" className="me-2 text-gold" />{t("my_photos_count", { count: String(s.photoCount) })}</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faImages} className="me-2 text-gold" />{t("my_photos_count", { count: String(s.photoCount) })}</h5>
             <div style={{ maxHeight: 420, overflow: "auto" }}>
               <table className="table table-dark-ap table-sm align-middle">
                 <thead>
@@ -419,7 +422,7 @@ export default function DashboardClient({ userName }: { userName: string }) {
                     <tr>
                       <td colSpan={5} className="text-center py-4">
                         <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-2" style={{ width: 56, height: 56, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-                          <BiIcon name="bi-images" style={{ fontSize: "1.4rem", color: "var(--ap-gold)" }} />
+                          <FontAwesomeIcon icon={faImages} style={{ fontSize: "1.4rem", color: "var(--ap-gold)" }} />
                         </span>
                         <div className="font-display font-bold" style={{ fontSize: "0.98rem", color: "var(--ap-card-foreground)" }}>{t("no_photos_yet")}</div>
                         <div className="text-muted-2" style={{ fontSize: "0.85rem" }}>{t("no_photos_yet_sub")}</div>
@@ -432,11 +435,11 @@ export default function DashboardClient({ userName }: { userName: string }) {
           </div>
 
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-receipt" className="me-2 text-gold" />{t("recent_sales")}</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faReceipt} className="me-2 text-gold" />{t("recent_sales")}</h5>
             {data.recentOrders.length === 0 ? (
               <div className="text-center py-3">
                 <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-2" style={{ width: 56, height: 56, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-                  <BiIcon name="bi-receipt" style={{ fontSize: "1.4rem", color: "var(--ap-gold)" }} />
+                  <FontAwesomeIcon icon={faReceipt} style={{ fontSize: "1.4rem", color: "var(--ap-gold)" }} />
                 </span>
                 <div className="font-display font-bold" style={{ fontSize: "0.98rem", color: "var(--ap-card-foreground)" }}>{t("no_sales_yet")}</div>
                 <div className="text-muted-2" style={{ fontSize: "0.85rem" }}>{t("no_sales_yet_sub")}</div>

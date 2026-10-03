@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage, type DictKey } from "lib/i18n";
 import { usePrice, useCurrency } from "lib/currency";
 import { formatDate } from "lib/utils";
@@ -14,6 +13,9 @@ import type {
   WalletTxStatus,
   WalletTxType,
 } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck, faCircleDown, faCircleUp } from "@fortawesome/free-regular-svg-icons";
+import { faArrowUpRightFromSquare, faBagShopping, faCircleInfo, faCirclePlus, faClockRotateLeft, faLock, faPhone, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   balance: string;
@@ -258,17 +260,17 @@ export default function WalletClient({ balance, transactions }: Props) {
 
       {redirected && (
         <div className="alert alert-success py-2 mb-3" style={{ fontSize: "0.88rem" }}>
-          <BiIcon name="bi-check-circle" className="me-2" />{t("wallet_deposit_success")}
+          <FontAwesomeIcon icon={faCircleCheck} className="me-2" />{t("wallet_deposit_success")}
           <button type="button" className="btn-close float-end" aria-label="Close" onClick={() => setRedirected(false)} />
         </div>
       )}
-      {error && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}><BiIcon name="bi-exclamation-triangle" className="me-2" />{error}</div>}
-      {msg && <div className="alert alert-info py-2 mb-3" style={{ fontSize: "0.85rem" }}><BiIcon name="bi-info-circle" className="me-2" />{msg}</div>}
+      {error && <div className="alert alert-danger py-2 mb-3" style={{ fontSize: "0.85rem" }}><FontAwesomeIcon icon={faTriangleExclamation} className="me-2" />{error}</div>}
+      {msg && <div className="alert alert-info py-2 mb-3" style={{ fontSize: "0.85rem" }}><FontAwesomeIcon icon={faCircleInfo} className="me-2" />{msg}</div>}
 
       {/* Deposit form */}
       <div className="bg-surface rounded-2xl p-4 mb-4" style={{ border: "1px solid var(--ap-border)" }}>
         <h2 className="font-display font-bold mb-1" style={{ fontSize: "1.25rem" }}>
-          <BiIcon name="bi-plus-circle" className="text-gold me-2" />{t("wallet_top_up")}
+          <FontAwesomeIcon icon={faCirclePlus} className="text-gold me-2" />{t("wallet_top_up")}
         </h2>
         <p className="text-muted-2 mb-3" style={{ fontSize: "0.85rem" }}>{t("wallet_topup_desc")}</p>
 
@@ -277,7 +279,7 @@ export default function WalletClient({ balance, transactions }: Props) {
             {pending.mode === "pending_customer_confirmation" ? (
               <>
                 <div className="fw-semibold mb-1">
-                  <BiIcon name="bi-phone" className="me-2 text-gold" />{t("wallet_deposit_pending_title")}
+                  <FontAwesomeIcon icon={faPhone} className="me-2 text-gold" />{t("wallet_deposit_pending_title")}
                 </div>
                 <p className="text-muted-2 mb-2" style={{ fontSize: "0.85rem" }}>{t("wallet_deposit_pending_desc")}</p>
                 <div className="flex justify-between mb-1"><span className="text-muted-2">{t("reference_label")}</span><strong>{pending.reference}</strong></div>
@@ -285,7 +287,7 @@ export default function WalletClient({ balance, transactions }: Props) {
             ) : (
               <>
                 <div className="fw-semibold mb-1">
-                  <BiIcon name="bi-phone" className="me-2 text-gold" />{t("wallet_deposit_manual_title")}
+                  <FontAwesomeIcon icon={faPhone} className="me-2 text-gold" />{t("wallet_deposit_manual_title")}
                 </div>
                 <p className="text-muted-2 mb-2" style={{ fontSize: "0.85rem" }}>{t("wallet_deposit_manual_desc")}</p>
                 <div className="bg-surface rounded p-2 mb-2" style={{ fontSize: "0.85rem" }}>{pending.instructions}</div>
@@ -358,10 +360,10 @@ export default function WalletClient({ balance, transactions }: Props) {
           )}
 
           <button className="btn btn-gold btn-lg w-full" type="submit" disabled={busy}>
-            {busy ? <span className="spinner-border spinner-border-sm" /> : <><BiIcon name="bi-arrow-down-circle" className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("wallet_start_deposit")}</>}
+            {busy ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faCircleDown} className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("wallet_start_deposit")}</>}
           </button>
           <p className="text-muted-2 mt-2 mb-0 text-center" style={{ fontSize: "0.75rem" }}>
-            <BiIcon name="bi-lock" className="me-1" />{t("secure_transactions")}
+            <FontAwesomeIcon icon={faLock} className="me-1" />{t("secure_transactions")}
           </p>
         </form>
       </div>
@@ -369,7 +371,7 @@ export default function WalletClient({ balance, transactions }: Props) {
       {/* History */}
       <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
         <h2 className="font-display font-bold mb-3" style={{ fontSize: "1.25rem" }}>
-          <BiIcon name="bi-clock-history" className="text-gold me-2" />{t("wallet_transactions_title")}
+          <FontAwesomeIcon icon={faClockRotateLeft} className="text-gold me-2" />{t("wallet_transactions_title")}
         </h2>
 
         {liveTx.length === 0 ? (
@@ -382,7 +384,7 @@ export default function WalletClient({ balance, transactions }: Props) {
                 <div key={tx.id} className="flex justify-between align-items-center py-2" style={{ borderBottom: "1px solid var(--ap-border)" }}>
                   <div className="d-flex align-items-center gap-2">
                     <span className={`icon-btn d-inline-flex align-items-center justify-content-center`} style={{ width: 40, height: 40, background: "rgba(125,189,140,0.1)", borderColor: "rgba(125,189,140,0.25)" }}>
-                      <BiIcon name={tx.type === "deposit" ? "bi-arrow-down-circle" : tx.type === "payout" ? "bi-arrow-up-circle" : "bi-bag"} style={{ color: "var(--ap-green-dark)" }} />
+                      <FontAwesomeIcon icon={tx.type === "deposit" ? faCircleDown : tx.type === "payout" ? faCircleUp : faBagShopping} style={{ color: "var(--ap-green-dark)" }} />
                     </span>
                     <div>
                       <div className="fw-semibold" style={{ fontSize: "0.88rem" }}>
@@ -408,7 +410,7 @@ export default function WalletClient({ balance, transactions }: Props) {
         )}
 
         <div className="mt-3">
-          <Link href="/payout" className="btn btn-ghost btn-sm"><BiIcon name="bi-arrow-up-right" className="me-2" style={{ fontSize: 16 }} />{t("request_a_payout")}</Link>
+          <Link href="/payout" className="btn btn-ghost btn-sm"><FontAwesomeIcon icon={faArrowUpRightFromSquare} className="me-2" style={{ fontSize: 16 }} />{t("request_a_payout")}</Link>
         </div>
       </div>
     </>

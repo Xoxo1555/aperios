@@ -4,7 +4,9 @@ import { useRef, useState, type ChangeEvent, type MouseEvent } from "react";
 import { useSession } from "components/SessionProvider";
 import { useLanguage } from "lib/i18n";
 import { useRouter } from "next/navigation";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCamera } from "@fortawesome/free-regular-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface ProfileCoverActionsProps {
   coverImage: string | null;
@@ -140,7 +142,7 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
           </>
         ) : (
           <>
-            <BiIcon name="bi-camera" style={{ fontSize: "0.875rem" }} />
+            <FontAwesomeIcon icon={faCamera} style={{ fontSize: "0.875rem" }} />
             <span>{t("change_cover_photo")}</span>
           </>
         )}
@@ -154,7 +156,7 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
           disabled={uploading}
           aria-label={t("remove_cover_photo")}
         >
-          <BiIcon name="bi-trash" style={{ fontSize: "0.875rem" }} />
+          <FontAwesomeIcon icon={faTrash} style={{ fontSize: "0.875rem" }} />
         </button>
       )}
       <input

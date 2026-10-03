@@ -1,11 +1,12 @@
 "use client";
 
-import { BiIcon } from "components/BiIcon";
-
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useToast } from "components/ui/toast";
 import { useLanguage } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBarChart, faFloppyDisk } from "@fortawesome/free-regular-svg-icons";
+import { faBullhorn, faCheck, faLock, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const STORAGE_KEY = "aperio-cookie-consent";
 
@@ -18,21 +19,21 @@ type ConsentState = {
 const CATEGORIES = [
   {
     id: "essential" as const,
-    icon: "bi-shield-lock",
+    icon: faLock,
     titleKey: "cookies_essential_title",
     descKey: "cookies_essential_desc",
     locked: true,
   },
   {
     id: "analytics" as const,
-    icon: "bi-bar-chart",
+    icon: faBarChart,
     titleKey: "cookies_analytics_title",
     descKey: "cookies_analytics_desc",
     locked: false,
   },
   {
     id: "marketing" as const,
-    icon: "bi-megaphone",
+    icon: faBullhorn,
     titleKey: "cookies_marketing_title",
     descKey: "cookies_marketing_desc",
     locked: false,
@@ -130,7 +131,7 @@ export default function CookiesClient() {
                         fontSize: "1.1rem",
                       }}
                     >
-                      <BiIcon name={cat.icon} />
+                      <FontAwesomeIcon icon={cat.icon} />
                     </span>
                     <h2 className="font-serif font-bold mb-0" style={{ fontSize: "1.05rem", color: "var(--ap-gold-2)" }}>
                       {t(cat.titleKey)}
@@ -141,7 +142,7 @@ export default function CookiesClient() {
                     <span className="badge rounded-pill inline-flex items-center gap-1 uppercase border bg-emerald-500/10 text-emerald-700 border-emerald-600/30 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-500/40"
                       style={{ fontSize: "0.62rem", letterSpacing: "0.12em", padding: "0.45rem 0.85rem" }}
                     >
-                      <BiIcon name="bi-lock" /> {t("cookies_always_active")}
+                      <FontAwesomeIcon icon={faLock} /> {t("cookies_always_active")}
                     </span>
                   ) : (
                     <button
@@ -191,7 +192,7 @@ export default function CookiesClient() {
               style={{ borderRadius: 999 }}
               className="w-full md:w-auto px-6 py-3 rounded-full bg-card text-card-foreground hover:opacity-90 font-semibold text-sm flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 cursor-pointer whitespace-nowrap"
             >
-              <BiIcon name="bi-check" style={{ fontSize: 16 }} />
+              <FontAwesomeIcon icon={faCheck} style={{ fontSize: 16 }} />
               <span>{t("cookies_accept_all")}</span>
             </button>
             <button
@@ -200,7 +201,7 @@ export default function CookiesClient() {
               style={{ borderRadius: 999 }}
               className="w-full md:w-auto px-6 py-3 rounded-full bg-card/90 border border-amber-600/60 text-amber-700 dark:text-amber-500 font-medium text-sm flex items-center justify-center gap-2 hover:bg-amber-500/15 transition-all hover:scale-105 cursor-pointer whitespace-nowrap shadow-md"
             >
-              <BiIcon name="bi-save" style={{ fontSize: 16 }} />
+              <FontAwesomeIcon icon={faFloppyDisk} style={{ fontSize: 16 }} />
               <span>{t("cookies_save_choices")}</span>
             </button>
             <button
@@ -209,7 +210,7 @@ export default function CookiesClient() {
               style={{ borderRadius: 999 }}
               className="w-full md:w-auto px-6 py-3 rounded-full bg-card/60 border border-border text-neutral-600 dark:text-neutral-300 font-medium text-sm flex items-center justify-center gap-2 hover:bg-black/5 dark:hover:bg-white/10 hover:text-neutral-900 dark:hover:text-white transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
             >
-              <BiIcon name="bi-x-lg" style={{ fontSize: 16 }} />
+              <FontAwesomeIcon icon={faXmark} style={{ fontSize: 16 }} />
               <span>{t("cookies_refuse_all")}</span>
             </button>
           </div>

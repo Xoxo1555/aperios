@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage } from "lib/i18n";
 import { usePrice } from "lib/currency";
 import { formatDate } from "lib/utils";
@@ -9,6 +8,9 @@ import type { CollectionDto, PhotoDto } from "lib/types";
 import PhotoCard from "components/PhotoCard";
 import Image from "next/image";
 import { EmptyState } from "components/ui/EmptyState";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBookmark, faHeart, faImages } from "@fortawesome/free-regular-svg-icons";
+import { faArrowRight, faArrowUpRightFromSquare, faTableCells, faWallet } from "@fortawesome/free-solid-svg-icons";
 
 interface PayoutRow {
   id: number;
@@ -45,7 +47,7 @@ export default function ProfileSections(props: ProfileSectionsProps) {
         <div className="mt-4">
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
             <h2 className="font-display font-bold mb-3" style={{ fontSize: "1.25rem" }}>
-              <BiIcon name="bi-wallet2" className="text-gold me-2" />{t("earnings_payouts")}
+              <FontAwesomeIcon icon={faWallet} className="text-gold me-2" />{t("earnings_payouts")}
             </h2>
             <div className="row g-3 mb-3">
               <div className="col-md-4">
@@ -68,8 +70,8 @@ export default function ProfileSections(props: ProfileSectionsProps) {
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
-              <Link href="/payout" className="btn btn-gold"><BiIcon name="bi-arrow-up-right" className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("request_a_payout")}</Link>
-              <Link href="/dashboard" className="btn btn-ghost"><BiIcon name="bi-grid-1x2" className="me-2" style={{ fontSize: "18px" }} />{t("dashboard")}</Link>
+              <Link href="/payout" className="btn btn-gold"><FontAwesomeIcon icon={faArrowUpRightFromSquare} className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("request_a_payout")}</Link>
+              <Link href="/dashboard" className="btn btn-ghost"><FontAwesomeIcon icon={faTableCells} className="me-2" style={{ fontSize: "18px" }} />{t("dashboard")}</Link>
             </div>
             {payouts.length > 0 && (
               <div className="mt-4">
@@ -100,17 +102,17 @@ export default function ProfileSections(props: ProfileSectionsProps) {
             <div>
               <div className="gallery-label">{t("my_works")}</div>
               <h2 className="font-display font-bold mb-0" style={{ fontSize: "1.3rem" }}>
-                <BiIcon name="bi-images" className="text-gold me-2" />{t("published_photographs")}
+                <FontAwesomeIcon icon={faImages} className="text-gold me-2" />{t("published_photographs")}
               </h2>
               <p className="text-muted-2 mb-0" style={{ fontSize: "0.85rem" }}>
                 {t("featured_count", { count: String(featured) })}
               </p>
             </div>
-            <Link href="/dashboard" className="btn btn-gold btn-sm">{t("manage")} <BiIcon name="bi-arrow-right" className="ms-1" /></Link>
+            <Link href="/dashboard" className="btn btn-gold btn-sm">{t("manage")} <FontAwesomeIcon icon={faArrowRight} className="ms-1" /></Link>
           </div>
           {myPhotos.length === 0 ? (
             <EmptyState
-              icon="bi-images"
+              icon={faImages}
               title={t("no_photos_published_yet")}
               action={<Link href="/dashboard" className="btn btn-gold">{t("publish_first_photo")}</Link>}
             />
@@ -128,17 +130,17 @@ export default function ProfileSections(props: ProfileSectionsProps) {
         <div>
           <div className="gallery-label">{t("my_collections")}</div>
           <h2 className="font-display font-bold mb-0" style={{ fontSize: "1.3rem" }}>
-            <BiIcon name="bi-heart" className="text-gold me-2" />{t("saved_collections")}
+            <FontAwesomeIcon icon={faHeart} className="text-gold me-2" />{t("saved_collections")}
           </h2>
           <p className="text-muted-2 mb-0" style={{ fontSize: "0.85rem" }}>
             {t("saved_collections_sub")}
           </p>
         </div>
-        <Link href="/photos" className="btn btn-gold btn-sm">{t("discover")} <BiIcon name="bi-arrow-right" className="ms-1" /></Link>
+        <Link href="/photos" className="btn btn-gold btn-sm">{t("discover")} <FontAwesomeIcon icon={faArrowRight} className="ms-1" /></Link>
       </div>
       {collections.length === 0 ? (
         <EmptyState
-          icon="bi-bookmark-heart"
+          icon={faBookmark}
           title={t("profile_no_collections")}
           action={<Link href="/photos" className="btn btn-gold">{t("create_first_collection")}</Link>}
         />
@@ -159,7 +161,7 @@ export default function ProfileSections(props: ProfileSectionsProps) {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--ap-surface-2)" }}>
-                    <BiIcon name="bi-images" style={{ fontSize: "2.4rem", color: "var(--ap-muted)" }} />
+                    <FontAwesomeIcon icon={faImages} style={{ fontSize: "2.4rem", color: "var(--ap-muted)" }} />
                   </div>
                 )}
                 <div className="cat-label">

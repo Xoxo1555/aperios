@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { useLanguage } from "lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function NewCollectionForm() {
   const router = useRouter();
@@ -40,7 +41,7 @@ export default function NewCollectionForm() {
         style={{ width: 240 }}
       />
       <button className="btn btn-gold" onClick={create} disabled={busy}>
-        <BiIcon name="bi-plus-lg" className="me-1" />{t("create")}
+        <FontAwesomeIcon icon={faPlus} className="me-1" />{t("create")}
       </button>
     </div>
   );

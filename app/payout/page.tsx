@@ -6,8 +6,9 @@ import { db } from "db";
 import { users } from "db/schema";
 import { getSessionUser } from "lib/auth";
 import { fmtEur } from "lib/format";
-import PayoutClient from "./PayoutClient";
-import { BiIcon } from "components/BiIcon";
+import PayoutClient from "./PayoutClient";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft } from "@fortawesome/free-solid-svg-icons";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Payouts · Aperio" };
@@ -22,7 +23,7 @@ export default async function PayoutPage() {
   return (
     <div className="container py-4" style={{ maxWidth: 720 }}>
       <div className="flex items-center gap-2 mb-3">
-        <Link href="/profile" className="text-muted-2" style={{ fontSize: "0.88rem" }}><BiIcon name="bi-chevron-left" />Back to profile</Link>
+        <Link href="/profile" className="text-muted-2" style={{ fontSize: "0.88rem" }}><FontAwesomeIcon icon={faChevronLeft} />Back to profile</Link>
       </div>
       <div className="gallery-label">Creator earnings</div>
       <h1 className="font-display font-bold mb-2">Request a payout</h1>

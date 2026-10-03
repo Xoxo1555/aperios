@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
-import { BiIcon } from "components/BiIcon";
-import { useSession } from "components/SessionProvider";
+import { useRouter } from "next/navigation";import { useSession } from "components/SessionProvider";
 import { langLocale, useLanguage } from "lib/i18n";
 import { formatDate } from "lib/utils";
 import Image from "next/image";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCalendar, faCamera, faHeart, faUser } from "@fortawesome/free-regular-svg-icons";
+import { faCheck, faHeartPulse, faLocationDot, faPalette, faPencil, faShieldHalved, faTableCells, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 interface FullUser {
   id: number;
@@ -180,11 +182,11 @@ export default function ProfileClient({
           />
         ) : (
           <div className="w-full h-full bg-card flex items-center justify-center rounded-full">
-            <BiIcon name="bi-person" className="w-12 h-12 text-muted-foreground" style={{ fontSize: "3rem" }} />
+            <FontAwesomeIcon icon={faUser} className="w-12 h-12 text-muted-foreground" style={{ fontSize: "3rem" }} />
           </div>
         )}
         <label className="upload-overlay" title={t("change_profile_photo")}>
-          <BiIcon name="bi-camera" className="text-gold" style={{ fontSize: "1.6rem" }} />
+          <FontAwesomeIcon icon={faCamera} className="text-gold" style={{ fontSize: "1.6rem" }} />
           <input type="file" accept="image/*" hidden onChange={uploadAvatar} disabled={avatarUploading} />
         </label>
       </div>
@@ -207,17 +209,17 @@ export default function ProfileClient({
             fontSize: "0.62rem",
             letterSpacing: "0.08em",
           }}>
-            {user.role === "photographer" && <BiIcon name="bi-palette" className="me-1" />}
-            {user.role === "buyer" && <BiIcon name="bi-heart-pulse" className="me-1" />}
-            {user.role === "admin" && <BiIcon name="bi-shield-check" className="me-1" />}
+            {user.role === "photographer" && <FontAwesomeIcon icon={faPalette} className="me-1" />}
+            {user.role === "buyer" && <FontAwesomeIcon icon={faHeartPulse} className="me-1" />}
+            {user.role === "admin" && <FontAwesomeIcon icon={faShieldHalved} className="me-1" />}
             {roleLabel}
           </span>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 text-muted-foreground mt-1" style={{ fontSize: "0.88rem" }}>
-          {user.location && <span><BiIcon name="bi-geo-alt" className="me-1" />{user.location}</span>}
-          <span><BiIcon name="bi-calendar" className="me-1" />{t("member_since", { date: formatDate(user.createdAt, langLocale(lang)) })}</span>
-          {isCreator && user.specialties && <span><BiIcon name="bi-palette" className="me-1" />{user.specialties}</span>}
+          {user.location && <span><FontAwesomeIcon icon={faLocationDot} className="me-1" />{user.location}</span>}
+          <span><FontAwesomeIcon icon={faCalendar} className="me-1" />{t("member_since", { date: formatDate(user.createdAt, langLocale(lang)) })}</span>
+          {isCreator && user.specialties && <span><FontAwesomeIcon icon={faPalette} className="me-1" />{user.specialties}</span>}
         </div>
 
         {editing ? (
@@ -263,7 +265,7 @@ export default function ProfileClient({
             {user.interests && (
               <div className="mt-2">
                 {user.interests.split(",").map((s) => s.trim()).filter(Boolean).map((i) => (
-                  <span key={i} className="chip !bg-card !text-muted-foreground !border-border"><BiIcon name="bi-heart" className="text-gold" style={{ fontSize: "0.6rem" }} />{i}</span>
+                  <span key={i} className="chip !bg-card !text-muted-foreground !border-border"><FontAwesomeIcon icon={faHeart} className="text-gold" style={{ fontSize: "0.6rem" }} />{i}</span>
                 ))}
               </div>
             )}
@@ -273,14 +275,14 @@ export default function ProfileClient({
         <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
           {editing ? (
             <>
-              <button className="btn btn-gold btn-sm" onClick={save}><BiIcon name="bi-check-lg" className="me-1" />{t("save")}</button>
+              <button className="btn btn-gold btn-sm" onClick={save}><FontAwesomeIcon icon={faCheck} className="me-1" />{t("save")}</button>
               <button className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>{t("cancel")}</button>
             </>
           ) : (
             <>
-              <button className="btn btn-gold btn-sm" onClick={() => setEditing(true)}><BiIcon name="bi-pencil" className="me-1" />{t("edit_profile")}</button>
-              {user.avatarUrl && <button className="btn btn-ghost btn-sm" onClick={removeAvatar}><BiIcon name="bi-trash" className="me-1" />{t("remove_photo")}</button>}
-              {isCreator && <a href="/dashboard" className="btn btn-ghost btn-sm inline-flex items-center"><BiIcon name="bi-grid-1x2" className="me-1" style={{ fontSize: "16px" }} />{t("dashboard")}</a>}
+              <button className="btn btn-gold btn-sm" onClick={() => setEditing(true)}><FontAwesomeIcon icon={faPencil} className="me-1" />{t("edit_profile")}</button>
+              {user.avatarUrl && <button className="btn btn-ghost btn-sm" onClick={removeAvatar}><FontAwesomeIcon icon={faTrash} className="me-1" />{t("remove_photo")}</button>}
+              {isCreator && <a href="/dashboard" className="btn btn-ghost btn-sm inline-flex items-center"><FontAwesomeIcon icon={faTableCells} className="me-1" style={{ fontSize: "16px" }} />{t("dashboard")}</a>}
             </>
           )}
         </div>

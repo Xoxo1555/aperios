@@ -1,8 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { BiIcon } from "components/BiIcon";
 import { fmtEur } from "lib/format";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCircle, faCircleDown, faCircleUp, faCircleXmark, faImages } from "@fortawesome/free-regular-svg-icons";
+import { faArrowRotateLeft, faArrowsRotate, faBan, faCartShopping, faChartLine, faCircleMinus, faGaugeHigh, faPercent, faReceipt, faUsers } from "@fortawesome/free-solid-svg-icons";
 
 type Tab = "dashboard" | "users" | "transactions" | "exceptions";
 
@@ -80,10 +83,10 @@ function badgeColor(status: string) {
 
 function typeColor(type: string) {
   switch (type) {
-    case "deposit": return { color: "var(--ap-green)", icon: "bi-arrow-down-circle" };
-    case "purchase": return { color: "var(--ap-gold)", icon: "bi-cart" };
-    case "payout": return { color: "#38bdf8", icon: "bi-arrow-up-circle" };
-    default: return { color: "var(--ap-muted)", icon: "bi-circle" };
+    case "deposit": return { color: "var(--ap-green)", icon: faCircleDown };
+    case "purchase": return { color: "var(--ap-gold)", icon: faCartShopping };
+    case "payout": return { color: "#38bdf8", icon: faCircleUp };
+    default: return { color: "var(--ap-muted)", icon: faCircle };
   }
 }
 
@@ -141,11 +144,11 @@ export default function AdminClient() {
 
   const activeTransactions: Tx[] = txs?.transactions ?? [];
 
-  const tabs: Array<{ id: Tab; label: string; icon: string }> = [
-    { id: "dashboard", label: "Tableau de bord", icon: "bi-speedometer2" },
-    { id: "users", label: "Utilisateurs", icon: "bi-people" },
-    { id: "transactions", label: "Transactions", icon: "bi-receipt" },
-    { id: "exceptions", label: "Exceptions", icon: "bi-exclamation-octagon" },
+  const tabs: Array<{ id: Tab; label: string; icon: IconDefinition }> = [
+    { id: "dashboard", label: "Tableau de bord", icon: faGaugeHigh },
+    { id: "users", label: "Utilisateurs", icon: faUsers },
+    { id: "transactions", label: "Transactions", icon: faReceipt },
+    { id: "exceptions", label: "Exceptions", icon: faBan },
   ];
 
   return (
@@ -157,7 +160,7 @@ export default function AdminClient() {
             className={`btn ${tab === t.id ? "btn-gold" : "btn-ghost"}`}
             onClick={() => setTab(t.id)}
           >
-            <BiIcon name={t.icon} className="me-1" />{t.label}
+            <FontAwesomeIcon icon={t.icon} className="me-1" />{t.label}
           </button>
         ))}
       </div>
@@ -206,17 +209,17 @@ function DashboardTab({ overview }: { overview: Overview | null }) {
   }
   const s = overview.stats;
   const cards = [
-    { label: "CA brut (ventes)", value: fmtEur(s.revenue), icon: "bi-graph-up-arrow", color: "var(--ap-gold)" },
-    { label: "Commission plateforme (20%)", value: fmtEur(s.commission), icon: "bi-percent", color: "var(--ap-green)" },
-    { label: "Dépôts portefeuille", value: fmtEur(s.volume.deposits), icon: "bi-arrow-down-circle", color: "var(--ap-green)" },
-    { label: "Achats wallet", value: fmtEur(s.volume.purchases), icon: "bi-cart", color: "var(--ap-gold)" },
-    { label: "Retraits payés", value: fmtEur(s.volume.payouts), icon: "bi-arrow-up-circle", color: "#38bdf8" },
-    { label: "Commandes", value: String(s.orders), icon: "bi-receipt", color: "var(--ap-gold)" },
-    { label: "Utilisateurs", value: String(s.users), icon: "bi-people", color: "var(--ap-green)" },
-    { label: "Photos", value: String(s.photos), icon: "bi-images", color: "var(--ap-gold)" },
-    { label: "Remboursements en attente", value: String(s.refundPending), icon: "bi-arrow-counterclockwise", color: "#e11d48" },
-    { label: "Litiges ouverts", value: String(s.openDisputes), icon: "bi-shield-x", color: "#fb923c" },
-    { label: "Soldes vendeurs négatifs", value: String(s.negativeBalances), icon: "bi-dash-circle", color: "#e11d48" },
+    { label: "CA brut (ventes)", value: fmtEur(s.revenue), icon: faChartLine, color: "var(--ap-gold)" },
+    { label: "Commission plateforme (20%)", value: fmtEur(s.commission), icon: faPercent, color: "var(--ap-green)" },
+    { label: "Dépôts portefeuille", value: fmtEur(s.volume.deposits), icon: faCircleDown, color: "var(--ap-green)" },
+    { label: "Achats wallet", value: fmtEur(s.volume.purchases), icon: faCartShopping, color: "var(--ap-gold)" },
+    { label: "Retraits payés", value: fmtEur(s.volume.payouts), icon: faCircleUp, color: "#38bdf8" },
+    { label: "Commandes", value: String(s.orders), icon: faReceipt, color: "var(--ap-gold)" },
+    { label: "Utilisateurs", value: String(s.users), icon: faUsers, color: "var(--ap-green)" },
+    { label: "Photos", value: String(s.photos), icon: faImages, color: "var(--ap-gold)" },
+    { label: "Remboursements en attente", value: String(s.refundPending), icon: faArrowRotateLeft, color: "#e11d48" },
+    { label: "Litiges ouverts", value: String(s.openDisputes), icon: faCircleXmark, color: "#fb923c" },
+    { label: "Soldes vendeurs négatifs", value: String(s.negativeBalances), icon: faCircleMinus, color: "#e11d48" },
   ];
 
   return (
@@ -225,7 +228,7 @@ function DashboardTab({ overview }: { overview: Overview | null }) {
         {cards.map((c, i) => (
           <div className="col-6 col-md-4 col-lg-3" key={i}>
             <div className="stat-tile">
-              <BiIcon name={c.icon} className="text-gold" style={{ fontSize: "1.2rem", color: c.color }} />
+              <FontAwesomeIcon icon={c.icon} className="text-gold" style={{ fontSize: "1.2rem", color: c.color }} />
               <div className="value font-display mt-1">{c.value}</div>
               <div className="label">{c.label}</div>
             </div>
@@ -238,7 +241,7 @@ function DashboardTab({ overview }: { overview: Overview | null }) {
       <div className="row g-4 mb-4">
         <div className="col-lg-4">
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-arrow-counterclockwise" className="me-2" style={{ color: "#e11d48" }} />Remboursements en attente</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faArrowRotateLeft} className="me-2" style={{ color: "#e11d48" }} />Remboursements en attente</h5>
             {s.refundPending === 0 ? (
               <p className="text-muted-2 mb-0" style={{ fontSize: "0.85rem" }}>Aucun remboursement en attente.</p>
             ) : (
@@ -262,14 +265,14 @@ function DashboardTab({ overview }: { overview: Overview | null }) {
         </div>
         <div className="col-lg-4">
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-shield-x" className="me-2" style={{ color: "#fb923c" }} />Litiges ouverts</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faCircleXmark} className="me-2" style={{ color: "#fb923c" }} />Litiges ouverts</h5>
             <div className="value font-display mt-1">{s.openDisputes}</div>
             <p className="text-muted-2 mb-0" style={{ fontSize: "0.78rem" }}>Commandes payées avec <span className="badge rounded-pill text-bg-warning" style={{ fontSize: "0.62rem" }}>disputed_at</span> — vente conservée, surveillance requise.</p>
           </div>
         </div>
         <div className="col-lg-4">
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-dash-circle" className="me-2" style={{ color: "#e11d48" }} />Soldes vendeurs négatifs</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faCircleMinus} className="me-2" style={{ color: "#e11d48" }} />Soldes vendeurs négatifs</h5>
             <div className="value font-display mt-1">{s.negativeBalances}</div>
             <div style={{ maxHeight: 140, overflow: "auto" }} className="mt-2">
               {s.negativePhotographers.map((p) => (
@@ -289,7 +292,7 @@ function DashboardTab({ overview }: { overview: Overview | null }) {
       <div className="row g-4">
         <div className="col-lg-6">
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-receipt" className="me-2 text-gold" />Dernières commandes</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faReceipt} className="me-2 text-gold" />Dernières commandes</h5>
             <div style={{ maxHeight: 340, overflow: "auto" }}>
               {overview.recentOrders.map((o) => (
                 <div key={o.id} className="flex justify-between items-center py-2" style={{ borderBottom: "1px solid var(--ap-border)" }}>
@@ -309,7 +312,7 @@ function DashboardTab({ overview }: { overview: Overview | null }) {
         </div>
         <div className="col-lg-6">
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
-            <h5 className="font-display font-bold mb-3"><BiIcon name="bi-people" className="me-2 text-gold" />Derniers utilisateurs</h5>
+            <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faUsers} className="me-2 text-gold" />Derniers utilisateurs</h5>
             <div style={{ maxHeight: 340, overflow: "auto" }}>
               {overview.recentUsers.map((u) => (
                 <div key={u.id} className="flex justify-between items-center py-2" style={{ borderBottom: "1px solid var(--ap-border)" }}>
@@ -434,7 +437,7 @@ function ExceptionsTab({ data, activeTransactions, onPage }: {
   return (
     <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>
       <div className="flex items-center gap-2 mb-3">
-        <BiIcon name="bi-exclamation-octagon" className="text-danger" />
+        <FontAwesomeIcon icon={faBan} className="text-danger" />
         <h5 className="font-display font-bold mb-0">Transactions en échec</h5>
       </div>
       {msg && <div className="alert alert-info py-2 mb-3" style={{ fontSize: "0.82rem" }}>{msg}</div>}
@@ -450,7 +453,7 @@ function ExceptionsTab({ data, activeTransactions, onPage }: {
                 <td style={{ fontSize: "0.8rem" }}>{t.reference}</td>
                 <td>
                   <span className="text-muted-2" style={{ fontSize: "0.75rem" }}>
-                    <BiIcon name={typeColor(t.type).icon} className="me-1" />{t.type}
+                    <FontAwesomeIcon icon={typeColor(t.type).icon} className="me-1" />{t.type}
                   </span>
                 </td>
                 <td style={{ fontSize: "0.85rem" }}>{fmtEur(t.amount)}</td>
@@ -459,7 +462,7 @@ function ExceptionsTab({ data, activeTransactions, onPage }: {
                 <td>
                   {t.type === "payout" && t.reference.startsWith("PAY-") ? (
                     <button className="btn btn-ghost btn-sm" disabled={retrying[t.reference]} onClick={() => retryPayout(t.reference)}>
-                      {retrying[t.reference] ? <span className="spinner-border spinner-border-sm" /> : <><BiIcon name="bi-arrow-clockwise" className="me-1" />Relancer</>}
+                      {retrying[t.reference] ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faArrowsRotate} className="me-1" />Relancer</>}
                     </button>
                   ) : (
                     <span className="text-muted-2" style={{ fontSize: "0.72rem" }}>—</span>
@@ -516,7 +519,7 @@ function TxList({ data, activeTransactions, totals, type, onType, onPage }: {
               <tr key={t.id}>
                 <td style={{ fontSize: "0.78rem" }}>{t.reference}</td>
                 <td style={{ fontSize: "0.78rem" }}>
-                  <BiIcon name={typeColor(t.type).icon} className="me-1" style={{ color: typeColor(t.type).color }} />{t.type}
+                  <FontAwesomeIcon icon={typeColor(t.type).icon} className="me-1" style={{ color: typeColor(t.type).color }} />{t.type}
                 </td>
                 <td><span className="badge rounded-pill uppercase" style={{ fontSize: "0.6rem", ...badgeColor(t.status) }}>{t.status}</span></td>
                 <td className="text-right" style={{ fontSize: "0.85rem" }}>{fmtEur(t.amount)}</td>

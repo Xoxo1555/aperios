@@ -1,7 +1,5 @@
 "use client";
 
-import { BiIcon } from "components/BiIcon";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -10,16 +8,21 @@ import { Skeleton } from "./ui/skeleton";
 import { EmptyState } from "./ui/EmptyState";
 import { useLanguage, type DictKey } from "lib/i18n";
 import type { CategoryDto, PhotoDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFromBi } from "lib/faIcon";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faCircleXmark, faSquare } from "@fortawesome/free-regular-svg-icons";
+import { faArrowsLeftRight, faArrowsUpDown, faCheck, faChevronLeft, faChevronRight, faMagnifyingGlass, faPalette, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const PALETTE = [
   "#2F3E46", "#B23A48", "#3A5A40", "#4A4E69", "#CA6702", "#0077B6",
   "#9B5DE5", "#D62828", "#1D3557", "#F4A261", "#2A9D8F", "#E9C46A",
 ];
 
-const ORIENTATIONS: Array<{ value: string; icon: string; labelKey: DictKey }> = [
-  { value: "landscape", icon: "bi-arrow-left-right", labelKey: "orientation_landscape" },
-  { value: "portrait", icon: "bi-arrow-up-down", labelKey: "orientation_portrait" },
-  { value: "square", icon: "bi-square", labelKey: "orientation_square" },
+const ORIENTATIONS: Array<{ value: string; icon: IconDefinition; labelKey: DictKey }> = [
+  { value: "landscape", icon: faArrowsLeftRight, labelKey: "orientation_landscape" },
+  { value: "portrait", icon: faArrowsUpDown, labelKey: "orientation_portrait" },
+  { value: "square", icon: faSquare, labelKey: "orientation_square" },
 ];
 
 const ART_ARTISANAT_ALIASES = new Set([
@@ -194,7 +197,7 @@ export default function Browse({ license, categories }: Props) {
                   onClick={() => { setQInput(""); setQ(""); }}
                   style={{ textDecoration: "none" }}
                 >
-                  <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-x-lg" /></span>
+                  <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faXmark} /></span>
                 </button>
               )}
             </div>
@@ -206,14 +209,14 @@ export default function Browse({ license, categories }: Props) {
               <li>
                   <button className={`${!category ? "active" : ""} group`} onClick={() => { setCategory(""); setPage(1); }}>
                   <span>{t("nav_all_categories")}</span>
-                  {!category && <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-check" className="text-amber-500/80" /></span>}
+                  {!category && <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faCheck} className="text-amber-500/80" /></span>}
                 </button>
               </li>
               {categories.map((c) => (
                 <li key={c.id}>
                   <button className={`${isCategoryActive(c.slug, category) ? "active" : ""} group`} onClick={() => { setCategory(c.slug); setPage(1); }}>
-                    <span className="inline-flex items-center"><span className={`inline-flex items-center justify-center shrink-0 me-2 ${isCategoryActive(c.slug, category) ? "text-amber-400" : "text-muted-foreground group-hover:text-amber-400"}`}><BiIcon name={c.icon} /></span>{c.name}</span>
-                    {isCategoryActive(c.slug, category) && <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-check" className="text-amber-500/80" /></span>}
+                    <span className="inline-flex items-center"><span className={`inline-flex items-center justify-center shrink-0 me-2 ${isCategoryActive(c.slug, category) ? "text-amber-400" : "text-muted-foreground group-hover:text-amber-400"}`}><FontAwesomeIcon icon={faFromBi(c.icon)} /></span>{c.name}</span>
+                    {isCategoryActive(c.slug, category) && <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faCheck} className="text-amber-500/80" /></span>}
                   </button>
                 </li>
               ))}
@@ -229,7 +232,7 @@ export default function Browse({ license, categories }: Props) {
                   className={`chip inline-flex items-center ${orientation === o.value ? "active" : ""}`}
                   onClick={() => { setOrientation(orientation === o.value ? "" : o.value); setPage(1); }}
                 >
-                  <span className="inline-flex items-center justify-center shrink-0 me-1"><BiIcon name={o.icon} /></span> {t(o.labelKey)}
+                  <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={o.icon} /></span> {t(o.labelKey)}
                 </button>
               ))}
             </div>
@@ -290,7 +293,7 @@ export default function Browse({ license, categories }: Props) {
               className="btn btn-outline w-full mt-3 inline-flex items-center justify-center gap-1.5 text-sm font-bold tracking-wider"
               onClick={resetFilters}
             >
-              <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-circle-x" style={{ fontSize: 16 }} /></span> {t("reset_filters")}
+              <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faCircleXmark} style={{ fontSize: 16 }} /></span> {t("reset_filters")}
             </button>
           )}
         </div>
@@ -305,14 +308,14 @@ export default function Browse({ license, categories }: Props) {
           ) : photos.length === 0 ? (
             isArtArtisanat ? (
               <EmptyState
-                icon="bi-palette"
+                icon={faPalette}
                 title={t("art_artisanat_empty_title")}
                 subtitle={t("art_artisanat_empty_sub")}
                 action={<Link href="/prints" className="btn btn-gold shadow-sm">{t("art_artisanat_browse_all")}</Link>}
               />
             ) : (
               <EmptyState
-                icon="bi-search"
+                icon={faMagnifyingGlass}
                 title={t("no_photos_found")}
                 subtitle={t("no_photos_found_sub")}
                 action={<button className="btn btn-gold shadow-sm" onClick={resetFilters}>{t("reset_filters")}</button>}
@@ -330,7 +333,7 @@ export default function Browse({ license, categories }: Props) {
                   <ul className="pagination">
                     <li className={`page-item ${page <= 1 ? "disabled" : ""}`}>
                       <button className="page-link" onClick={() => setPage((p) => Math.max(1, p - 1))} aria-label="Previous">
-                        <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-chevron-left" style={{ fontSize: 16 }} /></span>
+                        <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faChevronLeft} style={{ fontSize: 16 }} /></span>
                       </button>
                     </li>
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -349,7 +352,7 @@ export default function Browse({ license, categories }: Props) {
                       ))}
                     <li className={`page-item ${page >= totalPages ? "disabled" : ""}`}>
                       <button className="page-link" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} aria-label="Next">
-                        <span className="inline-flex items-center justify-center shrink-0"><BiIcon name="bi-chevron-right" style={{ fontSize: 16 }} /></span>
+                        <span className="inline-flex items-center justify-center shrink-0"><FontAwesomeIcon icon={faChevronRight} style={{ fontSize: 16 }} /></span>
                       </button>
                     </li>
                   </ul>

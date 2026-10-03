@@ -4,8 +4,9 @@ import { useState } from "react";
 import Lightbox from "./Lightbox";
 import { useLanguage } from "lib/i18n";
 import { blurDataUrl } from "lib/utils";
-import Image from "next/image";
-import { BiIcon } from "components/BiIcon";
+import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlassPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   src: string;
@@ -41,7 +42,7 @@ export default function PhotoImage({ src, alt, color, priority = true }: Props) 
           blurDataURL={blurDataUrl(color)}
         />
         <span className="photo-zoom-hint inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" style={{ background: "rgba(20,20,22,0.60)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)", color: "#FFFFFF", fontSize: "0.78rem", fontWeight: 600 }}>
-          <BiIcon name="bi-zoom-in" className="text-white" style={{ fontSize: 18 }} />{t("click_to_enlarge")}
+          <FontAwesomeIcon icon={faMagnifyingGlassPlus} className="text-white" style={{ fontSize: 18 }} />{t("click_to_enlarge")}
         </span>
       </button>
       <Lightbox src={src} alt={alt} open={open} onClose={() => setOpen(false)} />

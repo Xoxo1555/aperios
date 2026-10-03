@@ -1,37 +1,41 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { BiIcon } from "components/BiIcon";
 import { useLanguage, type DictKey } from "lib/i18n";
 import type { CategoryDto } from "lib/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFromBi } from "lib/faIcon";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { faBuilding, faCircleQuestion, faCompass, faFileLines, faFolder, faUser } from "@fortawesome/free-regular-svg-icons";
+import { faChevronDown, faFeather, faGlobe, faHammer, faLeaf, faLocationDot, faPalette, faPlane, faShield, faTableCells, faTree } from "@fortawesome/free-solid-svg-icons";
 
-const ICONS: Record<string, string> = {
-  madagascar: "bi-globe",
-  "nature-landscapes": "bi-tree",
-  "urban-architecture": "bi-building",
-  wildlife: "bi-feather",
-  people: "bi-person",
-  travel: "bi-compass",
-  street: "bi-geo-alt-fill",
-  abstract: "bi-palette",
-  macro: "bi-flower1",
-  "fine-art-still-life": "bi-flower1",
-  aerial: "bi-airplane",
-  artisanat: "bi-hammer",
+const ICONS: Record<string, IconDefinition> = {
+  madagascar: faGlobe,
+  "nature-landscapes": faTree,
+  "urban-architecture": faBuilding,
+  wildlife: faFeather,
+  people: faUser,
+  travel: faCompass,
+  street: faLocationDot,
+  abstract: faPalette,
+  macro: faLeaf,
+  "fine-art-still-life": faLeaf,
+  aerial: faPlane,
+  artisanat: faHammer,
 };
 
 function catHref(c: CategoryDto): string {
   return c.kind === "art" ? `/prints?category=${c.slug}` : `/photos?category=${c.slug}`;
 }
 
-const MORE_LINKS: { href: string; key: DictKey; icon: string; fallback: string }[] = [
-  { href: "/about", key: "about", icon: "bi-globe", fallback: "À propos" },
-  { href: "/help", key: "help_faq", icon: "bi-question-circle", fallback: "FAQ" },
-  { href: "/contact", key: "contact", icon: "bi-compass", fallback: "Contact" },
-  { href: "/terms", key: "nav_terms", icon: "bi-file-earmark-text", fallback: "Conditions" },
-  { href: "/licenses", key: "nav_licenses", icon: "bi-shield", fallback: "Licences" },
+const MORE_LINKS: { href: string; key: DictKey; icon: IconDefinition; fallback: string }[] = [
+  { href: "/about", key: "about", icon: faGlobe, fallback: "Ãƒâ‚¬ propos" },
+  { href: "/help", key: "help_faq", icon: faCircleQuestion, fallback: "FAQ" },
+  { href: "/contact", key: "contact", icon: faCompass, fallback: "Contact" },
+  { href: "/terms", key: "nav_terms", icon: faFileLines, fallback: "Conditions" },
+  { href: "/licenses", key: "nav_licenses", icon: faShield, fallback: "Licences" },
 ];
 
 const ART_ARTISANAT_SLUGS = new Set([
@@ -43,10 +47,10 @@ const ART_ARTISANAT_SLUGS = new Set([
   "malagasy-art",
 ]);
 
-function Icon({ name, size, className }: { name: string; size?: number; className?: string }) {
+function Icon({ name, size, className }: { name: IconDefinition; size?: number; className?: string }) {
   return (
     <span className="inline-flex items-center justify-center shrink-0">
-      <BiIcon name={name} style={size ? { fontSize: size } : undefined} className={className} aria-hidden="true" />
+      <FontAwesomeIcon icon={name} style={size ? { fontSize: size } : undefined} className={className} aria-hidden="true" />
     </span>
   );
 }
@@ -75,7 +79,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fermeture du menu après navigation, volontaire
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fermeture du menu aprÃƒÂ¨s navigation, volontaire
     setGalleryOpen(false);
     setMoreOpen(false);
   }, [pathname, category]);
@@ -91,7 +95,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
 
   return (
     <div ref={rootRef} className="ap-catmenu flex items-center gap-1 w-full">
-      {/* Backdrop — isole le mega-menu du reste de la page (clic = fermeture) */}
+      {/* Backdrop Ã¢â‚¬â€ isole le mega-menu du reste de la page (clic = fermeture) */}
       {overlayOpen && (
         <div
           className="ap-mega-backdrop fixed inset-0 bg-black/40 backdrop-blur-sm"
@@ -100,7 +104,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
         />
       )}
 
-      {/* Catégories ▾ — déclencheur du mega-menu */}
+      {/* CatÃƒÂ©gories Ã¢â€“Â¾ Ã¢â‚¬â€ dÃƒÂ©clencheur du mega-menu */}
       <div className="relative" style={{ flexShrink: 0 }}>
         <button
           type="button"
@@ -109,9 +113,9 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
           aria-haspopup="true"
           onClick={() => setGalleryOpen((v) => !v)}
         >
-          <Icon name="bi-folder" size={15} />
-          <span>{mounted ? t("nav_categories") : "Catégories"}</span>
-          <Icon name="bi-chevron-down" size={14} className="ap-cat-chev" />
+          <Icon name={faFolder} size={15} />
+          <span>{mounted ? t("nav_categories") : "CatÃƒÂ©gories"}</span>
+          <Icon name={faChevronDown} size={14} className="ap-cat-chev" />
         </button>
 
         {galleryOpen && (
@@ -122,9 +126,9 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
             </div>
             <div className="ap-mega-grid">
               {categories.map((c) => {
-                const iconName = ICONS[c.slug] ?? c.icon ?? "bi-grid-3x3-gap-fill";
+                const iconName = ICONS[c.slug] ?? (c.icon ? faFromBi(c.icon) : faTableCells);
                 const labelKey = `cat_${c.slug.replace(/-/g, "_")}` as const;
-                // i18n: use t("cat_aerial"), t("cat_travel"), etc. avec fallback sur c.name si clé manquante
+                // i18n: use t("cat_aerial"), t("cat_travel"), etc. avec fallback sur c.name si clÃƒÂ© manquante
                 const translated = mounted ? (t as (k: string) => string)(labelKey) : c.name;
                 const displayName = translated === labelKey ? c.name : translated;
                 return (
@@ -149,13 +153,13 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
         )}
       </div>
 
-      {/* Barre horizontale principale — liens fixes sur une seule ligne — traductions dynamiques FR/EN */}
+      {/* Barre horizontale principale Ã¢â‚¬â€ liens fixes sur une seule ligne Ã¢â‚¬â€ traductions dynamiques FR/EN */}
       <nav className="ap-catbar flex items-center gap-6 lg:gap-8 px-4 py-2.5 grow">
         <Link href="/photos" className={`ap-catlink${isFreeActive ? " is-active" : ""}`}>
           {mounted ? t("nav_free") : "Gratuit"}
         </Link>
         <Link href="/prints" className={`ap-catlink${isPremiumActive ? " is-active" : ""}`}>
-          {mounted ? t("nav_limited_editions") : "Éditions Limitées"}
+          {mounted ? t("nav_limited_editions") : "Ãƒâ€°ditions LimitÃƒÂ©es"}
         </Link>
         <Link
           href="/photos?category=madagascar"
@@ -171,7 +175,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
         </Link>
       </nav>
 
-      {/* ... Plus ▾ — pages d'information, aligné à droite */}
+      {/* ... Plus Ã¢â€“Â¾ Ã¢â‚¬â€ pages d'information, alignÃƒÂ© ÃƒÂ  droite */}
       <div className="relative ms-auto" style={{ flexShrink: 0 }}>
         <button
           type="button"
@@ -180,8 +184,8 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
           aria-haspopup="true"
           onClick={() => setMoreOpen((v) => !v)}
         >
-          <span>… {mounted ? t("nav_more") : "Plus"}</span>
-          <Icon name="bi-chevron-down" size={14} className="ap-cat-chev" />
+          <span>Ã¢â‚¬Â¦ {mounted ? t("nav_more") : "Plus"}</span>
+          <Icon name={faChevronDown} size={14} className="ap-cat-chev" />
         </button>
 
         {moreOpen && (
@@ -207,3 +211,4 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
     </div>
   );
 }
+

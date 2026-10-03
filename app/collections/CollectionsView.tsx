@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
 import type { CollectionDto } from "lib/types";
 import NewCollectionForm from "components/NewCollectionForm";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart, faImages } from "@fortawesome/free-regular-svg-icons";
 
 export default function CollectionsView({ collections }: { collections: CollectionDto[] }) {
   const { t } = useLanguage();
@@ -24,7 +25,7 @@ export default function CollectionsView({ collections }: { collections: Collecti
 
       {collections.length === 0 ? (
         <div className="text-center py-5 bg-surface rounded-2xl">
-          <BiIcon name="bi-heart" style={{ fontSize: "3rem", color: "var(--ap-muted)" }} />
+          <FontAwesomeIcon icon={faHeart} style={{ fontSize: "3rem", color: "var(--ap-muted)" }} />
           <h5 className="mt-3">{t("collections_empty_title")}</h5>
           <p className="text-muted-2 mb-3">{t("collections_empty_sub")}</p>
           <Link href="/photos" className="btn btn-gold">{t("browse_gallery")}</Link>
@@ -46,7 +47,7 @@ export default function CollectionsView({ collections }: { collections: Collecti
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center" style={{ background: "var(--ap-surface-2)" }}>
-                    <BiIcon name="bi-images" style={{ fontSize: "2.4rem", color: "var(--ap-muted)" }} />
+                    <FontAwesomeIcon icon={faImages} style={{ fontSize: "2.4rem", color: "var(--ap-muted)" }} />
                   </div>
                 )}
                 <div className="cat-label">

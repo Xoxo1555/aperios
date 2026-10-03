@@ -3,7 +3,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSessionUser } from "lib/auth";
 import AdminClient from "./AdminClient";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse } from "@fortawesome/free-regular-svg-icons";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin · Aperio" };
@@ -24,7 +25,7 @@ export default async function AdminPage() {
           </p>
         </div>
         <Link href="/" className="btn btn-ghost">
-          <BiIcon name="bi-house" className="me-1" />Retour au site
+          <FontAwesomeIcon icon={faHouse} className="me-1" />Retour au site
         </Link>
       </div>
 

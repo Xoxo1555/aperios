@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useLanguage } from "lib/i18n";
 import type { CategoryDto, PhotoDto } from "lib/types";
 import PhotoCard from "./PhotoCard";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHammer, faPalette } from "@fortawesome/free-solid-svg-icons";
 
 interface Props {
   photos: PhotoDto[];
@@ -21,7 +23,7 @@ export default function HomeCraft({ photos, craftCategory, artCategory }: Props)
       <div className="max-w-7xl mx-auto px-4 relative">
         <div className="flex flex-col items-center text-center mb-10">
           <div className="w-10 h-10 rounded-full bg-amber-500/10 dark:bg-amber-400/15 border border-amber-500/30 dark:border-amber-400/30 flex items-center justify-center mb-3 text-amber-800 dark:text-amber-400">
-            <i className="bi bi-palette-fill text-lg" aria-hidden="true"></i>
+            <FontAwesomeIcon icon={faPalette} className="text-lg" aria-hidden="true" />
           </div>
           <span className="text-xs font-bold tracking-widest text-amber-800 dark:text-amber-400 uppercase mb-2">MALAGASY ART &amp; CRAFT</span>
           <h2 className="text-3xl sm:text-4xl font-serif text-neutral-900 dark:text-white max-w-2xl leading-tight mb-4">
@@ -34,7 +36,7 @@ export default function HomeCraft({ photos, craftCategory, artCategory }: Props)
                 href={`/prints?category=${craftCategory.slug}`}
                 className="btn btn-gold px-6"
               >
-                <i className="bi bi-hammer me-1 text-amber-400 dark:text-amber-500" />{t("home_craft_btn")}
+                <FontAwesomeIcon icon={faHammer} className="me-1 text-amber-400 dark:text-amber-500" />{t("home_craft_btn")}
               </Link>
             )}
             {artCategory && (
@@ -42,7 +44,7 @@ export default function HomeCraft({ photos, craftCategory, artCategory }: Props)
                 href={`/prints?category=${artCategory.slug}`}
                 className="btn btn-outline px-6"
               >
-                <i className="bi bi-palette-fill me-1 text-amber-800 dark:text-amber-400" />{t("home_craft_paintings")}
+                <FontAwesomeIcon icon={faPalette} className="me-1 text-amber-800 dark:text-amber-400" />{t("home_craft_paintings")}
               </Link>
             )}
           </div>

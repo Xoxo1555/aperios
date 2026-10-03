@@ -8,7 +8,8 @@ import Logo from "components/Logo";
 import PasswordField from "components/PasswordField";
 import GoogleButton from "components/GoogleButton";
 import { useLanguage } from "lib/i18n";
-import { BiIcon } from "components/BiIcon";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 const SIDE_IMAGE = "https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?q=80&w=1600&auto=format&fit=crop";
 
@@ -90,7 +91,7 @@ export default function LoginPage() {
 
           {(error || googleError) && (
             <div role="alert" className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 mb-4 text-red-700 text-sm">
-              <BiIcon name="bi-exclamation-triangle" style={{ width: 16, height: 16 }} className="shrink-0" />
+              <FontAwesomeIcon icon={faTriangleExclamation} style={{ width: 16, height: 16 }} className="shrink-0" />
               <span>{error || googleError}</span>
             </div>
           )}
