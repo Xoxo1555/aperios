@@ -5,6 +5,7 @@ import { BiIcon } from "components/BiIcon";
 import Link from "next/link";
 import Logo from "./Logo";
 import { useLanguage } from "lib/i18n";
+import { useSession } from "./SessionProvider";
 import Image from "next/image";
 
 /* SVG officiels (chemins Font Awesome / Google) — monochromes, nets,
@@ -44,6 +45,22 @@ const PAYMENTS = [
 
 export default function Footer() {
   const { t } = useLanguage();
+  const { user } = useSession();
+
+  /* /dashboard is gated by RBAC in proxy.ts (photographer | admin) and
+     silently redirects anyone else to "/". Only advertise it to the roles
+     that can actually reach it, otherwise visitors get a dead-end link. */
+  const isCreator = user?.role === "photographer" || user?.role === "admin";
+
+  /* proxy.ts bounces any authenticated user away from /register, so the
+     "become a creator" link must not stay hardcoded for logged-in visitors.
+     Creators keep a single entry pointing at their dashboard; pointing both
+     this link and a second dashboard link at /dashboard would duplicate it.
+     A buyer has no creator-application route yet, so /profile (auth-only) is
+     their landing spot. */
+  const creatorEntry = isCreator
+    ? { href: "/dashboard", label: t("dashboard") }
+    : { href: user ? "/profile" : "/register", label: t("become_creator") };
 
   const COL_HEADER = "text-zinc-200 text-xs font-semibold tracking-wider uppercase mb-4";
   const NAV_LINK = "text-muted-foreground hover:text-white text-sm transition-colors py-1 block w-fit";
@@ -109,8 +126,7 @@ export default function Footer() {
         <div>
           <div className={COL_HEADER}>{t("for_artists")}</div>
           <ul className="list-none p-0 m-0">
-            <li><Link href="/register" className={NAV_LINK}>{t("become_creator")}</Link></li>
-            <li><Link href="/dashboard" className={NAV_LINK}>{t("dashboard")}</Link></li>
+            <li><Link href={creatorEntry.href} className={NAV_LINK}>{creatorEntry.label}</Link></li>
             <li><Link href="/pricing" className={NAV_LINK}>{t("pricing_commissions")}</Link></li>
             <li><Link href="/licenses" className={NAV_LINK}>{t("rights_licenses")}</Link></li>
             <li><Link href="/help" className={NAV_LINK}>{t("help_support")}</Link></li>

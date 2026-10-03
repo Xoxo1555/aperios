@@ -280,7 +280,7 @@ export default function ProfileClient({
             <>
               <button className="btn btn-gold btn-sm" onClick={() => setEditing(true)}><BiIcon name="bi-pencil" className="me-1" />{t("edit_profile")}</button>
               {user.avatarUrl && <button className="btn btn-ghost btn-sm" onClick={removeAvatar}><BiIcon name="bi-trash" className="me-1" />{t("remove_photo")}</button>}
-              <a href="/dashboard" className="btn btn-ghost btn-sm inline-flex items-center"><BiIcon name="bi-grid-1x2" className="me-1" style={{ fontSize: "16px" }} />{t("dashboard")}</a>
+              {isCreator && <a href="/dashboard" className="btn btn-ghost btn-sm inline-flex items-center"><BiIcon name="bi-grid-1x2" className="me-1" style={{ fontSize: "16px" }} />{t("dashboard")}</a>}
             </>
           )}
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { BiIcon } from "components/BiIcon";
 import { useLanguage } from "lib/i18n";
+import { useSession } from "./SessionProvider";
 import { usePrice } from "lib/currency";
 
 interface PricingClientProps {
@@ -20,8 +21,16 @@ export default function PricingClient({
   standardShipping,
 }: PricingClientProps) {
   const { t } = useLanguage();
+  const { user } = useSession();
   const price = usePrice();
   const [salePrice, setSalePrice] = useState<number>(100);
+
+  /* proxy.ts redirects any authenticated user away from /register, so this CTA
+     must not stay hardcoded: guests still sign up, a creator already has a
+     dashboard, and a buyer lands on /profile (auth-only) since the app has no
+     creator-application route yet. */
+  const isCreator = user?.role === "photographer" || user?.role === "admin";
+  const creatorHref = !user ? "/register" : isCreator ? "/dashboard" : "/profile";
 
   const artistShare = salePrice * (creatorSharePct / 100);
   const aperioFee = salePrice * (commissionPct / 100);
@@ -239,11 +248,11 @@ export default function PricingClient({
         {/* CTA */}
         <div className="flex items-center justify-center gap-4 my-8">
           <Link
-            href="/register"
+            href={creatorHref}
             className="bg-card text-card-foreground hover:opacity-90 font-semibold px-6 py-3.5 rounded-xl shadow-md transition-all inline-flex items-center gap-2"
           >
             <BiIcon name="bi-person-add" />
-            {t("become_creator")}
+            {isCreator ? t("view_dashboard") : t("become_creator")}
           </Link>
           <Link
             href="/prints"

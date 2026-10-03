@@ -205,6 +205,11 @@
   --ap-border-light: rgba(255, 255, 255, 0.08);
   --ap-line: rgba(245, 178, 61, 0.16);
 
+  /* Bouton outline sur fond sombre — sinon le texte reste #1c1917
+     (valeur du thème clair) et devient invisible (contraste ~1.1:1). */
+  --ap-btn-outline-text: #ffffff;
+  --ap-btn-outline-border: rgba(255, 255, 255, 0.28);
+
   --ap-text: #ece8e1;
   --ap-text-secondary: #b7b3ac;
   --ap-muted: #8d8a84;
@@ -2831,14 +2836,55 @@ hr { margin: 1rem 0; border: 0; border-top: 1px solid var(--ap-border); opacity:
 @media (min-width: 992px) {
   .navbar-expand-lg .collapse { display: flex !important; flex-direction: row; }
 }
+/* Le `lg:hidden` est porté par un wrapper dans le JSX : cette règle est
+   non « layerée » et l'emporterait sinon sur cet utilitaire, affichant le
+   hamburger sur desktop. */
 .navbar-toggler {
-  padding: 0.35rem 0.65rem;
-  font-size: 1.1rem;
-  line-height: 1;
-  background: transparent;
-  border: 1px solid var(--ap-border-strong);
-  border-radius: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  flex: 0 0 auto;
+  background: rgba(38, 38, 42, 0.8);
+  border: 1px solid rgba(63, 63, 70, 0.6);
+  border-radius: 999px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+.navbar-toggler:hover { background: rgba(64, 64, 67, 0.9); }
+/* Hamburger dessiné en CSS : l'ancien <span class="navbar-toggler-icon">
+   n'avait aucune règle dans ce projet et son `filter: invert(1)`
+   retournait l'icône Bootstrap (blanche) en quasi-noir sur la bande
+   sombre — d'où un bouton « vide » bordé d'or. */
+.ap-navbar-burger {
+  position: relative;
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  transition: background-color 0.15s ease;
+}
+.ap-navbar-burger::before,
+.ap-navbar-burger::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: #fff;
+  transition: transform 0.25s ease, top 0.25s ease;
+}
+.ap-navbar-burger::before { top: -6px; }
+.ap-navbar-burger::after { top: 6px; }
+/* État ouvert : les 3 barres fusionnent en une croix. */
+.navbar-toggler[aria-expanded="true"] .ap-navbar-burger { background: transparent; }
+.navbar-toggler[aria-expanded="true"] .ap-navbar-burger::before { top: 0; transform: rotate(45deg); }
+.navbar-toggler[aria-expanded="true"] .ap-navbar-burger::after { top: 0; transform: rotate(-45deg); }
 
 /* ---------- Pagination ---------- */
 .pagination { display: flex; padding-left: 0; margin: 0; list-style: none; gap: 0.35rem; }

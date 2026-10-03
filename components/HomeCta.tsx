@@ -2,13 +2,33 @@
 
 import Link from "next/link";
 import { useLanguage } from "lib/i18n";
+import { useSession } from "./SessionProvider";
 import BubbleField from "./BubbleField";
 
 /* Final CTA of the home page. Client component so its labels follow the
-   active language, and its "dashboard" button uses the premium dark /
-   amber-outlined style instead of the plain white ghost button. */
+   active language, and so the single call-to-action can adapt to the session:
+   guest → /register, creator → /dashboard (premium dark / amber-outlined
+   style instead of the plain gold button), buyer → /profile. */
 export default function HomeCta() {
   const { t } = useLanguage();
+  const { user } = useSession();
+
+  /* /dashboard is RBAC-gated in proxy.ts (photographer | admin): a buyer is
+     bounced back to "/", so only creators can be sent there. */
+  const isCreator = user?.role === "photographer" || user?.role === "admin";
+
+  /* A logged-in user must never land on /register: proxy.ts redirects any
+     authenticated visitor away from /register and /login, so the old hardcoded
+     href silently bounced creators back to the home page. Guests keep the
+     register CTA; creators go to their dashboard; a buyer has no creator
+     application route yet, so /profile (auth-only) is their landing spot. */
+  const destination = !user ? "/register" : isCreator ? "/dashboard" : "/profile";
+  const ctaLabel = !user
+    ? t("start_publishing")
+    : isCreator
+      ? t("view_dashboard")
+      : t("become_creator");
+  const ctaIcon = isCreator ? "bi-grid-1x2-fill" : "bi-upload";
 
   return (
     <section className="container py-5">
@@ -25,8 +45,13 @@ export default function HomeCta() {
             {t("cta_desc")}
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link href="/register" className="btn btn-gold btn-lg"><i className="bi bi-upload me-2" />{t("start_publishing")}</Link>
-            <Link href="/dashboard" className="btn btn-premium btn-lg"><i className="bi bi-grid-1x2-fill me-2" style={{ fontSize: 18 }} />{t("view_dashboard")}</Link>
+            <Link
+              href={destination}
+              className={`btn btn-lg ${isCreator ? "btn-premium" : "btn-gold"}`}
+            >
+              <i className={`bi ${ctaIcon} me-2`} style={isCreator ? { fontSize: 18 } : undefined} />
+              {ctaLabel}
+            </Link>
           </div>
         </div>
       </div>
