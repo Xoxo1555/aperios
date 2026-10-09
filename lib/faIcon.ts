@@ -1,11 +1,12 @@
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { faCircleDown, faCircleUp, faBarChart, faBookmark, faSquare, faBuilding, faCalendar, faCamera, faComment, faCommentDots, faCircleCheck, faCircle, faCircleXmark, faClock, faCompass, faCreditCard, faEnvelope, faEye, faEyeSlash, faFileLines, faFolder, faThumbsUp, faHardDrive, faHeart, faHourglassHalf, faHouse, faImage, faImages, faLifeRing, faMoon, faUser, faCircleUser, faCircleQuestion, faFloppyDisk, faPaperPlane, faStar, faSun, faTruck } from "@fortawesome/free-regular-svg-icons";
-import { faPlane, faArrowsRotate, faArrowRotateLeft, faArrowLeft, faArrowsLeftRight, faArrowRight, faArrowUp, faArrowsUpDown, faArrowUpRightFromSquare, faExpand, faMedal, faBagShopping, faBuildingColumns, faBookmark as faBookmarkSolid, faBriefcase, faPaintbrush, faBullseye, faCalculator, faCartShopping, faMoneyBillWave, faCheck, faChevronLeft, faChevronRight, faChevronDown, faChevronUp, faClockRotateLeft, faCloudArrowDown, faCloudUpload, faMugHot, faEuroSign, faMinus, faCircleMinus, faDownload, faEnvelopeCircleCheck, faBan, faTriangleExclamation, faFeather, faLeaf, faLocationDot, faGlobe, faChartLine, faTableCells, faHammer, faHeart as faHeartSolid, faHeartPulse, faInbox, faCircleInfo, faKey, faLock, faBullhorn, faPalette, faCircleCheck as faCircleCheckSolid, faPen, faPencil, faUsers, faPercent, faUserPlus, faPhone, faPlus, faCirclePlus, faPrint, faReceipt, faRocket, faMagnifyingGlass, faShareNodes, faShield, faShieldHalved, faCircleXmark as faCircleXmarkSolid, faMobile, faGaugeHigh, faTrash, faTree, faLockOpen, faUpload, faWallet, faXmark, faMagnifyingGlassPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlane, faArrowsRotate, faArrowRotateLeft, faArrowLeft, faArrowsLeftRight, faArrowRight, faArrowUp, faArrowsUpDown, faArrowUpRightFromSquare, faExpand, faMedal, faBagShopping, faBuildingColumns, faBookmark as faBookmarkSolid, faBriefcase, faPaintbrush, faBullseye, faCalculator, faCartShopping, faMoneyBillWave, faCheck, faChevronLeft, faChevronRight, faChevronDown, faChevronUp, faClockRotateLeft, faCloudArrowDown, faCloudUpload, faMugHot, faEuroSign, faMinus, faCircleMinus, faDownload, faEnvelopeCircleCheck, faBan, faTriangleExclamation, faFeather, faLeaf, faLocationDot, faGlobe, faChartLine, faTableCells, faHammer, faHeart as faHeartSolid, faHeartPulse, faInbox, faCircleInfo, faKey, faLock, faBullhorn, faPalette, faCircleCheck as faCircleCheckSolid, faPen, faPencil, faUsers, faPercent, faUserPlus, faPhone, faPlus, faCirclePlus, faPrint, faReceipt, faRocket, faMagnifyingGlass, faShareNodes, faShield, faShieldHalved, faCircleXmark as faCircleXmarkSolid, faMobile, faGaugeHigh, faTrash, faTree, faLockOpen, faUpload, faWallet, faXmark, faMagnifyingGlassPlus, faBug, faIdBadge, faSignsPost, faBinoculars } from "@fortawesome/free-solid-svg-icons";
 import type { IconDefinition as FAIconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 export function faFromBi(bi: string): IconDefinition {
   const map: Record<string, IconDefinition> = {
     "bi-airplane": faPlane,
+    "bi-airplane-fill": faPlane,
     "bi-arrow-clockwise": faArrowsRotate,
     "bi-arrow-counterclockwise": faArrowRotateLeft,
     "bi-arrow-down-circle": faCircleDown,
@@ -21,6 +22,8 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-bag": faBagShopping,
     "bi-bank": faBuildingColumns,
     "bi-bar-chart": faBarChart,
+    "bi-binoculars": faBinoculars,
+    "bi-binoculars-fill": faBinoculars,
     "bi-bookmark": faBookmark,
     "bi-bookmark-fill": faBookmarkSolid,
     "bi-bookmark-heart": faBookmark,
@@ -29,7 +32,11 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-box-arrow-up-right": faArrowUpRightFromSquare,
     "bi-briefcase": faBriefcase,
     "bi-brush": faPaintbrush,
+    "bi-bug": faBug,
+    "bi-bug-fill": faBug,
     "bi-building": faBuilding,
+    "bi-buildings": faBuilding,
+    "bi-buildings-fill": faBuilding,
     "bi-bullseye": faBullseye,
     "bi-calculator": faCalculator,
     "bi-calendar": faCalendar,
@@ -55,6 +62,7 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-cloud-download": faCloudArrowDown,
     "bi-cloud-upload": faCloudUpload,
     "bi-compass": faCompass,
+    "bi-compass-fill": faCompass,
     "bi-credit-card": faCreditCard,
     "bi-cup-hot": faMugHot,
     "bi-currency-euro": faEuroSign,
@@ -76,6 +84,7 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-geo-alt": faLocationDot,
     "bi-geo-alt-fill": faLocationDot,
     "bi-globe": faGlobe,
+    "bi-globe-africa": faGlobe,
     "bi-graph-up-arrow": faChartLine,
     "bi-grid-1x2": faTableCells,
     "bi-grid-1x2-fill": faTableCells,
@@ -88,6 +97,7 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-heart-pulse": faHeartPulse,
     "bi-hourglass-split": faHourglassHalf,
     "bi-house": faHouse,
+    "bi-id-badge": faIdBadge,
     "bi-image": faImage,
     "bi-images": faImages,
     "bi-inbox": faInbox,
@@ -100,6 +110,7 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-moon-stars": faMoon,
     "bi-palette": faPalette,
     "bi-palette-fill": faPalette,
+    "bi-palette2": faPalette,
     "bi-patch-check": faCircleCheckSolid,
     "bi-patch-check-fill": faCircleCheckSolid,
     "bi-pen": faPen,
@@ -108,6 +119,8 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-percent": faPercent,
     "bi-person": faUser,
     "bi-person-add": faUserPlus,
+    "bi-person-badge": faIdBadge,
+    "bi-person-badge-fill": faIdBadge,
     "bi-person-circle": faCircleUser,
     "bi-phone": faPhone,
     "bi-plus": faPlus,
@@ -126,6 +139,9 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-shield-check": faShieldHalved,
     "bi-shield-lock": faLock,
     "bi-shield-x": faCircleXmarkSolid,
+    "bi-signpost-2-fill": faSignsPost,
+    "bi-signpost-split": faSignsPost,
+    "bi-signpost-split-fill": faSignsPost,
     "bi-smartphone": faMobile,
     "bi-speedometer2": faGaugeHigh,
     "bi-square": faSquare,
@@ -134,6 +150,7 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-telephone": faPhone,
     "bi-trash": faTrash,
     "bi-tree": faTree,
+    "bi-tree-fill": faTree,
     "bi-truck": faTruck,
     "bi-unlock": faLockOpen,
     "bi-upload": faUpload,
@@ -143,5 +160,5 @@ export function faFromBi(bi: string): IconDefinition {
     "bi-x-octagon": faBan,
     "bi-zoom-in": faMagnifyingGlassPlus,
   };
-  return map[bi] ?? faCircleQuestion;
+  return map[bi] ?? faImage;
 }
