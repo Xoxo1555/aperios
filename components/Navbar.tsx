@@ -38,6 +38,7 @@ export default function Navbar({ categories }: Props) {
   const [userOpen, setUserOpen] = useState(false);
   const [guestOpen, setGuestOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [headerH, setHeaderH] = useState(0);
   const rootRef = useRef<HTMLElement | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -76,6 +77,38 @@ export default function Navbar({ categories }: Props) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- fermeture des menus après navigation, volontaire
     setUserOpen(false); setGuestOpen(false); setShowSug(false); setExpanded(false);
   }, [pathname]);
+
+  /* Menu mobile ouvert : Échap ferme le panneau, et le défilement du body
+     est bloqué (restauré à la fermeture ET au démontage). */
+  useEffect(() => {
+    if (!expanded) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setExpanded(false);
+    }
+    document.addEventListener("keydown", onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [expanded]);
+
+  /* Hauteur de l'en-tête → le panneau fixé commence juste en dessous. */
+  useEffect(() => {
+    if (!expanded) return;
+    const el = rootRef.current;
+    const update = () => setHeaderH(el ? el.getBoundingClientRect().height : 0);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [expanded]);
+
+  function toggleMenu() {
+    const next = !expanded;
+    if (next && rootRef.current) setHeaderH(rootRef.current.getBoundingClientRect().height);
+    setExpanded(next);
+  }
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -323,7 +356,7 @@ export default function Navbar({ categories }: Props) {
                 aria-label={t("menu_label")}
                 aria-expanded={expanded}
                 aria-controls="ap-mobile-menu"
-                onClick={() => setExpanded(!expanded)}
+                onClick={toggleMenu}
               >
                 <span className="ap-navbar-burger" aria-hidden="true" />
               </button>
@@ -341,9 +374,24 @@ export default function Navbar({ categories }: Props) {
         </div>
       </div>
 
-      {/* MENU MOBILE (collapse) — contenu aligné sur la même largeur que la row 1 */}
-      <div id="ap-mobile-menu" className={`collapse navbar-collapse ap-navbar order-lg-4 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:hidden ${expanded ? "show" : ""}`}>
-        <div className="lg:hidden flex flex-col gap-2 mt-3 pt-3" style={{ borderTop: "1px solid var(--ap-border)" }}>
+      {/* MENU MOBILE — panneau fixé juste sous l'en-tête. Plus aucune classe
+          d'effondrement Bootstrap : l'ouverture est une simple bascule
+          d'affichage (classe "hidden"), ce qui évite l'utilitaire Tailwind de
+          visibilité du même nom (cause du menu vide). */}
+      {expanded && (
+        <div
+          className="ap-mobile-backdrop fixed inset-0 z-40 lg:hidden"
+          onClick={() => setExpanded(false)}
+          aria-hidden="true"
+        />
+      )}
+      <nav
+        id="ap-mobile-menu"
+        aria-label={t("menu_label")}
+        className={`ap-mobile-panel fixed inset-x-0 bottom-0 z-50 overflow-y-auto overscroll-contain px-4 pb-6 sm:px-6 lg:hidden ${expanded ? "" : "hidden"}`}
+        style={{ top: headerH }}
+      >
+        <div className="flex flex-col gap-2 pt-3" style={{ borderTop: "1px solid var(--ap-border)" }}>
           <form
             role="search"
             className="mb-1"
@@ -369,25 +417,28 @@ export default function Navbar({ categories }: Props) {
               </button>
             </div>
           </form>
-          <ul className="navbar-nav gap-1 mb-2">
-            <li className="nav-item"><Link className={`nav-link${isHomeActive ? " active" : ""}`} href="/" onClick={() => setExpanded(false)}>{t("nav_home")}</Link></li>
-            <li className="nav-item"><Link className={`nav-link${isFreeActive ? " active" : ""}`} href="/photos" onClick={() => setExpanded(false)}>{t("nav_free")}</Link></li>
-            <li className="nav-item"><Link className={`nav-link${isPremiumActive ? " active" : ""}`} href="/prints" onClick={() => setExpanded(false)}>{t("nav_premium")}</Link></li>
-            <li className="nav-item"><Link className={`nav-link${isMadagascarActive ? " active" : ""}`} href="/photos?category=madagascar" onClick={() => setExpanded(false)}>{t("nav_madagascar")}</Link></li>
+          <ul className="flex flex-col gap-1 m-0 p-0 list-none">
+            <li><Link className={`ap-mobile-link${isHomeActive ? " active" : ""}`} href="/" onClick={() => setExpanded(false)}>{t("nav_home")}</Link></li>
+            <li><Link className={`ap-mobile-link${isFreeActive ? " active" : ""}`} href="/photos" onClick={() => setExpanded(false)}>{t("nav_free")}</Link></li>
+            <li><Link className={`ap-mobile-link${isPremiumActive ? " active" : ""}`} href="/prints" onClick={() => setExpanded(false)}>{t("nav_premium")}</Link></li>
+            <li><Link className={`ap-mobile-link${isMadagascarActive ? " active" : ""}`} href="/photos?category=madagascar" onClick={() => setExpanded(false)}>{t("nav_madagascar")}</Link></li>
             {otherCategories.map((c) => (
-              <li className="nav-item" key={c.id}>
-                <Link className="nav-link" href={categoryHref(c)} onClick={() => setExpanded(false)}>
+              <li key={c.id}>
+                <Link className="ap-mobile-link" href={categoryHref(c)} onClick={() => setExpanded(false)}>
                   <BiIcon name={c.icon} className="me-1" /> {c.name}
                 </Link>
               </li>
             ))}
             {user && (
-              <li className="nav-item"><Link className={`nav-link${isCollectionsActive ? " active" : ""}`} href="/collections" onClick={() => setExpanded(false)}><BiIcon name="bi-heart" className="me-1" />{t("nav_collections")}</Link></li>
+              <li><Link className={`ap-mobile-link${isCollectionsActive ? " active" : ""}`} href="/collections" onClick={() => setExpanded(false)}><BiIcon name="bi-heart" className="me-1" />{t("nav_collections")}</Link></li>
             )}
           </ul>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="ap-mobile-row flex items-center gap-2">
             <ThemeToggle />
             <span className="text-xs" style={{ color: "var(--ap-muted)" }}>{t("appearance")}</span>
+          </div>
+          <div className="ap-mobile-row">
+            <LangCurrencySwitcher />
           </div>
           {mounted && user ? (
             <>
@@ -413,7 +464,7 @@ export default function Navbar({ categories }: Props) {
             </>
           )}
         </div>
-      </div>
+      </nav>
     </header>
   );
 }
