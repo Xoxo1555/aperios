@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFromBi } from "lib/faIcon";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { faCircleXmark, faSquare } from "@fortawesome/free-regular-svg-icons";
-import { faArrowsLeftRight, faArrowsUpDown, faCheck, faChevronLeft, faChevronRight, faMagnifyingGlass, faPalette, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faArrowsLeftRight, faArrowsUpDown, faCheck, faChevronLeft, faChevronRight, faMagnifyingGlass, faPalette, faSliders, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const PALETTE = [
   "#2F3E46", "#B23A48", "#3A5A40", "#4A4E69", "#CA6702", "#0077B6",
@@ -64,6 +64,7 @@ export default function Browse({ license, categories }: Props) {
   const [maxPrice, setMaxPrice] = useState(searchParams.get("max") ?? "");
   const [sort, setSort] = useState(searchParams.get("sort") ?? "latest");
   const [page, setPage] = useState(1);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const [photos, setPhotos] = useState<PhotoDto[]>([]);
   const [total, setTotal] = useState(0);
@@ -179,8 +180,29 @@ export default function Browse({ license, categories }: Props) {
         </div>
       </div>
 
+      {/* Filtres repliables sur mobile : la colonne complète est masquée tant
+          que l'utilisateur n'a pas ouvert le panneau ; sur desktop (lg+) elle
+          reste toujours visible. */}
+      <div className="lg:hidden mb-4">
+        <button
+          type="button"
+          className="btn btn-outline w-full inline-flex items-center justify-center gap-2"
+          aria-expanded={mobileFiltersOpen}
+          aria-controls="browse-filters"
+          onClick={() => setMobileFiltersOpen((v) => !v)}
+        >
+          <FontAwesomeIcon icon={faSliders} />
+          {t("filters")}
+          {activeFilters > 0 && (
+            <span className="inline-flex items-center justify-center rounded-full px-2 text-xs font-bold" style={{ background: "var(--ap-accent, #f5b23d)", color: "#141416", minWidth: 20 }}>
+              {activeFilters}
+            </span>
+          )}
+        </button>
+      </div>
+
       <div className="row g-4">
-        <div className="col-lg-3">
+        <div id="browse-filters" className={`col-lg-3 ${mobileFiltersOpen ? "" : "hidden lg:block"}`}>
           <div className="filter-section">
             <div className="filter-title">{t("filter_search")}</div>
             <div className="relative">

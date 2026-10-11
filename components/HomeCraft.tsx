@@ -19,7 +19,7 @@ export default function HomeCraft({ photos, craftCategory, artCategory }: Props)
   if (photos.length === 0) return null;
 
   return (
-    <section className="py-12 sm:py-16 relative bg-[#f8f5f0] dark:bg-[#0b0b10] border-y border-[color:var(--ap-border)]">
+    <section className="py-10 lg:py-12 relative bg-[#f8f5f0] dark:bg-[#0b0b10] border-y border-[color:var(--ap-border)]">
       <div className="max-w-7xl mx-auto px-4 relative">
         <div className="flex flex-col items-center text-center mb-10">
           <div className="w-10 h-10 rounded-full bg-amber-500/10 dark:bg-amber-400/15 border border-amber-500/30 dark:border-amber-400/30 flex items-center justify-center mb-3 text-amber-800 dark:text-amber-400">

@@ -34,7 +34,7 @@ export default function HomeCta() {
   const ctaIcon = isCreator ? faTableCells : faUpload;
 
   return (
-    <section className="container py-5">
+    <section className="container py-10 lg:py-12">
       <div className="rounded-2xl p-5 text-center relative overflow-hidden" style={{ border: "1px solid var(--ap-border)", background: "linear-gradient(120deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02))" }}>
         <div className="pattern-lamba" style={{ position: "absolute", inset: 0, opacity: 0.3 }} />
         <BubbleField variant="compact" />

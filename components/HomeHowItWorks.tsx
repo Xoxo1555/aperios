@@ -17,7 +17,7 @@ export default function HomeHowItWorks() {
   const { t } = useLanguage();
 
   return (
-    <section className="container py-5">
+    <section className="container py-10 lg:py-12">
       <div className="text-center mb-5">
         <div className="gallery-label">{t("home_how_label")}</div>
         <h2 className="section-title font-serif font-bold" style={{ color: "var(--ap-title)" }}>{t("home_how_title")}</h2>

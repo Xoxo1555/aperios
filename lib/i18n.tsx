@@ -2896,6 +2896,18 @@ unlike: {
     zh: "价格：从高到低",
     ja: "価格：高い順",
   },
+  filters: {
+    en: "Filters",
+    fr: "Filtres",
+    mg: "Sivana",
+    es: "Filtros",
+    pt: "Filtros",
+    de: "Filter",
+    it: "Filtri",
+    ar: "عوامل التصفية",
+    zh: "筛选",
+    ja: "フィルター",
+  },
   filter_search: {
     en: "Search",
     fr: "Recherche",

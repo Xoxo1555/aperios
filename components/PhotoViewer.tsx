@@ -55,6 +55,34 @@ export default function PhotoViewer({
   const [purchaseError, setPurchaseError] = useState("");
   const { show: toast, hide } = useToast();
 
+  /* Action bar — boutons ronds compacts, badge compteur dans le coin
+     supérieur droit pour ne pas chevaucher l'icône ni déborder sur mobile. */
+  const actionBtnStyle: React.CSSProperties = {
+    width: 44,
+    height: 44,
+    background: "#1C1C1F",
+    border: "1px solid rgba(255,255,255,0.14)",
+    backdropFilter: "blur(12px)",
+  };
+  const countBadgeStyle: React.CSSProperties = {
+    position: "absolute",
+    top: -7,
+    right: -7,
+    minWidth: 18,
+    height: 18,
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "0.7rem",
+    fontWeight: 700,
+    color: "#FFFFFF",
+    background: "#1C1C1F",
+    border: "1px solid rgba(255,255,255,0.12)",
+    borderRadius: 9,
+    padding: "0 0.3rem",
+    lineHeight: 1,
+  };
+
   const presets = useMemo(() => {
     const w = photo.width ?? 1600;
     const h = photo.height ?? 1067;
@@ -214,139 +242,92 @@ export default function PhotoViewer({
   return (
     <div>
       {/* Title + actions · 60-30-10 : Playfair pour titre, Inter pour métadonnées */}
-      <div className="flex justify-between items-start gap-3 mb-4">
-        <div>
+      <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
+        <div className="min-w-0">
           <h1 className="font-serif font-bold mb-2 text-zinc-900 dark:text-zinc-100" style={{ fontSize: "clamp(1.5rem, 3vw, 2.1rem)", lineHeight: 1.15 }}>
             {photo.title}
           </h1>
-          <div className="flex items-center gap-2 flex-wrap text-sm text-zinc-700 dark:text-zinc-300" style={{ fontFamily: "var(--font-sans)" }}>
-            <span className="inline-flex items-center gap-1 text-sm font-semibold text-amber-800 dark:text-amber-500" style={{ fontFamily: "var(--font-accent)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
+          {/* Séparateurs rattachés à l'élément SUIVANT (chaque segment est
+              nowrap) : un « · » ne peut plus se retrouver seul en début de
+              ligne quand la méta passe à la ligne sur mobile. */}
+          <div className="flex items-center gap-x-3 gap-y-1 flex-wrap text-sm text-zinc-700 dark:text-zinc-300" style={{ fontFamily: "var(--font-sans)" }}>
+            <span className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-semibold text-amber-800 dark:text-amber-500" style={{ fontFamily: "var(--font-accent)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
               {photo.licenseType === "free" ? t("royalty_free_photo") : t("limited_edition_label")}
             </span>
-            <span className="text-muted-foreground dark:text-zinc-600">·</span>
-            <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faEye} style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("views_count", { count: formatNumber(photo.views) })}</span>
-            <span className="text-muted-foreground dark:text-zinc-600">·</span>
-            <span className="inline-flex items-center text-sm"><span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faCloudArrowDown} style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("downloads_count", { count: formatNumber(dlCount) })}</span>
+            <span className="inline-flex items-center whitespace-nowrap text-sm">
+              <span className="me-1.5 text-muted-foreground dark:text-zinc-600" aria-hidden="true">·</span>
+              <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faEye} style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("views_count", { count: formatNumber(photo.views) })}
+            </span>
+            <span className="inline-flex items-center whitespace-nowrap text-sm">
+              <span className="me-1.5 text-muted-foreground dark:text-zinc-600" aria-hidden="true">·</span>
+              <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faCloudArrowDown} style={{ color: "#A8A29E", fontSize: 14 }} /></span>{t("downloads_count", { count: formatNumber(dlCount) })}
+            </span>
             {photo.category && (
-              <>
-                <span className="text-muted-foreground dark:text-zinc-600">·</span>
-                <Link href={`/${photo.licenseType === "free" ? "photos" : "prints"}?category=${photo.category.slug}`} className="inline-flex items-center text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-500 transition-colors">
-                  <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faFromBi(photo.category.icon)} /></span>
-                  {photo.category.name}
-                </Link>
-              </>
+              <Link href={`/${photo.licenseType === "free" ? "photos" : "prints"}?category=${photo.category.slug}`} className="inline-flex items-center whitespace-nowrap text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-500 transition-colors">
+                <span className="me-1.5 text-muted-foreground dark:text-zinc-600" aria-hidden="true">·</span>
+                <span className="inline-flex items-center justify-center shrink-0 me-1"><FontAwesomeIcon icon={faFromBi(photo.category.icon)} /></span>
+                {photo.category.name}
+              </Link>
             )}
           </div>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex flex-wrap gap-2">
           <button
-            className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-[#F43F5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F43F5E] text-white"
+            className="group relative flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-[#F43F5E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F43F5E] text-white"
             aria-label={t("like")}
             onClick={toggleLike}
-            style={{ width: 44, height: 44, background: "#1C1C1F", border: liked ? "1px solid #F43F5E" : "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
+            style={liked ? { ...actionBtnStyle, border: "1px solid #F43F5E" } : actionBtnStyle}
             title={liked ? t("unlike") : t("like")}
           >
             <span className="inline-flex items-center justify-center shrink-0">
               <FontAwesomeIcon icon={liked ? faHeartSolid : faHeart} className={liked ? "fill-current text-rose-500 dark:text-rose-500" : "text-white group-hover:text-rose-500 dark:group-hover:text-rose-500"} style={{ fontSize: 18 }} />
             </span>
-            <span
-              style={{
-                position: "absolute",
-                bottom: -8,
-                fontSize: "0.875rem",
-                fontWeight: 700,
-                color: "#FFFFFF",
-                background: "#1C1C1F",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                padding: "0 0.32rem",
-                lineHeight: 1.3,
-              }}
-            >
+            <span style={countBadgeStyle}>
               {formatNumber(likeCount)}
             </span>
           </button>
           <button
-            className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-white"
+            className="group relative flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-white"
             aria-label={t("comment")}
             onClick={() => setCommentOpen(true)}
-            style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
+            style={actionBtnStyle}
           >
             <span className="inline-flex items-center justify-center shrink-0">
               <FontAwesomeIcon icon={faComment} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
             </span>
-            <span
-              style={{
-                position: "absolute",
-                bottom: -8,
-                fontSize: "0.875rem",
-                fontWeight: 700,
-                color: "#FFFFFF",
-                background: "#1C1C1F",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                padding: "0 0.32rem",
-                lineHeight: 1.3,
-              }}
-            >
+            <span style={countBadgeStyle}>
               {formatNumber(photo.commentsCount)}
             </span>
           </button>
           <button
-            className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-white"
+            className="group relative flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-white"
             aria-label={bookmarked ? t("unbookmark") : t("bookmark")}
             onClick={toggleBookmark}
-            style={{ width: 44, height: 44, background: bookmarked ? "rgba(245,158,11,0.18)" : "#1C1C1F", border: bookmarked ? "1px solid #fbbf24" : "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
+            style={bookmarked ? { ...actionBtnStyle, background: "rgba(245,158,11,0.18)", border: "1px solid #fbbf24" } : actionBtnStyle}
             title={bookmarked ? t("unbookmark") : t("bookmark")}
           >
             <span className="inline-flex items-center justify-center shrink-0">
               <FontAwesomeIcon icon={bookmarked ? faBookmarkSolid : faBookmark} className={bookmarked ? "fill-current text-amber-500" : "text-white group-hover:text-amber-400"} style={{ fontSize: 18 }} />
             </span>
-            <span
-              style={{
-                position: "absolute",
-                bottom: -8,
-                fontSize: "0.875rem",
-                fontWeight: 700,
-                color: "#FFFFFF",
-                background: "#1C1C1F",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                padding: "0 0.32rem",
-                lineHeight: 1.3,
-              }}
-            >
+            <span style={countBadgeStyle}>
               {formatNumber(bookmarkCount)}
             </span>
           </button>
           <button
-            className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-white"
+            className="group relative flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-white"
             aria-label={t("share")}
             onClick={handleShare}
-            style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
+            style={actionBtnStyle}
           >
             <span className="inline-flex items-center justify-center shrink-0">
               <FontAwesomeIcon icon={faShareNodes} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
             </span>
-            <span
-              style={{
-                position: "absolute",
-                bottom: -8,
-                fontSize: "0.875rem",
-                fontWeight: 700,
-                color: "#FFFFFF",
-                background: "#1C1C1F",
-                border: "1px solid rgba(255,255,255,0.12)",
-                borderRadius: 8,
-                padding: "0 0.32rem",
-                lineHeight: 1.3,
-              }}
-            >
+            <span style={countBadgeStyle}>
               {formatNumber(shareCount)}
             </span>
           </button>
           <div style={{ position: "relative" }}>
-            <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 text-white" aria-label={t("save_to_collection")} onClick={() => setSaveOpen(!saveOpen)} style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
+            <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500 text-white" aria-label={t("save_to_collection")} onClick={() => setSaveOpen(!saveOpen)} style={actionBtnStyle}>
               <span className="inline-flex items-center justify-center shrink-0">
                 <FontAwesomeIcon icon={faBookmark} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
               </span>
@@ -393,7 +374,7 @@ export default function PhotoViewer({
               aria-label={t("download_for_free")}
               title={t("download_for_free")}
               onClick={freeDownload}
-              style={{ width: 44, height: 44, background: "#1C1C1F", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}
+              style={actionBtnStyle}
             >
               <span className="inline-flex items-center justify-center shrink-0">
                 <FontAwesomeIcon icon={faCloudArrowDown} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
