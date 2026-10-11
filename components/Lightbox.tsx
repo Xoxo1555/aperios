@@ -102,13 +102,7 @@ export default function Lightbox({ src, alt, open, onClose }: Props) {
           </button>
         </div>
       </div>
-      <div
-        className="lightbox-stage"
-        onClick={(e) => e.stopPropagation()}
-        onWheel={(e) =>
-          setScale((s) => Math.min(4, Math.max(1, s + (e.deltaY < 0 ? 0.2 : -0.2))))
-        }
-      >
+      <div className="lightbox-stage" onClick={(e) => e.stopPropagation()}>
         <Image
           src={src}
           alt={alt}
