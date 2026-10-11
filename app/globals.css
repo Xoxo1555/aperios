@@ -1952,11 +1952,11 @@ a:hover { color: var(--ap-gold-dark); }
   color: var(--ap-gold-2);
   transform: scale(1.04);
 }
-.lightbox { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.96); display: flex; flex-direction: column; }
+.lightbox { position: fixed; inset: 0; z-index: 2000; background: #0a0a0b; display: flex; flex-direction: column; }
 .lightbox-toolbar {
   display: flex; align-items: center; justify-content: space-between;
   padding: 1rem 1.25rem; border-bottom: 1px solid rgba(255,255,255,0.12);
-  background: rgba(13,13,13,0.8);
+  background: #0a0a0b;
 }
 .lightbox-hint { color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 600; }
 .lightbox-toolbar .icon-btn { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); color: #fff; }
