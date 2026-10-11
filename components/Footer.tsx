@@ -177,7 +177,7 @@ export default function Footer() {
       {/* Barre de bas / Copyright */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="border-t border-border mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-muted-foreground flex-wrap">
-          <p className="m-0">© {new Date().getFullYear()} Aperio. {t("all_rights_reserved")} Crafted with care in Madagascar.</p>
+          <p className="m-0">© {new Date().getFullYear()} Aperio. {t("all_rights_reserved")} {t("crafted_with_care")}</p>
           <div className="flex items-center gap-3 flex-wrap justify-center">
             <Link href="/privacy" className="hover:text-white transition-colors">{t("privacy_policy")}</Link>
             <span aria-hidden="true" className="text-neutral-600">•</span>

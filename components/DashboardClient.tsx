@@ -375,63 +375,95 @@ export default function DashboardClient({ userName }: { userName: string }) {
         <div className="col-lg-6">
           <div className="bg-surface rounded-2xl p-4 mb-4" style={{ border: "1px solid var(--ap-border)" }}>
             <h5 className="font-display font-bold mb-3"><FontAwesomeIcon icon={faImages} className="me-2 text-gold" />{t("my_photos_count", { count: String(s.photoCount) })}</h5>
-            <div style={{ maxHeight: 420, overflow: "auto" }}>
-              <table className="table table-dark-ap table-sm align-middle">
-                <thead>
-                  <tr>
-                    <th>{t("photo_header")}</th>
-                    <th>{t("license_header")}</th>
-                    <th className="text-right">DL</th>
-                    <th className="text-right">{t("stat_likes")}</th>
-                    <th className="text-right">{t("price_header")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.myPhotos.map((p) => (
-                    <tr key={p.id}>
-                      <td>
-                        <Link href={`/photo/${p.slug}`} className="flex items-center gap-2">
-                          <Image
-                            src={p.imageUrl}
-                            alt={p.title}
-                            width={40}
-                            height={40}
-                            className="object-cover"
-                            style={{ borderRadius: 6 }}
-                            unoptimized={process.env.NODE_ENV === "development"}
-                            loading="lazy"
-                          />
-                          <span className="truncate" style={{ maxWidth: 160, fontSize: "0.82rem" }}>{p.title}</span>
-                        </Link>
-                      </td>
-                      <td>
-                        {p.licenseType === "free" ? (
-                          <span className="badge-free badge rounded-pill">FREE</span>
-                        ) : (
-                          <span className="badge-limited badge rounded-pill">{p.available}/{p.total}</span>
-                        )}
-                      </td>
-                      <td className="text-right" style={{ fontSize: "0.82rem" }}>{formatNumber(p.downloads)}</td>
-                      <td className="text-right" style={{ fontSize: "0.82rem" }}>{formatNumber(p.likes)}</td>
-                      <td className="text-right" style={{ fontSize: "0.82rem" }}>
-                        {p.licenseType === "limited" ? price(p.price) : "—"}
-                      </td>
-                    </tr>
-                  ))}
-                  {data.myPhotos.length === 0 && (
+            {data.myPhotos.length === 0 ? (
+              <div className="text-center py-4">
+                <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-2" style={{ width: 56, height: 56, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
+                  <FontAwesomeIcon icon={faImages} style={{ fontSize: "1.4rem", color: "var(--ap-gold)" }} />
+                </span>
+                <div className="font-display font-bold" style={{ fontSize: "0.98rem", color: "var(--ap-card-foreground)" }}>{t("no_photos_yet")}</div>
+                <div className="text-muted-2" style={{ fontSize: "0.85rem" }}>{t("no_photos_yet_sub")}</div>
+              </div>
+            ) : (
+              <div style={{ maxHeight: 420, overflow: "auto" }}>
+                <table className="table table-dark-ap table-sm align-middle hidden md:table">
+                  <thead>
                     <tr>
-                      <td colSpan={5} className="text-center py-4">
-                        <span className="inline-flex items-center justify-center rounded-circle mx-auto mb-2" style={{ width: 56, height: 56, background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.35)" }}>
-                          <FontAwesomeIcon icon={faImages} style={{ fontSize: "1.4rem", color: "var(--ap-gold)" }} />
-                        </span>
-                        <div className="font-display font-bold" style={{ fontSize: "0.98rem", color: "var(--ap-card-foreground)" }}>{t("no_photos_yet")}</div>
-                        <div className="text-muted-2" style={{ fontSize: "0.85rem" }}>{t("no_photos_yet_sub")}</div>
-                      </td>
+                      <th>{t("photo_header")}</th>
+                      <th>{t("license_header")}</th>
+                      <th className="text-right">DL</th>
+                      <th className="text-right">{t("stat_likes")}</th>
+                      <th className="text-right">{t("price_header")}</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {data.myPhotos.map((p) => (
+                      <tr key={p.id}>
+                        <td>
+                          <Link href={`/photo/${p.slug}`} className="flex items-center gap-2">
+                            <Image
+                              src={p.imageUrl}
+                              alt={p.title}
+                              width={40}
+                              height={40}
+                              className="object-cover"
+                              style={{ borderRadius: 6 }}
+                              unoptimized={process.env.NODE_ENV === "development"}
+                              loading="lazy"
+                            />
+                            <span className="truncate" style={{ maxWidth: 160, fontSize: "0.82rem" }}>{p.title}</span>
+                          </Link>
+                        </td>
+                        <td>
+                          {p.licenseType === "free" ? (
+                            <span className="badge-free badge rounded-pill">FREE</span>
+                          ) : (
+                            <span className="badge-limited badge rounded-pill">{p.available}/{p.total}</span>
+                          )}
+                        </td>
+                        <td className="text-right" style={{ fontSize: "0.82rem" }}>{formatNumber(p.downloads)}</td>
+                        <td className="text-right" style={{ fontSize: "0.82rem" }}>{formatNumber(p.likes)}</td>
+                        <td className="text-right" style={{ fontSize: "0.82rem" }}>
+                          {p.licenseType === "limited" ? price(p.price) : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div className="md:hidden">
+                  {data.myPhotos.map((p) => (
+                    <Link key={p.id} href={`/photo/${p.slug}`} className="flex items-center gap-3 py-3" style={{ borderBottom: "1px solid var(--ap-border)" }}>
+                      <Image
+                        src={p.imageUrl}
+                        alt={p.title}
+                        width={48}
+                        height={48}
+                        className="object-cover shrink-0"
+                        style={{ borderRadius: 6 }}
+                        unoptimized={process.env.NODE_ENV === "development"}
+                        loading="lazy"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate" style={{ fontSize: "0.88rem", color: "var(--ap-card-foreground)" }}>{p.title}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          {p.licenseType === "free" ? (
+                            <span className="badge-free badge rounded-pill">FREE</span>
+                          ) : (
+                            <span className="badge-limited badge rounded-pill">{p.available}/{p.total}</span>
+                          )}
+                          <span className="inline-flex items-center gap-1 text-muted-2 whitespace-nowrap" style={{ fontSize: "0.72rem" }}>
+                            <FontAwesomeIcon icon={faCloudArrowDown} />{formatNumber(p.downloads)}
+                            <FontAwesomeIcon icon={faHeartSolid} className="ms-1" />{formatNumber(p.likes)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-gold font-bold shrink-0" style={{ fontSize: "0.85rem" }}>
+                        {p.licenseType === "limited" ? price(p.price) : "—"}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="bg-surface rounded-2xl p-4" style={{ border: "1px solid var(--ap-border)" }}>

@@ -1061,6 +1061,18 @@ pricing_commissions: {
     zh: "保留所有权利。",
     ja: "無断複写・転載を禁じます。",
   },
+  crafted_with_care: {
+    en: "Crafted with care in Madagascar.",
+    fr: "Conçu avec soin à Madagascar.",
+    mg: "Vita tamim-pitiavana eto Madagasikara.",
+    es: "Hecho con esmero en Madagascar.",
+    pt: "Feito com cuidado em Madagáscar.",
+    de: "Mit Sorgfalt gefertigt in Madagaskar.",
+    it: "Realizzato con cura in Madagascar.",
+    ar: "صُنع بعناية في مدغشقر.",
+    zh: "在马达加斯加用心打造。",
+    ja: "マダガスカルで心を込めて制作。",
+  },
 
   change_language: {
     en: "Change language",
