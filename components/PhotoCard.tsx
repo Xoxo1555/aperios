@@ -197,7 +197,7 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <Link href={`/photo/${photo.slug}`} className="group/title">
-              <h3 className="line-clamp-2 text-[0.82rem] sm:text-sm font-bold capitalize leading-snug group-hover/title:text-amber-600 dark:group-hover/title:text-amber-500 transition-colors font-serif text-zinc-900 dark:text-zinc-100">
+              <h3 className="line-clamp-2 break-words text-[0.82rem] sm:text-sm font-bold capitalize leading-snug group-hover/title:text-amber-600 dark:group-hover/title:text-amber-500 transition-colors font-serif text-zinc-900 dark:text-zinc-100">
                 {photo.title}
               </h3>
             </Link>
