@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "lib/i18n";
 import { blurDataUrl } from "lib/utils";
 import Image from "next/image";
@@ -41,24 +42,63 @@ export default function Lightbox({ src, alt, open, onClose }: Props) {
 
   if (!open) return null;
 
-  return (
+  const controlStyle = {
+    width: 44,
+    height: 44,
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.14)",
+    backdropFilter: "blur(12px)",
+  } as const;
+
+  const content = (
     <div className="lightbox" role="dialog" aria-modal="true" aria-label={alt} onClick={onClose}>
-      <div className="lightbox-toolbar" onClick={(e) => e.stopPropagation()}>
+      {/* Bouton de fermeture dédié, ancré au viewport : reste visible et
+          tapable (48×48) même sur mobile, indépendamment du contenu de la
+          fiche qui peut être décalé horizontalement. */}
+      <button
+        type="button"
+        aria-label={t("close")}
+        title={t("close")}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        style={{
+          position: "fixed",
+          top: "max(0.75rem, env(safe-area-inset-top))",
+          right: "max(0.75rem, env(safe-area-inset-right))",
+          zIndex: 2010,
+          width: 48,
+          height: 48,
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: 999,
+          background: "rgba(20,20,22,0.78)",
+          border: "1px solid rgba(255,255,255,0.28)",
+          color: "#fff",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
+          cursor: "pointer",
+        }}
+      >
+        <FontAwesomeIcon icon={faXmark} style={{ fontSize: 22 }} />
+      </button>
+
+      <div className="lightbox-toolbar" onClick={(e) => e.stopPropagation()} style={{ paddingRight: "4.75rem" }}>
         <div className="lightbox-hint">
           <FontAwesomeIcon icon={faMagnifyingGlassPlus} className="me-1" /> {Math.round(scale * 100)}%
         </div>
         <div className="flex items-center gap-2">
-          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("zoom_in")} onClick={() => setScale((s) => Math.min(4, s + 0.5))} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
+          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" type="button" aria-label={t("zoom_in")} title={t("zoom_in")} onClick={() => setScale((s) => Math.min(4, s + 0.5))} style={controlStyle}>
             <FontAwesomeIcon icon={faPlus} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
-          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("zoom_out")} onClick={() => setScale((s) => Math.max(1, s - 0.5))} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
+          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" type="button" aria-label={t("zoom_out")} title={t("zoom_out")} onClick={() => setScale((s) => Math.max(1, s - 0.5))} style={controlStyle}>
             <FontAwesomeIcon icon={faMinus} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
-          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("actual_size")} onClick={() => setScale(1)} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
+          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" type="button" aria-label={t("actual_size")} title={t("actual_size")} onClick={() => setScale(1)} style={controlStyle}>
             <FontAwesomeIcon icon={faExpand} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
-          </button>
-          <button className="group flex items-center justify-center rounded-full backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-amber-500" aria-label={t("close")} onClick={onClose} style={{ width: 44, height: 44, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)" }}>
-            <FontAwesomeIcon icon={faXmark} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
           </button>
         </div>
       </div>
@@ -85,4 +125,9 @@ export default function Lightbox({ src, alt, open, onClose }: Props) {
       </div>
     </div>
   );
+
+  /* Portail vers <body> : le visualiseur échappe au conteneur `overflow-hidden`
+     de la fiche (et à tout décalage horizontal de la page), ce qui garantit
+     que le bouton X est bien ancré au coin supérieur droit du viewport. */
+  return typeof document === "undefined" ? content : createPortal(content, document.body);
 }
