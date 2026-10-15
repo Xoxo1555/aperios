@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, signSessionToken } from "lib/auth";
-import { exchangeGoogleCode, fetchGoogleProfile, findOrCreateGoogleUser, isGoogleConfigured } from "lib/google";
+import { exchangeGoogleCode, fetchGoogleProfile, findOrCreateGoogleUser } from "lib/google";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +18,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (!isGoogleConfigured()) return fail("google_not_configured");
+  // Required environment for the full OAuth exchange + session issuance.
+  // Presence is checked without ever logging the secret values themselves.
+  const requiredEnv = {
+    GOOGLE_CLIENT_ID: Boolean(process.env.GOOGLE_CLIENT_ID),
+    GOOGLE_CLIENT_SECRET: Boolean(process.env.GOOGLE_CLIENT_SECRET),
+    JWT_SECRET: Boolean(process.env.JWT_SECRET),
+  };
+  if (!requiredEnv.GOOGLE_CLIENT_ID || !requiredEnv.GOOGLE_CLIENT_SECRET || !requiredEnv.JWT_SECRET) {
+    console.error(
+      "[google/callback] Missing required environment variable(s) — aborting OAuth flow:",
+      requiredEnv
+    );
+    return fail("google_not_configured");
+  }
 
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
@@ -50,7 +63,19 @@ export async function GET(req: NextRequest) {
     res.cookies.delete("google_oauth_next");
     return res;
   } catch (err) {
-    console.error("[google/callback]", err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    console.error(
+      "[google/callback] OAuth callback failed — redirecting to /login?error=google_failed",
+      {
+        origin,
+        next,
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        cause: (error as { cause?: unknown }).cause,
+        requiredEnv,
+      }
+    );
     return fail("google_failed");
   }
 }
