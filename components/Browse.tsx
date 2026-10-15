@@ -122,6 +122,7 @@ export default function Browse({ license, categories }: Props) {
   }, [license, q, category, orientation, color, minPrice, maxPrice, sort, page]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch réactif aux filtres, pattern volontaire
     fetchPhotos();
     return () => abortRef.current?.abort();
   }, [fetchPhotos]);
@@ -138,7 +139,7 @@ export default function Browse({ license, categories }: Props) {
     if (page > 1) params.set("page", String(page));
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [q, category, orientation, color, minPrice, maxPrice, sort, page]);
+  }, [q, category, orientation, color, minPrice, maxPrice, sort, page, pathname, router]);
 
   function resetFilters() {
     setQInput("");

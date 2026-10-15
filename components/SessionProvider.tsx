@@ -21,6 +21,7 @@ export function SessionProvider({
 
   // Synchronise l'état client si le serveur renvoie un nouvel utilisateur (ex: refresh après login)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronisation serveur→client après refresh, pattern volontaire
     setUser(initialUser);
   }, [initialUser]);
 

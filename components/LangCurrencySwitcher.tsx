@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import Image from "next/image";
 import { ALL_LANGUAGES, useLanguage, type LangCode } from "lib/i18n";
 import { ALL_CURRENCIES, SUPPORTED_CURRENCIES, useCurrency, type CurrencyCode } from "lib/currency";
+import { useMounted } from "lib/hooks";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { faCheck, faChevronDown } from "@fortawesome/free-solid-svg-icons";
@@ -30,13 +32,13 @@ const CUR_FLAG: Record<string, string> = {
 
 function FlagImg({ code, alt }: { code: string; alt: string }) {
   return (
-    <img
+    <Image
       src={`https://flagcdn.com/40x30/${code}.png`}
       alt={alt}
       width={20}
       height={15}
       className="w-5 h-[15px] object-cover rounded-[2px] shadow-sm shrink-0"
-      loading="lazy"
+      unoptimized
     />
   );
 }
@@ -46,11 +48,7 @@ export default function LangCurrencySwitcher() {
   const { currency, setCurrency } = useCurrency();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   const currentLang = ALL_LANGUAGES.find((l) => l.code === lang) ?? ALL_LANGUAGES[0];
   const currentCurrency = ALL_CURRENCIES.find((c) => c.code === currency) ?? ALL_CURRENCIES[0];

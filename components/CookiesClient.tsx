@@ -55,6 +55,7 @@ export default function CookiesClient() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const parsed = JSON.parse(raw) as Partial<ConsentState> & { savedAt?: string };
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- hydratation depuis localStorage au montage, pattern volontaire
       setConsent({
         essential: true,
         analytics: parsed.analytics === true,

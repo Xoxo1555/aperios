@@ -138,9 +138,22 @@ export default function AdminClient() {
     }
   }, [userPage, userRole, userQ]);
 
-  useEffect(() => { loadOverview(); }, [loadOverview]);
-  useEffect(() => { if (tab === "transactions" || tab === "exceptions") loadTxs(); }, [tab, loadTxs]);
-  useEffect(() => { if (tab === "users") loadUsers(); }, [tab, loadUsers]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch de données au montage, pattern volontaire
+    loadOverview();
+  }, [loadOverview]);
+  useEffect(() => {
+    if (tab === "transactions" || tab === "exceptions") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch à l'ouverture de l'onglet, pattern volontaire
+      loadTxs();
+    }
+  }, [tab, loadTxs]);
+  useEffect(() => {
+    if (tab === "users") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch à l'ouverture de l'onglet, pattern volontaire
+      loadUsers();
+    }
+  }, [tab, loadUsers]);
 
   const activeTransactions: Tx[] = txs?.transactions ?? [];
 

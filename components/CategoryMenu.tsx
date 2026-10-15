@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useLanguage, type DictKey } from "lib/i18n";
+import { useMounted } from "lib/hooks";
 import type { CategoryDto } from "lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFromBi } from "lib/faIcon";
@@ -60,8 +61,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
   const searchParams = useSearchParams();
   const category = searchParams.get("category");
   const { t, lang } = useLanguage();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
+  const mounted = useMounted();
 
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
