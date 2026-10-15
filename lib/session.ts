@@ -19,6 +19,11 @@ function jwtSecret(): Uint8Array {
       "JWT_SECRET is not set. Define it in your environment before starting the server."
     );
   }
+  if (process.env.NODE_ENV === "production" && secret.length < 32) {
+    throw new Error(
+      "JWT_SECRET must be at least 32 random characters in production (e.g. openssl rand -hex 32)."
+    );
+  }
   return new TextEncoder().encode(secret);
 }
 

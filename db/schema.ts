@@ -242,15 +242,19 @@ export const mounts = pgTable("mounts", {
 /* ------------------------------------------------------------------ */
 /*  collections                                                        */
 /* ------------------------------------------------------------------ */
-export const collections = pgTable("collections", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-  name: text("name").notNull(),
-  slug: text("slug").notNull(),
-  description: text("description"),
-  isPublic: boolean("is_public").notNull().default(true),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const collections = pgTable(
+  "collections",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    description: text("description"),
+    isPublic: boolean("is_public").notNull().default(true),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("collections_user_idx").on(t.userId)],
+);
 
 export const collectionPhotos = pgTable(
   "collection_photos",
@@ -259,7 +263,10 @@ export const collectionPhotos = pgTable(
     photoId: integer("photo_id").notNull().references(() => photos.id, { onDelete: "cascade" }),
     addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.collectionId, t.photoId] })],
+  (t) => [
+    primaryKey({ columns: [t.collectionId, t.photoId] }),
+    index("collection_photos_photo_idx").on(t.photoId),
+  ],
 );
 
 export const likes = pgTable(
@@ -269,7 +276,10 @@ export const likes = pgTable(
     photoId: integer("photo_id").notNull().references(() => photos.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.userId, t.photoId] })],
+  (t) => [
+    primaryKey({ columns: [t.userId, t.photoId] }),
+    index("likes_photo_idx").on(t.photoId),
+  ],
 );
 
 /* ------------------------------------------------------------------ */
@@ -317,6 +327,7 @@ export const orders = pgTable(
     uniqueIndex("orders_user_idempotency_key_idx")
       .on(t.userId, t.idempotencyKey)
       .where(sql`${t.idempotencyKey} IS NOT NULL`),
+    index("orders_user_idx").on(t.userId),
   ],
 );
 
@@ -343,6 +354,7 @@ export const orderItems = pgTable("order_items", {
     uniqueIndex("order_items_photo_edition_idx")
       .on(t.photoId, t.editionNumber)
       .where(sql`${t.editionNumber} IS NOT NULL`),
+    index("order_items_order_idx").on(t.orderId),
   ],
 );
 
@@ -395,7 +407,10 @@ export const comments = pgTable(
     content: text("content").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index("comments_photo_idx").on(t.photoId)],
+  (t) => [
+    index("comments_photo_idx").on(t.photoId),
+    index("comments_user_idx").on(t.userId),
+  ],
 );
 
 /* ------------------------------------------------------------------ */
@@ -408,7 +423,10 @@ export const bookmarks = pgTable(
     photoId: integer("photo_id").notNull().references(() => photos.id, { onDelete: "cascade" }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [primaryKey({ columns: [t.userId, t.photoId] })],
+  (t) => [
+    primaryKey({ columns: [t.userId, t.photoId] }),
+    index("bookmarks_photo_idx").on(t.photoId),
+  ],
 );
 
 /* ------------------------------------------------------------------ */
@@ -428,20 +446,24 @@ export const shares = pgTable(
 /* ------------------------------------------------------------------ */
 /*  payouts — withdrawals for photographers                            */
 /* ------------------------------------------------------------------ */
-export const payouts = pgTable("payouts", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => users.id),
-  reference: text("reference").notNull().unique(),
-  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
-  method: text("method").notNull(),
-  account: text("account").notNull(),
-  accountName: text("account_name"),
-  status: text("status", { enum: ["pending", "processing", "completed", "failed"] })
-    .notNull()
-    .default("pending"),
-  processedAt: timestamp("processed_at", { withTimezone: true }),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
+export const payouts = pgTable(
+  "payouts",
+  {
+    id: serial("id").primaryKey(),
+    userId: integer("user_id").notNull().references(() => users.id),
+    reference: text("reference").notNull().unique(),
+    amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+    method: text("method").notNull(),
+    account: text("account").notNull(),
+    accountName: text("account_name"),
+    status: text("status", { enum: ["pending", "processing", "completed", "failed"] })
+      .notNull()
+      .default("pending"),
+    processedAt: timestamp("processed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index("payouts_user_idx").on(t.userId)],
+);
 
 /* ------------------------------------------------------------------ */
 /*  wallet_transactions — unified ledger of balance movements           */

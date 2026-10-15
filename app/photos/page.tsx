@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import Browse from "components/Browse";
 import { fetchCategoryDtos } from "lib/queries";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata = {
   title: "Free Photos · Aperio",

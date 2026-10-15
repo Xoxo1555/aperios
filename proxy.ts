@@ -93,7 +93,7 @@ export const config = {
     "/checkout/:path*",
     "/orders/:path*",
     "/settings/:path*",
-    "/collections",
+    "/collections/:path*",
     "/purchases",
     "/wallet/:path*",
     "/login",
