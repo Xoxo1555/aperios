@@ -83,7 +83,11 @@ export function captureCode(filter?: { to?: string; subject?: string }): string 
     : mailSink;
   const last = mails[mails.length - 1];
   if (!last) throw new MailDeliveryError("captureCode: aucun e-mail capturé.");
-  const match = /letter-spacing: 10px[^>]*>\s*(\d{6})\s*<\/div>/.exec(last.html);
+  const match =
+    /* Verification e-mail (inline style) */
+    /letter-spacing: 10px[^>]*>\s*(\d{6})\s*<\/div>/.exec(last.html) ??
+    /* Password-reset e-mail (class="code-box") */
+    /class="code-box"[^>]*>\s*(\d{6})\s*<\/div>/.exec(last.html);
   if (!match) throw new MailDeliveryError("captureCode: code introuvable dans l'e-mail capturé.");
   return match[1];
 }
@@ -160,18 +164,86 @@ export function verificationEmailHtml(code: string, name: string): string {
 }
 
 export function passwordResetEmailHtml(code: string, name: string): string {
-  return `
-    <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #F5F2EB; border: 1px solid #D6CEC0; border-radius: 12px; overflow: hidden;">
-      ${aperioEmailHeaderHtml()}
-      <div style="padding: 28px 32px; background: #F5F2EB;">
-        <p style="color: #1C1917; font-size: 15px; margin: 0 0 10px;">Bonjour ${name},</p>
-        <p style="color: #57534E; font-size: 14px; line-height: 1.6; margin: 0 0 16px;">Voici votre code de réinitialisation de mot de passe Aperio :</p>
-        <div style="font-size: 32px; font-weight: 800; letter-spacing: 10px; color: #D97706; text-align: center; padding: 16px 0; background: #FFFFFF; border: 1px solid #D6CEC0; border-radius: 10px;">${code}</div>
-        <p style="color: #78716C; font-size: 13px; margin: 16px 0 0;">Ce code expire dans 30 minutes. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail sans risque — votre mot de passe ne sera pas modifié.</p>
-      </div>
-      <div style="background: #141416; padding: 14px 24px; text-align: center;">
-        <span style="font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #F59E0B;">Aperio &mdash; Atelier Ivoire</span>
-      </div>
+  /* Absolute logo URL so it resolves inside the mail client (the template is
+   * rendered server-side, never from the browser's current origin). */
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").trim().replace(/\/+$/, "");
+  const logoUrl = `${appUrl}/logo.png`;
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background-color: #09090b;
+      color: #fafafa;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+      background-color: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .logo {
+      max-width: 160px;
+      height: auto;
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+    p {
+      color: #a1a1aa;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .code-box {
+      background-color: #09090b;
+      border: 1px solid #d97706;
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 12px;
+      color: #f59e0b;
+      margin: 20px 0 30px 0;
+    }
+    .footer {
+      margin-top: 32px;
+      font-size: 12px;
+      color: #71717a;
+      border-top: 1px solid #27272a;
+      padding-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="${logoUrl}" alt="APERIO" class="logo" />
+
+    <h1>Mot de passe oublié&nbsp;?</h1>
+    <p>Bonjour ${name},<br>Voici votre code de réinitialisation à 6 chiffres pour réinitialiser votre mot de passe Aperio :</p>
+
+    <div class="code-box">${code}</div>
+
+    <p style="font-size: 13px; color: #71717a;">Ce code est valide pendant 30 minutes. Si vous n'avez pas demandé cette réinitialisation, vous pouvez ignorer cet e-mail en toute sécurité.</p>
+
+    <div class="footer">
+      &copy; APERIO &mdash; Galerie d'Art &amp; Photographie. Tous droits réservés.
     </div>
-  `;
+  </div>
+</body>
+</html>`;
 }

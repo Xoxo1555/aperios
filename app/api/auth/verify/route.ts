@@ -84,9 +84,15 @@ export async function POST(req: NextRequest) {
       await dispatchEmailVerification(row[0].id, email, row[0].name);
     } catch (err) {
       if (err instanceof MailDeliveryError) {
+        /* Log the raw SMTP error (535 5.7.8, auth, connection, …) server-side
+         * only — never leak provider internals/credentials to the client. */
+        console.error("[auth/verify] Échec SMTP lors de l'envoi du code :", err.message);
         return NextResponse.json(
-          { error: `Impossible d'envoyer le code de confirmation : ${err.message}` },
-          { status: 500 },
+          {
+            error:
+              "Le service d'envoi d'e-mail est temporairement indisponible, veuillez contacter l'administrateur.",
+          },
+          { status: 503 },
         );
       }
       throw err;
