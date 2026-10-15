@@ -11,15 +11,31 @@ const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo";
 
 export function isGoogleConfigured(): boolean {
-  return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+  return Boolean(
+    process.env.GOOGLE_CLIENT_ID &&
+      process.env.GOOGLE_CLIENT_SECRET &&
+      process.env.NEXT_PUBLIC_APP_URL
+  );
 }
 
-export function getGoogleRedirectUri(origin: string): string {
-  return process.env.GOOGLE_REDIRECT_URI?.trim() || `${origin}/api/auth/google/callback`;
+/**
+ * The redirect_uri sent to Google is always derived from NEXT_PUBLIC_APP_URL
+ * (e.g. https://aperios-mg.vercel.app/api/auth/google/callback) so the
+ * callback URL registered in Google Cloud Console and the one used during the
+ * flow can never diverge between environments.
+ */
+export function getGoogleRedirectUri(): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/+$/, "");
+  if (!base) {
+    throw new Error(
+      "NEXT_PUBLIC_APP_URL is not set — cannot build the Google redirect_uri."
+    );
+  }
+  return `${base}/api/auth/google/callback`;
 }
 
-export function buildGoogleAuthUrl(origin: string, state: string): string {
-  const redirectUri = getGoogleRedirectUri(origin);
+export function buildGoogleAuthUrl(state: string): string {
+  const redirectUri = getGoogleRedirectUri();
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID!,
     redirect_uri: redirectUri,
@@ -39,8 +55,8 @@ export interface GoogleProfile {
   email_verified?: boolean;
 }
 
-export async function exchangeGoogleCode(code: string, origin: string): Promise<string> {
-  const redirectUri = getGoogleRedirectUri(origin);
+export async function exchangeGoogleCode(code: string): Promise<string> {
+  const redirectUri = getGoogleRedirectUri();
   const res = await fetch(GOOGLE_TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },

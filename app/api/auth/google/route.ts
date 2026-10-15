@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
   const next = req.nextUrl.searchParams.get("next") || "/";
   const state = randomUUID();
 
-  const res = NextResponse.redirect(buildGoogleAuthUrl(req.nextUrl.origin, state));
+  const res = NextResponse.redirect(buildGoogleAuthUrl(state));
   const cookieOpts = {
     httpOnly: true,
     sameSite: "lax" as const,

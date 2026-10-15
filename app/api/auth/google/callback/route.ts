@@ -24,8 +24,14 @@ export async function GET(req: NextRequest) {
     GOOGLE_CLIENT_ID: Boolean(process.env.GOOGLE_CLIENT_ID),
     GOOGLE_CLIENT_SECRET: Boolean(process.env.GOOGLE_CLIENT_SECRET),
     JWT_SECRET: Boolean(process.env.JWT_SECRET),
+    NEXT_PUBLIC_APP_URL: Boolean(process.env.NEXT_PUBLIC_APP_URL),
   };
-  if (!requiredEnv.GOOGLE_CLIENT_ID || !requiredEnv.GOOGLE_CLIENT_SECRET || !requiredEnv.JWT_SECRET) {
+  if (
+    !requiredEnv.GOOGLE_CLIENT_ID ||
+    !requiredEnv.GOOGLE_CLIENT_SECRET ||
+    !requiredEnv.JWT_SECRET ||
+    !requiredEnv.NEXT_PUBLIC_APP_URL
+  ) {
     console.error(
       "[google/callback] Missing required environment variable(s) — aborting OAuth flow:",
       requiredEnv
@@ -43,7 +49,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const accessToken = await exchangeGoogleCode(code, origin);
+    const accessToken = await exchangeGoogleCode(code);
     const profile = await fetchGoogleProfile(accessToken);
     if (!profile.email) return fail("google_no_email");
 
