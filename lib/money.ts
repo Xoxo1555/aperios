@@ -30,11 +30,13 @@ export const ALL_CURRENCIES: CurrencyMeta[] = [
   { code: "MGA", label: "Malagasy Ariary", symbol: "Ar", locale: "fr-FR" },
 ];
 
-/** How many MGA 1 unit of the currency is worth (MGA is the base). */
+/** How many MGA 1 unit of the currency is worth (MGA is the base). 
+ * Taux actuels avec fallback: 1 EUR = 1.08 USD = 5000 MGA
+ */
 export const MGA_PER_UNIT: Record<CurrencyCode, number> = {
   MGA: 1,
   EUR: 5000,
-  USD: 4600,
+  USD: 5000 / 1.08,
 };
 
 /** Convert a canonical EUR amount into the target currency. */
