@@ -26,9 +26,10 @@ interface Props {
   photo: PhotoDto;
   isOpen: boolean;
   onClose: () => void;
+  onCommentAdded?: () => void;
 }
 
-export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
+export default function CommentDrawer({ photo, isOpen, onClose, onCommentAdded }: Props) {
   const { user } = useSession();
   const { t } = useLanguage();
   const mounted = useMounted();
@@ -89,6 +90,7 @@ export default function CommentDrawer({ photo, isOpen, onClose }: Props) {
       });
       if (res.ok) {
         setText("");
+        onCommentAdded?.();
         fetchComments();
       }
     } catch {

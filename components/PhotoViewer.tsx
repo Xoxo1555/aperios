@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "./SessionProvider";
 import { useCurrency } from "lib/currency";
+import { useBookmarkState } from "lib/bookmarks";
 import PrintCustomizer from "./PrintCustomizer";
 import { formatNumber, resizeUrl } from "lib/utils";
 import { useLanguage } from "lib/i18n";
@@ -22,6 +23,7 @@ interface Props {
   sizes: PrintSizeDto[];
   mounts: MountDto[];
   initialLiked: boolean;
+  initialBookmarked: boolean;
   collections: CollectionDto[];
   initialCollectionIds: number[];
 }
@@ -31,6 +33,7 @@ export default function PhotoViewer({
   sizes,
   mounts,
   initialLiked,
+  initialBookmarked,
   collections,
   initialCollectionIds,
 }: Props) {
@@ -41,8 +44,12 @@ export default function PhotoViewer({
   const [dlCount, setDlCount] = useState(photo.downloads);
   const [liked, setLiked] = useState(initialLiked);
   const [likeCount, setLikeCount] = useState(photo.likesCount);
-  const [bookmarked, setBookmarked] = useState(false);
-  const [bookmarkCount, setBookmarkCount] = useState(photo.bookmarksCount);
+  const [commentCount, setCommentCount] = useState(photo.commentsCount);
+  const { bookmarked, count: bookmarkCount, toggle: toggleBookmarkState } = useBookmarkState(
+    photo.id,
+    initialBookmarked,
+    photo.bookmarksCount,
+  );
   const [shareCount, setShareCount] = useState(photo.sharesCount);
   const [savedIds, setSavedIds] = useState<Set<number>>(new Set(initialCollectionIds));
   const [saveOpen, setSaveOpen] = useState(false);
@@ -123,17 +130,10 @@ export default function PhotoViewer({
     if (!user) return requireLogin();
     if (busy) return;
     setBusy(true);
-    const action = bookmarked ? "unbookmark" : "bookmark";
     try {
-      const res = await fetch(`/api/photos/${photo.id}/actions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      if (res.ok) {
-        setBookmarked(!bookmarked);
-        setBookmarkCount((c) => Math.max(0, c + (bookmarked ? -1 : 1)));
-      }
+      /* Optimistic: the shared store flips isBookmarked and adjusts the count
+       * immediately (and stays in sync with the /photos grid cards). */
+      await toggleBookmarkState();
     } finally {
       setBusy(false);
     }
@@ -296,7 +296,7 @@ export default function PhotoViewer({
               <FontAwesomeIcon icon={faComment} className="text-white group-hover:text-amber-400" style={{ fontSize: 18 }} />
             </span>
             <span style={countBadgeStyle}>
-              {formatNumber(photo.commentsCount)}
+              {formatNumber(commentCount)}
             </span>
           </button>
           <button
@@ -509,7 +509,12 @@ export default function PhotoViewer({
         </div>
       )}
 
-      <CommentDrawer photo={photo} isOpen={commentOpen} onClose={() => setCommentOpen(false)} />
+      <CommentDrawer
+        photo={photo}
+        isOpen={commentOpen}
+        onClose={() => setCommentOpen(false)}
+        onCommentAdded={() => setCommentCount((c) => c + 1)}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { useSession } from "./SessionProvider";
 import { blurDataUrl, formatNumber } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { useMounted } from "lib/hooks";
+import { useBookmarkState } from "lib/bookmarks";
 import { usePrice } from "lib/currency";
 import { useToast } from "components/ui/toast";
 import CommentDrawer from "./CommentDrawer";
@@ -23,7 +24,12 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
   const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(photo.likesCount);
-  const [bookmarked, setBookmarked] = useState(false);
+  const [commentCount, setCommentCount] = useState(photo.commentsCount);
+  const { bookmarked, count: bookmarkCount, toggle: toggleBookmarkState } = useBookmarkState(
+    photo.id,
+    photo.isBookmarked ?? false,
+    photo.bookmarksCount,
+  );
   const [busy, setBusy] = useState(false);
   const [commentDrawerOpen, setCommentDrawerOpen] = useState(false);
   const { show: toast } = useToast();
@@ -63,16 +69,10 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
     }
     if (busy) return;
     setBusy(true);
-    const action = bookmarked ? "unbookmark" : "bookmark";
     try {
-      const res = await fetch(`/api/photos/${photo.id}/actions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      if (res.ok) {
-        setBookmarked(!bookmarked);
-      }
+      /* Optimistic: the shared store flips isBookmarked and adjusts the count
+       * immediately, then rolls back on failure. */
+      await toggleBookmarkState();
     } finally {
       setBusy(false);
     }
@@ -251,7 +251,7 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
                 <FontAwesomeIcon icon={faComment} className="text-zinc-300" style={{ fontSize: 14 }} />
               </span>
               <span className="text-sm font-medium tabular-nums text-zinc-300">
-                {formatNumber(photo.commentsCount)}
+                {formatNumber(commentCount)}
               </span>
             </button>
           </div>
@@ -265,6 +265,9 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
             >
               <span className="inline-flex items-center justify-center shrink-0">
                 <FontAwesomeIcon icon={bookmarked ? faBookmarkSolid : faBookmark} className={`transition-colors ${bookmarked ? "fill-current text-amber-500" : "text-zinc-300"}`} style={{ fontSize: 14 }} />
+              </span>
+              <span className="text-sm font-medium tabular-nums" style={{ color: bookmarked ? "#F59E0B" : "#D6D3D1" }}>
+                {formatNumber(bookmarkCount)}
               </span>
             </button>
             <button
@@ -284,7 +287,12 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
 
     </div>
 
-    <CommentDrawer photo={photo} isOpen={commentDrawerOpen} onClose={() => setCommentDrawerOpen(false)} />
+    <CommentDrawer
+      photo={photo}
+      isOpen={commentDrawerOpen}
+      onClose={() => setCommentDrawerOpen(false)}
+      onCommentAdded={() => setCommentCount((c) => c + 1)}
+    />
     </>
   );
 }

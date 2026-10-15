@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { bookmarks, comments, likes, photos, shares } from "@/db/schema";
@@ -103,6 +104,17 @@ export async function POST(
       await db
         .insert(comments)
         .values({ userId: user.id, photoId: id, content: parsed.data.message });
+      try {
+        const [p] = await db
+          .select({ slug: photos.slug })
+          .from(photos)
+          .where(eq(photos.id, id))
+          .limit(1);
+        if (p?.slug) {
+          revalidatePath(`/photo/${p.slug}`);
+        }
+        revalidatePath("/");
+      } catch {}
       return NextResponse.json({ ok: true });
     }
     default:

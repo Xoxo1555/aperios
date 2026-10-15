@@ -26,16 +26,16 @@ export default function CollectionDetailView({ name, description, photoCount, ph
         </ol>
       </nav>
 
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-4 mb-4">
         <span className="icon-btn" style={{ width: 52, height: 52, borderRadius: 14, background: "rgba(245,158,11,0.12)", borderColor: "rgba(245,158,11,0.35)" }}>
           <FontAwesomeIcon icon={faHeart} className="text-gold" style={{ fontSize: "1.3rem" }} />
         </span>
-        <div>
+        <div className="flex flex-col">
           <h1 className="font-display font-bold mb-0">{name}</h1>
           <p className="text-muted-2 mb-0">
             {description ?? t("curated_collection")} · {t("photos_count", { count: String(photoCount) })}
           </p>
-        </div>
+      </div>
       </div>
 
       {photos.length === 0 ? (
