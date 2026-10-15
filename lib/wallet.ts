@@ -212,7 +212,12 @@ export async function getWalletTransactions(
   return db
     .select()
     .from(walletTransactions)
-    .where(eq(walletTransactions.userId, userId))
+    .where(
+      and(
+        eq(walletTransactions.userId, userId),
+        sql`${walletTransactions.status} != 'pending'`,
+      ),
+    )
     .orderBy(desc(walletTransactions.createdAt))
     .limit(limit);
 }

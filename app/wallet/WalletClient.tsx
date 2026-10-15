@@ -374,11 +374,11 @@ export default function WalletClient({ balance, transactions }: Props) {
           <FontAwesomeIcon icon={faClockRotateLeft} className="text-gold me-2" />{t("wallet_transactions_title")}
         </h2>
 
-        {liveTx.length === 0 ? (
+        {liveTx.filter((tx) => tx.status !== "pending").length === 0 ? (
           <p className="text-muted-2 mb-0" style={{ fontSize: "0.88rem" }}>{t("wallet_empty")}</p>
         ) : (
           <div style={{ maxHeight: 420, overflow: "auto" }}>
-            {liveTx.map((tx) => {
+            {liveTx.filter((tx) => tx.status !== "pending").map((tx) => {
               const outgoing = tx.type === "payout" || tx.type === "purchase";
               return (
                 <div key={tx.id} className="flex justify-between align-items-center py-2" style={{ borderBottom: "1px solid var(--ap-border)" }}>
