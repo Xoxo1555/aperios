@@ -7,6 +7,7 @@ import {
   categories,
   collectionPhotos,
   collections,
+  bookmarks,
   likes,
   photos,
   users,
@@ -143,13 +144,18 @@ export default async function PhotoDetailPage({
     .catch(() => undefined);
 
   let initialLiked = false;
+  let initialBookmarked = false;
   let initialCollectionIds: number[] = [];
   if (user) {
-    const [likeRows, cpRows] = await Promise.all([
+    const [likeRows, bookmarkRows, cpRows] = await Promise.all([
       db
         .select({ id: likes.photoId })
         .from(likes)
         .where(and(eq(likes.userId, user.id), eq(likes.photoId, photo.id))),
+      db
+        .select({ id: bookmarks.photoId })
+        .from(bookmarks)
+        .where(and(eq(bookmarks.userId, user.id), eq(bookmarks.photoId, photo.id))),
       db
         .select({ id: collectionPhotos.collectionId })
         .from(collectionPhotos)
@@ -162,6 +168,7 @@ export default async function PhotoDetailPage({
         ),
     ]);
     initialLiked = likeRows.length > 0;
+    initialBookmarked = bookmarkRows.length > 0;
     initialCollectionIds = cpRows.map((r) => r.id);
   }
 
@@ -271,6 +278,7 @@ const ldProduct: Record<string, unknown> = {
             sizes={sizes}
             mounts={mounts}
             initialLiked={initialLiked}
+            initialBookmarked={initialBookmarked}
             collections={myCollections}
             initialCollectionIds={initialCollectionIds}
           />

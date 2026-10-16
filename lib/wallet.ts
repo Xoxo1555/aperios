@@ -2,15 +2,17 @@ import "server-only";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { randomInt } from "crypto";
 import { db } from "db";
-import { users, walletTransactions } from "db/schema";
+import { users, walletDepositIntents, walletTransactions } from "db/schema";
 
 /**
  * Aperio wallet ledger — deposits, withdrawals and purchases unified in a
  * single `wallet_transactions` table, in canonical EUR.
  *
- *  - Deposits are created PENDING and are only credited to the balance once
- *    the payment is genuinely confirmed (Stripe webhook, Mobile Money
- *    callback, or admin reconciliation) — never by the initiating request.
+ *  - A deposit is first recorded as a PENDING `wallet_deposit_intent`, not as
+ *    a `wallet_transactions` row. The ledger row is only inserted — already
+ *    `completed` — once the payment is genuinely confirmed (Stripe webhook,
+ *    Mobile Money callback, or admin reconciliation). The initiating request
+ *    never credits anything.
  *  - Payouts and purchases are recorded for history; their balance effect is
  *    handled by the existing payout / order flows.
  */
@@ -53,64 +55,47 @@ export function generateWalletReference(): string {
   return `${WALLET_REF_PREFIX}-${new Date().getFullYear()}-${randomInt(100000, 999999)}`;
 }
 
-export interface WalletDepositCreateInput {
+export interface WalletDepositIntentInput {
   userId: number;
   amount: number;
   paymentMethod: WalletPaymentMethod;
-  transactionReference?: string | null;
 }
 
-/** Creates a PENDING deposit ledger row. The balance is credited only once
- *  the payment is confirmed (see completeWalletDeposit). */
-export async function createWalletDepositTx(
-  input: WalletDepositCreateInput,
-): Promise<typeof walletTransactions.$inferSelect> {
-  const [tx] = await db
-    .insert(walletTransactions)
+/** Records a PENDING deposit intent. NOTHING is written to the ledger yet:
+ *  the `wallet_transactions` row is only inserted once the payment is
+ *  genuinely confirmed (see completeWalletDeposit). */
+export async function createWalletDepositIntent(
+  input: WalletDepositIntentInput,
+): Promise<typeof walletDepositIntents.$inferSelect> {
+  const [intent] = await db
+    .insert(walletDepositIntents)
     .values({
       userId: input.userId,
       reference: generateWalletReference(),
       amount: String(input.amount),
-      type: "deposit",
-      status: "pending",
       paymentMethod: input.paymentMethod,
-      transactionReference: input.transactionReference ?? null,
+      status: "pending",
     })
     .returning();
-  return tx;
+  return intent;
 }
 
-/** Marks a pending deposit as failed (e.g. payment session could not be
- *  created, or admin rejects a manual deposit). No balance is touched. */
-export async function failWalletDeposit(
+/** Stores the provider reference (Stripe session, MVola correlation id…) on a
+ *  pending deposit intent so the callback can be matched back. */
+export async function setWalletDepositIntentProviderRef(
   reference: string,
-): Promise<boolean> {
-  const res = await db
-    .update(walletTransactions)
-    .set({ status: "failed", updatedAt: new Date() })
-    .where(
-      and(
-        eq(walletTransactions.reference, reference),
-        eq(walletTransactions.status, "pending"),
-      ),
-    );
-  return (res.rowCount ?? 0) > 0;
+  providerRef: string | null,
+): Promise<void> {
+  await db
+    .update(walletDepositIntents)
+    .set({ transactionReference: providerRef, updatedAt: new Date() })
+    .where(eq(walletDepositIntents.reference, reference));
 }
 
-/**
- * Confirms a pending deposit and credits the user's available balance.
- *
- * Idempotent: already-completed deposits are a no-op (a webhook replay can
- * never double-credit). The status flip and the balance increment happen in
- * a single database transaction.
- */
-export async function completeWalletDeposit(
+/** Finds a completed/legacy deposit ledger row for a reference. */
+async function findWalletDeposit(
   reference: string,
-  transactionReference?: string | null,
-): Promise<{
-  tx: typeof walletTransactions.$inferSelect;
-  alreadyCompleted: boolean;
-}> {
+): Promise<typeof walletTransactions.$inferSelect | null> {
   const [tx] = await db
     .select()
     .from(walletTransactions)
@@ -121,34 +106,188 @@ export async function completeWalletDeposit(
       ),
     )
     .limit(1);
+  return tx ?? null;
+}
 
-  if (!tx) throw new Error(`Dépôt introuvable: ${reference}`);
-  if (tx.status === "completed") return { tx, alreadyCompleted: true };
-  if (tx.status === "failed") {
+/** Resolves the trusted amount (in EUR) of a deposit from its intent, or from
+ *  a legacy pending ledger row. Returns null when neither exists. */
+export async function getWalletDepositAmount(
+  reference: string,
+): Promise<number | null> {
+  const [intent] = await db
+    .select({ amount: walletDepositIntents.amount })
+    .from(walletDepositIntents)
+    .where(eq(walletDepositIntents.reference, reference))
+    .limit(1);
+  if (intent) return parseFloat(intent.amount);
+
+  const legacy = await findWalletDeposit(reference);
+  return legacy ? parseFloat(legacy.amount) : null;
+}
+
+/** Marks a pending deposit (intent, or legacy ledger row) as failed — e.g.
+ *  the payment session could not be created, an operator rejected it, or an
+ *  admin rejects a manual deposit. No balance is ever touched. */
+export async function failWalletDeposit(
+  reference: string,
+): Promise<boolean> {
+  const intentRes = await db
+    .update(walletDepositIntents)
+    .set({ status: "failed", updatedAt: new Date() })
+    .where(
+      and(
+        eq(walletDepositIntents.reference, reference),
+        eq(walletDepositIntents.status, "pending"),
+      ),
+    );
+  if ((intentRes.rowCount ?? 0) > 0) return true;
+
+  const legacyRes = await db
+    .update(walletTransactions)
+    .set({ status: "failed", updatedAt: new Date() })
+    .where(
+      and(
+        eq(walletTransactions.reference, reference),
+        eq(walletTransactions.type, "deposit"),
+        eq(walletTransactions.status, "pending"),
+      ),
+    );
+  return (legacyRes.rowCount ?? 0) > 0;
+}
+
+/**
+ * Confirms a pending deposit: INSERTS the `completed` ledger row and credits
+ * the user's available balance in a single database transaction.
+ *
+ * Works from the deposit intent (normal path) or, for deposits created before
+ * the intents split, from an existing PENDING ledger row (legacy path).
+ *
+ * Idempotent: a webhook replay can never double-credit — the intent's guarded
+ * `pending → completed` flip means only one caller inserts the ledger row and
+ * increments the balance; concurrent replays report `alreadyCompleted`.
+ */
+export async function completeWalletDeposit(
+  reference: string,
+  transactionReference?: string | null,
+): Promise<{
+  tx: typeof walletTransactions.$inferSelect;
+  alreadyCompleted: boolean;
+}> {
+  const [intent] = await db
+    .select()
+    .from(walletDepositIntents)
+    .where(eq(walletDepositIntents.reference, reference))
+    .limit(1);
+
+  if (intent) {
+    if (intent.status === "failed") {
+      throw new Error(`Ce dépôt (${reference}) a été annulé.`);
+    }
+
+    const amount = parseFloat(intent.amount);
+    const providerRef = transactionReference ?? intent.transactionReference;
+
+    try {
+      const created = await db.transaction(async (txn) => {
+        /* Guarded flip: only the first confirmation wins the pending →
+         * completed transition; a concurrent replay sees 0 rows and skips
+         * both the insert and the balance credit. */
+        const flip = await txn
+          .update(walletDepositIntents)
+          .set({
+            status: "completed",
+            transactionReference: providerRef,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(walletDepositIntents.id, intent.id),
+              eq(walletDepositIntents.status, "pending"),
+            ),
+          );
+        if ((flip.rowCount ?? 0) === 0) return null;
+
+        const [row] = await txn
+          .insert(walletTransactions)
+          .values({
+            userId: intent.userId,
+            reference: intent.reference,
+            amount: intent.amount,
+            type: "deposit",
+            status: "completed",
+            paymentMethod: intent.paymentMethod,
+            transactionReference: providerRef,
+          })
+          .returning();
+
+        await txn.execute(sql`
+          UPDATE users SET available_balance =
+            (available_balance::numeric + ${amount}::numeric)
+          WHERE id = ${intent.userId}
+        `);
+        return row;
+      });
+
+      if (created) return { tx: created, alreadyCompleted: false };
+
+      /* Lost the race to a concurrent confirmation — report it as done. */
+      const existing = await findWalletDeposit(reference);
+      if (existing) return { tx: existing, alreadyCompleted: true };
+      throw new Error(`Dépôt ${reference} déjà traité.`);
+    } catch (err) {
+      /* Unique-violation on the ledger reference means a concurrent caller
+       * already inserted the completed row — idempotent success, not error. */
+      if ((err as { code?: string })?.code === "23505") {
+        const existing = await findWalletDeposit(reference);
+        if (existing) return { tx: existing, alreadyCompleted: true };
+      }
+      throw err;
+    }
+  }
+
+  /* Legacy fallback: deposits created before the intents split already have a
+   * PENDING ledger row that must be completed in place. */
+  const legacy = await findWalletDeposit(reference);
+  if (!legacy) throw new Error(`Dépôt introuvable: ${reference}`);
+  if (legacy.status === "completed") return { tx: legacy, alreadyCompleted: true };
+  if (legacy.status === "failed") {
     throw new Error(`Ce dépôt (${reference}) a été annulé.`);
   }
 
-  const amount = parseFloat(tx.amount);
-  const providerRef = transactionReference ?? tx.transactionReference;
+  const amount = parseFloat(legacy.amount);
+  const providerRef = transactionReference ?? legacy.transactionReference;
 
-  await db.transaction(async (txn) => {
-    await txn
+  const credited = await db.transaction(async (txn) => {
+    /* Guarded flip: only credit when this call actually took the row out of
+     * `pending` (a concurrent confirmation would leave it at 0 rows). */
+    const flip = await txn
       .update(walletTransactions)
       .set({
         status: "completed",
         transactionReference: providerRef,
         updatedAt: new Date(),
       })
-      .where(eq(walletTransactions.id, tx.id));
+      .where(
+        and(
+          eq(walletTransactions.id, legacy.id),
+          eq(walletTransactions.status, "pending"),
+        ),
+      );
+    if ((flip.rowCount ?? 0) === 0) return false;
 
     await txn.execute(sql`
       UPDATE users SET available_balance =
         (available_balance::numeric + ${amount}::numeric)
-      WHERE id = ${tx.userId}
+      WHERE id = ${legacy.userId}
     `);
+    return true;
   });
 
-  return { tx: { ...tx, status: "completed" as const }, alreadyCompleted: false };
+  if (!credited) {
+    const existing = await findWalletDeposit(reference);
+    if (existing) return { tx: existing, alreadyCompleted: true };
+  }
+  return { tx: { ...legacy, status: "completed" as const }, alreadyCompleted: false };
 }
 
 /**

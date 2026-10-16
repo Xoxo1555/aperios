@@ -7,6 +7,7 @@ import { useSession } from "./SessionProvider";
 import { formatNumber, blurDataUrl } from "lib/utils";
 import { useLanguage } from "lib/i18n";
 import { usePrice } from "lib/currency";
+import { useBookmarks, type BookmarkEntry } from "lib/bookmarks";
 import Image from "next/image";
 import type { PhotoDto } from "lib/types";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,9 +27,23 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
   const router = useRouter();
   const price = usePrice();
   const [likedIds, setLikedIds] = useState<Set<number>>(new Set());
-  const [bookmarkedIds, setBookmarkedIds] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
   const pausedRef = useRef(false);
+
+  /* Shared bookmark store — same optimistic state as PhotoCard / PhotoViewer. */
+  const bookmarkEntries = useBookmarks((s) => s.entries);
+  const seedBookmark = useBookmarks((s) => s.seed);
+  const toggleBookmarkInStore = useBookmarks((s) => s.toggle);
+
+  useEffect(() => {
+    for (const p of photos) {
+      seedBookmark(p.id, { bookmarked: p.isBookmarked ?? false, count: p.bookmarksCount });
+    }
+  }, [photos, seedBookmark]);
+
+  function bookmarkEntry(p: PhotoDto): BookmarkEntry {
+    return bookmarkEntries[p.id] ?? { bookmarked: p.isBookmarked ?? false, count: p.bookmarksCount };
+  }
 
   const cardWidth = variant === "landscape" ? 380 : 300;
 
@@ -98,21 +113,9 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
     }
     if (busy) return;
     setBusy(true);
-    const action = bookmarkedIds.has(photo.id) ? "unbookmark" : "bookmark";
     try {
-      const res = await fetch(`/api/photos/${photo.id}/actions`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      if (res.ok) {
-        setBookmarkedIds((prev) => {
-          const next = new Set(prev);
-          if (action === "bookmark") next.add(photo.id);
-          else next.delete(photo.id);
-          return next;
-        });
-      }
+      /* Optimistic: same shared store as the grid cards and the detail view. */
+      await toggleBookmarkInStore(photo.id, bookmarkEntry(photo));
     } finally {
       setBusy(false);
     }
@@ -224,9 +227,9 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
                       <FontAwesomeIcon icon={faComment} style={{ fontSize: 14 }} />
                       {formatNumber(p.commentsCount)}
                     </span>
-                    <span className="flex items-center gap-1" style={{ color: bookmarkedIds.has(p.id) ? "#d97706" : "var(--ap-muted)" }}>
-                      <FontAwesomeIcon icon={bookmarkedIds.has(p.id) ? faBookmarkSolid : faBookmark} style={{ fontSize: 14 }} />
-                      {formatNumber(p.bookmarksCount)}
+                    <span className="flex items-center gap-1" style={{ color: bookmarkEntry(p).bookmarked ? "#d97706" : "var(--ap-muted)" }}>
+                      <FontAwesomeIcon icon={bookmarkEntry(p).bookmarked ? faBookmarkSolid : faBookmark} style={{ fontSize: 14 }} />
+                      {formatNumber(bookmarkEntry(p).count)}
                     </span>
                     <span className="flex items-center gap-1" style={{ color: "var(--ap-muted)" }}>
                       <FontAwesomeIcon icon={faShareNodes} style={{ fontSize: 14 }} />
@@ -263,11 +266,11 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
               </button>
               <button
                 className="icon-btn icon-btn-onlight"
-                aria-label={bookmarkedIds.has(p.id) ? t("unbookmark") : t("bookmark")}
+                aria-label={bookmarkEntry(p).bookmarked ? t("unbookmark") : t("bookmark")}
                 onClick={(e) => toggleBookmark(e, p)}
-                style={bookmarkedIds.has(p.id) ? { background: "rgba(245,158,11,0.9)", border: "none", color: "#fff" } : undefined}
+                style={bookmarkEntry(p).bookmarked ? { background: "rgba(245,158,11,0.9)", border: "none", color: "#fff" } : undefined}
               >
-                <FontAwesomeIcon icon={bookmarkedIds.has(p.id) ? faBookmarkSolid : faBookmark} style={{ fontSize: 18 }} />
+                <FontAwesomeIcon icon={bookmarkEntry(p).bookmarked ? faBookmarkSolid : faBookmark} style={{ fontSize: 18 }} />
               </button>
               <button
                 className="icon-btn icon-btn-onlight"

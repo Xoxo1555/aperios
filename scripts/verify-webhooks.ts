@@ -118,6 +118,7 @@ import {
   payouts,
   photos,
   users,
+  walletDepositIntents,
   walletTransactions,
   webhookEvents,
 } from "../db/schema";
@@ -130,7 +131,7 @@ import {
   OrderError,
   payOrderWithWallet,
 } from "../lib/orders";
-import { createWalletDepositTx } from "../lib/wallet";
+import { createWalletDepositIntent } from "../lib/wallet";
 import { mkdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { signSessionToken } from "../lib/session";
@@ -398,6 +399,7 @@ async function main() {
   const createdPhotoIds: number[] = [];
   const createdUserIds: number[] = [];
   const createdLedgerRefs: string[] = [];
+  const createdIntentRefs: string[] = [];
   const createdPayoutRefs: string[] = [];
   const createdEventIds: Array<{ provider: "stripe" | "mvola" | "orange_money" | "airtel_money"; eventId: string }> = [];
 
@@ -426,6 +428,12 @@ async function main() {
         .delete(walletTransactions)
         .where(and(eq(walletTransactions.reference, ref), inArray(walletTransactions.status, ["pending", "completed", "failed"])))
         .catch((e) => console.warn("[cleanup] ledger", e.message));
+    }
+    for (const ref of createdIntentRefs) {
+      await db
+        .delete(walletDepositIntents)
+        .where(eq(walletDepositIntents.reference, ref))
+        .catch((e) => console.warn("[cleanup] wallet_deposit_intents", e.message));
     }
     for (const num of createdOrderNumbers) {
       await db
@@ -857,8 +865,13 @@ async function main() {
     /* ===== L. Dépôt WLD : montant conforme → crédit ; montant différent → aucun crédit ===== */
     log("L — Dépôt WLD via Stripe : conforme crédite, différent N'EST PAS crédité");
     {
-      const dep = await createWalletDepositTx({ userId: buyer.id, amount: 25, paymentMethod: "stripe" });
+      const dep = await createWalletDepositIntent({ userId: buyer.id, amount: 25, paymentMethod: "stripe" });
+      createdIntentRefs.push(dep.reference);
       createdLedgerRefs.push(dep.reference);
+      const [intentBefore] = await db.select().from(walletDepositIntents).where(eq(walletDepositIntents.reference, dep.reference));
+      check(intentBefore?.status === "pending", `L: intention pending avant confirmation (${intentBefore?.status})`);
+      const [ledgerBefore] = await db.select().from(walletTransactions).where(eq(walletTransactions.reference, dep.reference));
+      check(!ledgerBefore, "L: AUCUNE ligne wallet_transactions avant confirmation");
       const evtIdD = `evt_wld_ok_${stamp}`;
       createdEventIds.push({ provider: "stripe", eventId: evtIdD });
       const balance0 = parseFloat(
@@ -871,15 +884,17 @@ async function main() {
       });
       check(r.status === 200, `L: wld conforme → 200 (reçu ${r.status})`);
       const [depAfter] = await db.select().from(walletTransactions).where(eq(walletTransactions.reference, dep.reference));
-      check(depAfter.status === "completed", `L: dépôt completed (${depAfter.status})`);
+      check(depAfter?.status === "completed", `L: ligne wallet_transactions créée completed (${depAfter?.status})`);
+      const [intentAfter] = await db.select().from(walletDepositIntents).where(eq(walletDepositIntents.reference, dep.reference));
+      check(intentAfter?.status === "completed", `L: intention completed (${intentAfter?.status})`);
       const balance1 = parseFloat(
         (await db.select({ b: users.availableBalance }).from(users).where(eq(users.id, buyer.id)).limit(1))[0].b ?? "0",
       );
       check(Math.abs(balance1 - (balance0 + 25)) < 0.001, `L: solde crédité de 25 (${((balance1 - balance0)).toFixed(2)})`);
-      log("  OK — WLD conforme: dépôt completed, solde +25.00");
+      log("  OK — WLD conforme: ligne créée completed, intention completed, solde +25.00");
 
-      const depBad = await createWalletDepositTx({ userId: buyer.id, amount: 25, paymentMethod: "stripe" });
-      createdLedgerRefs.push(depBad.reference);
+      const depBad = await createWalletDepositIntent({ userId: buyer.id, amount: 25, paymentMethod: "stripe" });
+      createdIntentRefs.push(depBad.reference);
       const evtIdBad = `evt_wld_bad_${stamp}`;
       createdEventIds.push({ provider: "stripe", eventId: evtIdBad });
       const balance2 = balance1;
@@ -890,12 +905,14 @@ async function main() {
       });
       check(rBad.status === 200, `L: wld montant ≠ → 200 (reçu ${rBad.status})`);
       const [depBadAfter] = await db.select().from(walletTransactions).where(eq(walletTransactions.reference, depBad.reference));
-      check(depBadAfter.status === "pending", `L: dépôt montant ≠ RESTE pending (${depBadAfter.status})`);
+      check(!depBadAfter, "L: AUCUNE ligne wallet_transactions pour un montant différent");
+      const [intentBadAfter] = await db.select().from(walletDepositIntents).where(eq(walletDepositIntents.reference, depBad.reference));
+      check(intentBadAfter?.status === "pending", `L: intention montant ≠ RESTE pending (${intentBadAfter?.status})`);
       const balance3 = parseFloat(
         (await db.select({ b: users.availableBalance }).from(users).where(eq(users.id, buyer.id)).limit(1))[0].b ?? "0",
       );
       check(Math.abs(balance3 - balance2) < 0.001, "L: AUCUN crédit pour un montant différent");
-      log("  OK — WLD montant ≠ : dépôt reste pending, aucun crédit");
+      log("  OK — WLD montant ≠ : intention reste pending, aucune ligne, aucun crédit");
     }
 
     /* ===== ÉTAPE 2 ===== */
@@ -1572,18 +1589,20 @@ async function main() {
       check((await orderByNumber(oX5!.orderNumber))!.status === "refund_pending", "X: airtel refund_pending");
       log("  OK — Airtel : TF → cancelled, TS tardif → refund_pending(order_cancelled_after_payment)");
 
-      /* X6 — Échec opérateur sur DÉPÔT wallet (WLD) : marqué failed, aucun crédit. */
-      const depX = await createWalletDepositTx({ userId: buyer.id, amount: 20, paymentMethod: "mvola" });
-      createdLedgerRefs.push(depX.reference);
+      /* X6 — Échec opérateur sur DÉPÔT wallet (WLD) : intention marquée failed, aucun crédit. */
+      const depX = await createWalletDepositIntent({ userId: buyer.id, amount: 20, paymentMethod: "mvola" });
+      createdIntentRefs.push(depX.reference);
       const balX6 = await balance(buyer.id);
       const evtX6 = `mvola:${depX.reference}:failed`;
       createdEventIds.push({ provider: "mvola", eventId: evtX6 });
       const rX6 = await postMM({ provider: "mvola", body: { transactionStatus: "failed", metadata: [{ key: "reference", value: depX.reference }], transactionReference: "mv_x6" }, token: "token_mvola_test" });
       check(rX6.status === 200 && rX6.body.action === "deposit-failed", `X: WLD failed → 200 deposit-failed (${rX6.status}/${String(rX6.body.action)})`);
-      const [depXa] = await db.select().from(walletTransactions).where(eq(walletTransactions.reference, depX.reference));
-      check(depXa?.status === "failed", `X: dépôt marqué failed (${depXa?.status})`);
+      const [depXa] = await db.select().from(walletDepositIntents).where(eq(walletDepositIntents.reference, depX.reference));
+      check(depXa?.status === "failed", `X: intention dépôt marquée failed (${depXa?.status})`);
+      const [depXledger] = await db.select().from(walletTransactions).where(eq(walletTransactions.reference, depX.reference));
+      check(!depXledger, "X: AUCUNE ligne wallet_transactions pour un dépôt échoué");
       check(Math.abs((await balance(buyer.id)) - balX6) < 0.001, "X: AUCUN crédit WLD");
-      log("  OK — Échec opérateur sur dépôt WLD : failed, aucun crédit, event processed");
+      log("  OK — Échec opérateur sur dépôt WLD : intention failed, aucune ligne, aucun crédit, event processed");
     }
 
     /* ===== Y. mark-refunded admin : 401/403, 409 (statut/Stripe), succès MM, rejeu, 0 clawback/cert ===== */

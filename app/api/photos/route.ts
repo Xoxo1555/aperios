@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { and, eq, inArray } from "drizzle-orm";
+import { db } from "@/db";
+import { bookmarks } from "@/db/schema";
+import { getSessionUser } from "@/lib/auth";
 import { countPhotosDto, fetchPhotoDtos, normalizeCategorySlug } from "@/lib/queries";
 import type { PhotoOrientation, PhotoSort } from "@/lib/queries";
 
@@ -93,8 +97,26 @@ export async function GET(request: NextRequest) {
 
   const totalPages = Math.ceil(total / perPage);
 
+  /* Per-viewer bookmark state so the grid cards (PhotoCard) start in the same
+   * state as the detail page — no flash from unsaved to saved. */
+  let photos = photosData;
+  const viewer = await getSessionUser();
+  if (viewer && photosData.length > 0) {
+    const savedRows = await db
+      .select({ photoId: bookmarks.photoId })
+      .from(bookmarks)
+      .where(
+        and(
+          eq(bookmarks.userId, viewer.id),
+          inArray(bookmarks.photoId, photosData.map((p) => p.id)),
+        ),
+      );
+    const saved = new Set(savedRows.map((r) => r.photoId));
+    photos = photosData.map((p) => ({ ...p, isBookmarked: saved.has(p.id) }));
+  }
+
   return NextResponse.json({
-    photos: photosData,
+    photos,
     total,
     totalPages,
     category: categorySlug,

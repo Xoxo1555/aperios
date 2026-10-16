@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
-import { db } from "db";
-import { walletTransactions } from "db/schema";
 import { getSessionUser } from "lib/auth";
 import {
-  createWalletDepositTx,
+  createWalletDepositIntent,
   failWalletDeposit,
+  setWalletDepositIntentProviderRef,
   WALLET_DEPOSIT_MAX,
   WALLET_DEPOSIT_MIN,
   type WalletPaymentMethod,
@@ -31,10 +29,12 @@ export const dynamic = "force-dynamic";
  *  - Requires a valid signed session.
  *  - Validates amount (5 € min, 1 000 € max) server-side; the client never
  *    sets its own balance.
- *  - Creates a PENDING wallet transaction, then opens a real payment:
- *    Stripe Checkout (hosted URL), Orange Money web payment (redirect), or
- *    an MVola / Airtel collection request (confirmed on the phone).
- *  - The balance is credited ONLY by the verified webhook (or admin
+ *  - Records a PENDING deposit intent (NOT a ledger row), then opens a real
+ *    payment: Stripe Checkout (hosted URL), Orange Money web payment
+ *    (redirect), or an MVola / Airtel collection request (confirmed on the
+ *    phone).
+ *  - The `wallet_transactions` row is inserted (already `completed`) and the
+ *    balance is credited ONLY by the verified webhook (or admin
  *    reconciliation) — never by this response.
  */
 export async function POST(req: NextRequest) {
@@ -91,35 +91,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let tx;
+    let intent;
     try {
-      tx = await createWalletDepositTx({ userId: user.id, amount, paymentMethod: method });
+      intent = await createWalletDepositIntent({ userId: user.id, amount, paymentMethod: method });
     } catch (err) {
-      console.error("[wallet/deposit] create tx", err);
+      console.error("[wallet/deposit] create intent", err);
       return NextResponse.json({ error: "Impossible d'initier le dépôt." }, { status: 500 });
     }
 
     try {
       const converted = convertTotals({ subtotal: amount, shipping: 0, tax: 0, total: amount }, currency);
       const session = await createStripeCheckoutSession({
-        orderNumber: tx.reference,
+        orderNumber: intent.reference,
         amountCents: toMinorUnits(converted.total, currency),
         currency: converted.currency,
         customerEmail: user.email,
-        description: `Aperio — dépôt de portefeuille (${tx.reference})`,
-        successUrl: `${origin}/wallet?deposit=success&reference=${tx.reference}`,
+        description: `Aperio — dépôt de portefeuille (${intent.reference})`,
+        successUrl: `${origin}/wallet?deposit=success&reference=${intent.reference}`,
         cancelUrl: `${origin}/wallet?deposit=cancelled`,
         metadata: { type: "wallet_deposit" },
       });
-      await db
-        .update(walletTransactions)
-        .set({ transactionReference: session.id })
-        .where(eq(walletTransactions.id, tx.id));
+      await setWalletDepositIntentProviderRef(intent.reference, session.id);
 
-      return NextResponse.json({ url: session.url, reference: tx.reference }, { status: 201 });
+      return NextResponse.json({ url: session.url, reference: intent.reference }, { status: 201 });
     } catch (err) {
       console.error("[wallet/deposit][stripe]", err);
-      await failWalletDeposit(tx.reference).catch(() => undefined);
+      await failWalletDeposit(intent.reference).catch(() => undefined);
       return NextResponse.json(
         { error: "Le service de paiement Stripe est momentanément indisponible." },
         { status: 502 },
@@ -128,17 +125,17 @@ export async function POST(req: NextRequest) {
   }
 
   /* ---------------- Mobile Money ---------------- */
-  let tx;
+  let intent;
   try {
-    tx = await createWalletDepositTx({ userId: user.id, amount, paymentMethod: method });
+    intent = await createWalletDepositIntent({ userId: user.id, amount, paymentMethod: method });
   } catch (err) {
-    console.error("[wallet/deposit] create tx", err);
+    console.error("[wallet/deposit] create intent", err);
     return NextResponse.json({ error: "Impossible d'initier le dépôt." }, { status: 500 });
   }
 
   const converted = convertTotals({ subtotal: amount, shipping: 0, tax: 0, total: amount }, currency);
   const convertedTotal = toMinorUnits(converted.total, currency);
-  const reference = tx.reference;
+  const reference = intent.reference;
 
   /* Orange Money — hosted web-payment page (no phone needed). */
   if (method === "orange_money" && isOrangeMoneyConfigured()) {
@@ -152,10 +149,7 @@ export async function POST(req: NextRequest) {
         notifUrl: `${origin}/api/webhooks/orange-money`,
         reference,
       });
-      await db
-        .update(walletTransactions)
-        .set({ transactionReference: result.payToken })
-        .where(eq(walletTransactions.id, tx.id));
+      await setWalletDepositIntentProviderRef(reference, result.payToken);
       return NextResponse.json({ mode: "redirect", url: result.paymentUrl, reference }, { status: 201 });
     } catch (err) {
       console.error("[wallet/deposit][orange]", err);
@@ -172,10 +166,7 @@ export async function POST(req: NextRequest) {
         reference,
         callbackUrl: `${origin}/api/webhooks/mvola`,
       });
-      await db
-        .update(walletTransactions)
-        .set({ transactionReference: result.serverCorrelationId })
-        .where(eq(walletTransactions.id, tx.id));
+      await setWalletDepositIntentProviderRef(reference, result.serverCorrelationId);
       return NextResponse.json(
         { mode: "pending_customer_confirmation", reference, providerRef: result.serverCorrelationId },
         { status: 201 },
@@ -194,10 +185,7 @@ export async function POST(req: NextRequest) {
         reference,
         transactionId: reference,
       });
-      await db
-        .update(walletTransactions)
-        .set({ transactionReference: result.transactionId })
-        .where(eq(walletTransactions.id, tx.id));
+      await setWalletDepositIntentProviderRef(reference, result.transactionId);
       return NextResponse.json(
         { mode: "pending_customer_confirmation", reference, providerRef: result.transactionId },
         { status: 201 },

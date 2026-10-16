@@ -61,6 +61,8 @@ export interface PhotoDto {
   commentsCount: number;
   bookmarksCount: number;
   sharesCount: number;
+  /** Whether the current viewer has bookmarked this photo (per-request, optional). */
+  isBookmarked?: boolean;
   featured: boolean;
   /** Whether an original high-resolution source exists for this photo. */
   hasHd: boolean;

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { db } from "db";
-import { orders, walletTransactions } from "db/schema";
+import { orders } from "db/schema";
 import { constructStripeEvent, isStripeConfigured } from "lib/payments/stripe";
 import { clawbackOrderCredits, finalizeRefundPendingCharge, handleConfirmedPayment, isSaleStatus } from "lib/orders";
-import { completeWalletDeposit, isWalletReference } from "lib/wallet";
+import { completeWalletDeposit, getWalletDepositAmount, isWalletReference } from "lib/wallet";
 import { convertFromEur, normalizeCurrency, toMinorUnits } from "lib/money";
 import { sendAdminAlert } from "lib/admin-alert";
 import {
@@ -166,14 +166,10 @@ async function handleSessionCompleted(session: Stripe.Checkout.Session, eventId:
   }
 
   /* Wallet top-up — reference looks like "WLD-2026-482913". Re-validate the
-   * amount against the recorded deposit before crediting the balance. */
+   * amount against the recorded deposit intent before crediting the balance. */
   if (isWalletReference(orderNumber)) {
-    const [deposit] = await db
-      .select({ amount: walletTransactions.amount })
-      .from(walletTransactions)
-      .where(and(eq(walletTransactions.reference, orderNumber), eq(walletTransactions.type, "deposit")))
-      .limit(1);
-    if (!deposit || !deposit.amount) {
+    const depositAmount = await getWalletDepositAmount(orderNumber);
+    if (depositAmount == null) {
       await markWebhookEventUnmatched(PROVIDER, eventId);
       await sendAdminAlert({
         subject: `Dépôt WLD introuvable ${orderNumber}`,
@@ -182,7 +178,7 @@ async function handleSessionCompleted(session: Stripe.Checkout.Session, eventId:
       return;
     }
     const currency = normalizeCurrency(session.currency ?? "EUR");
-    const expected = toMinorUnits(convertFromEur(parseFloat(deposit.amount), currency), currency);
+    const expected = toMinorUnits(convertFromEur(depositAmount, currency), currency);
     if (expected != null && (session.amount_total ?? -1) !== expected) {
       await markWebhookEventProcessed(PROVIDER, eventId, orderNumber);
       await sendAdminAlert({

@@ -507,6 +507,43 @@ export const walletTransactions = pgTable(
 );
 
 /* ------------------------------------------------------------------ */
+/*  wallet_deposit_intents — top-ups awaiting payment confirmation      */
+/* ------------------------------------------------------------------ */
+/*  Created when the user starts a top-up, BEFORE any payment. No row   */
+/*  is written to `wallet_transactions` yet: the ledger only receives a  */
+/*  `deposit` row once the payment is genuinely confirmed (Stripe        */
+/*  webhook / Mobile Money callback / admin reconciliation). The intent  */
+/*  carries the trusted userId + amount the confirmation handler needs   */
+/*  to credit the balance; it is marked `completed` (or `failed`) once    */
+/*  consumed, and never credits anything by itself.                      */
+export const walletDepositIntents = pgTable(
+  "wallet_deposit_intents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: integer("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+    /** User-facing reference (e.g. "WLD-2026-482913") carried through the
+      *  provider as order id / client_reference_id and echoed on webhooks. */
+    reference: text("reference").notNull().unique(),
+    amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+    paymentMethod: text("payment_method", {
+      enum: ["stripe", "orange_money", "mvola", "airtel_money"],
+    }).notNull(),
+    /** Reference given by the payment provider (Stripe session, MVola
+      *  correlation id, Orange pay token…). */
+    transactionReference: text("transaction_reference"),
+    status: text("status", { enum: ["pending", "completed", "failed"] })
+      .notNull()
+      .default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("wallet_deposit_intents_user_idx").on(t.userId),
+    index("wallet_deposit_intents_status_idx").on(t.status),
+  ],
+);
+
+/* ------------------------------------------------------------------ */
 /*  webhook_events — deduplicated audit log of payment callbacks        */
 /* ------------------------------------------------------------------ */
 /*  Every processed payment notification (Stripe event, Orange/MVola/    */

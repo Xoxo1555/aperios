@@ -149,7 +149,7 @@ export default function ForgotPasswordPage() {
               {t("account_email")}
             </label>
             <input
-              className="w-full bg-card border border-border rounded-xl px-4 py-3.5 text-card-foreground placeholder:text-muted-foreground text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all duration-200"
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3.5 text-white placeholder:text-neutral-500 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all duration-200"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -178,7 +178,7 @@ export default function ForgotPasswordPage() {
               {t("reset_code_6")}
             </label>
             <input
-              className="w-full bg-card border border-border rounded-xl px-4 py-3.5 text-card-foreground placeholder:text-muted-foreground text-sm focus:border-accent focus:ring-1 focus:ring-accent outline-none transition-all duration-200 text-center tracking-[0.45em] font-bold text-lg mb-4"
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-4 py-3.5 text-white placeholder:text-neutral-500 text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500 outline-none transition-all duration-200 text-center tracking-[0.45em] font-bold text-lg mb-4"
               inputMode="numeric"
               maxLength={6}
               placeholder="••••••"
@@ -186,10 +186,10 @@ export default function ForgotPasswordPage() {
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
               required
             />
-            <div className="mb-3 [&_label]:!text-xs [&_label]:!font-semibold [&_label]:!text-muted-foreground [&_label]:!uppercase [&_label]:!tracking-widest [&_input]:!bg-card [&_input]:!border-border [&_input]:!text-card-foreground [&_input]:!rounded-xl">
+            <div className="mb-3 [&_label]:!text-xs [&_label]:!font-semibold [&_label]:!text-stone-300 [&_label]:!uppercase [&_label]:!tracking-widest [&_input]:!bg-neutral-900 [&_input]:!border-neutral-700 [&_input]:!text-white [&_input]:placeholder:text-neutral-500 [&_input]:!rounded-xl">
               <PasswordField label={t("new_password")} value={password} onChange={setPassword} autoComplete="new-password" minLength={8} />
             </div>
-            <div className="mb-2 [&_label]:!text-xs [&_label]:!font-semibold [&_label]:!text-muted-foreground [&_label]:!uppercase [&_label]:!tracking-widest [&_input]:!bg-card [&_input]:!border-border [&_input]:!text-card-foreground [&_input]:!rounded-xl">
+            <div className="mb-2 [&_label]:!text-xs [&_label]:!font-semibold [&_label]:!text-stone-300 [&_label]:!uppercase [&_label]:!tracking-widest [&_input]:!bg-neutral-900 [&_input]:!border-neutral-700 [&_input]:!text-white [&_input]:placeholder:text-neutral-500 [&_input]:!rounded-xl">
               <PasswordField label={t("confirm_new_password")} value={confirm} onChange={setConfirm} autoComplete="new-password" minLength={8} />
             </div>
             <button
