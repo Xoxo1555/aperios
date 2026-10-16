@@ -368,8 +368,8 @@ export default function Navbar({ categories }: Props) {
       {/* ROW 2 — Barre catégories : hauteur fixe, une seule ligne, fond sombre.
           Même gabarit que la row 1 : séparateur pleine largeur + contenu
           contraint à max-w-7xl. */}
-      <div className="ap-nav-sub-row w-full border-b border-border">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 hidden lg:flex items-center h-12 bg-background/70 backdrop-blur-md">
+      <div className="ap-nav-sub-row w-full border-b border-border bg-background/70 backdrop-blur-md hidden lg:block">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center h-12">
           <CategoryMenu categories={categories} />
         </div>
       </div>
