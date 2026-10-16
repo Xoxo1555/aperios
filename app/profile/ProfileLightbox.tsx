@@ -1,9 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode, type Dispatch, type SetStateAction } from "react";
-import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import Lightbox from "components/Lightbox";
 
 type ImageType = "avatar" | "cover";
 
@@ -15,6 +13,19 @@ interface LightboxContextValue {
 }
 
 const LightboxContext = createContext<LightboxContextValue | null>(null);
+
+/** Replis servis depuis /public : jamais de chaîne vide en entrée de <Image>. */
+const DEFAULT_AVATAR = "/images/logo-badge.png";
+const DEFAULT_COVER = "/images/isalo.jpg";
+
+/**
+ * Garantit une source d'image non vide et nettoyée. Renvoie toujours une
+ * chaîne valide (au pire le repli fourni), afin d'éviter un rendu noir /
+ * transparent quand la donnée est absente ou composée d'espaces.
+ */
+function safeImageSrc(src: string | null | undefined, fallback: string): string {
+  return typeof src === "string" && src.trim() ? src.trim() : fallback;
+}
 
 export function LightboxProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +44,6 @@ export function LightboxProvider({ children }: { children: ReactNode }) {
   return (
     <LightboxContext.Provider value={{ isOpen, currentImage, openLightbox, closeLightbox }}>
       {children}
-      <LightboxModal isOpen={isOpen} currentImage={currentImage} onClose={closeLightbox} />
     </LightboxContext.Provider>
   );
 }
@@ -46,63 +56,35 @@ export function useLightbox() {
   return context;
 }
 
-interface LightboxModalProps {
-  isOpen: boolean;
-  currentImage: ImageType | null;
-  onClose: () => void;
-}
-
-function LightboxModal({ isOpen, currentImage, onClose }: LightboxModalProps) {
-  // This will receive avatarUrl and coverImage from the page via props
-  // For now, we'll need to pass them through context or props
-  // Let's use a separate context for the image URLs
-  return null;
-}
-
-// Separate component for the actual modal that receives image URLs
 interface LightboxContentProps {
   avatarUrl: string | null;
   coverImage: string | null;
   userName: string;
 }
 
+/**
+ * Affiche l'agrandissement de l'avatar ou de la couverture via le composant
+ * global `components/Lightbox` (taille explicite via `.lightbox-stage`, zoom,
+ * portail vers <body>). Remplace l'ancien `<Image fill>` dont le conteneur
+ * n'avait aucune dimension intrinsèque et s'écrasait à 0px.
+ */
 export function LightboxContent({ avatarUrl, coverImage, userName }: LightboxContentProps) {
   const { isOpen, currentImage, closeLightbox } = useLightbox();
 
-  const imageSrc = currentImage === "avatar" ? avatarUrl : coverImage;
+  if (!isOpen || !currentImage) return null;
 
-  if (!isOpen || !imageSrc) return null;
+  const isAvatar = currentImage === "avatar";
+  const src = isAvatar
+    ? safeImageSrc(avatarUrl, DEFAULT_AVATAR)
+    : safeImageSrc(coverImage, DEFAULT_COVER);
+  const label = isAvatar ? "Profile photo" : "Cover photo";
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${currentImage === "avatar" ? "Profile photo" : "Cover photo"} of ${userName}`}
-    >
-      <div
-        className="absolute inset-0 bg-black/95 backdrop-blur-sm"
-        onClick={closeLightbox}
-        aria-hidden="true"
-      />
-      <button
-        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-        onClick={closeLightbox}
-        aria-label="Close"
-      >
-        <FontAwesomeIcon icon={faXmark} style={{ fontSize: "24px" }} />
-      </button>
-      <div className="relative z-10 max-h-[90vh] max-w-[90vw]">
-        <Image
-          src={imageSrc}
-          alt={`${userName}'s ${currentImage === "avatar" ? "profile photo" : "cover photo"}`}
-          fill
-          sizes="90vw"
-          className="object-contain rounded-lg shadow-2xl"
-          unoptimized={process.env.NODE_ENV === "development"}
-          loading="lazy"
-        />
-      </div>
-    </div>
+    <Lightbox
+      src={src}
+      alt={`${label} of ${userName}`}
+      open={isOpen}
+      onClose={closeLightbox}
+    />
   );
 }

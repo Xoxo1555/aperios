@@ -5,31 +5,52 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "components/SessionProvider";
 import { useLanguage } from "lib/i18n";
-import { useLightbox } from "./ProfileLightbox";
+import Lightbox from "components/Lightbox";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCamera, faUser } from "@fortawesome/free-regular-svg-icons";
+import { faCamera } from "@fortawesome/free-regular-svg-icons";
 import { faMagnifyingGlassPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
-interface ProfileHeaderUser {
+/** Image de repli servie depuis /public lorsque l'utilisateur n'a pas d'avatar. */
+const DEFAULT_AVATAR = "/default-avatar.png";
+
+export interface ProfileHeaderUser {
   name: string;
-  avatarUrl: string | null;
+  /** Champ canonique côté serveur/session. */
+  avatarUrl?: string | null;
+  /** Alias historique parfois renvoyé par les API/DTO. */
+  image?: string | null;
+}
+
+/**
+ * Résout la meilleure source d'image disponible pour l'avatar.
+ * Ordre de priorité : `avatarUrl` → `image` → image par défaut.
+ * On ignore les chaînes vides ou composées uniquement d'espaces pour ne
+ * jamais rendre une balise `<img>` avec une source vide (backdrop noir).
+ */
+export function resolveAvatarSrc(user: ProfileHeaderUser): string {
+  const candidates = [user?.avatarUrl, user?.image];
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) return candidate.trim();
+  }
+  return DEFAULT_AVATAR;
 }
 
 /**
  * Section avatar du profil : affiche la photo, permet de l'agrandir
- * (lightbox partagée du profil) et de la changer / retirer.
+ * (lightbox autonome) et de la changer / retirer.
  *
  * L'upload passe par l'endpoint existant POST /api/me/avatar (JSON
  * `{ image: <data-URL> }`), et rafraîchit la session + le composant serveur.
- * Doit être rendu à l'intérieur de `LightboxProvider` (app/profile/page.tsx).
  */
 export function ProfileAvatarSection({ user }: { user: ProfileHeaderUser }) {
   const router = useRouter();
   const { t } = useLanguage();
   const { setUser } = useSession();
-  const { openLightbox } = useLightbox();
   const [uploading, setUploading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const avatarSrc = resolveAvatarSrc(user);
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -88,37 +109,32 @@ export function ProfileAvatarSection({ user }: { user: ProfileHeaderUser }) {
 
   return (
     <div className="flex flex-col items-center">
-      {/* Photo de profil : un clic l'agrandit (lightbox du profil) */}
-      <div
-        onClick={() => user.avatarUrl && openLightbox("avatar")}
-        className="profile-avatar group relative z-10"
-        style={{ cursor: user.avatarUrl ? "zoom-in" : "default" }}
-        title={user.avatarUrl ? user.name : undefined}
-        role={user.avatarUrl ? "button" : undefined}
-        aria-label={user.avatarUrl ? t("change_profile_photo") : undefined}
+      {/* Photo de profil : un clic l'agrandit dans la lightbox */}
+      <button
+        type="button"
+        onClick={() => setPreviewOpen(true)}
+        className="profile-avatar group relative z-10 border-0 p-0"
+        style={{ cursor: "zoom-in", background: "transparent" }}
+        aria-label={user.name}
+        title={user.name}
       >
-        {user.avatarUrl ? (
-          <Image
-            src={user.avatarUrl}
-            alt={user.name}
-            width={128}
-            height={128}
-            className="rounded-full object-cover"
-            unoptimized={process.env.NODE_ENV === "development"}
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full bg-card flex items-center justify-center rounded-full">
-            <FontAwesomeIcon icon={faUser} className="text-muted-foreground" style={{ fontSize: "3rem" }} />
-          </div>
-        )}
+        <Image
+          src={avatarSrc}
+          alt={user.name}
+          width={128}
+          height={128}
+          className="rounded-full object-cover"
+          unoptimized={process.env.NODE_ENV === "development"}
+          loading="lazy"
+        />
 
-        {user.avatarUrl && (
-          <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-            <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ fontSize: "1.1rem" }} />
-          </div>
-        )}
-      </div>
+        <span
+          className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+          style={{ color: "#fff" }}
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlassPlus} style={{ fontSize: "1.1rem" }} />
+        </span>
+      </button>
 
       {/* Boutons séparés : changer / retirer la photo */}
       <div className="mt-3 flex items-center gap-4">
@@ -131,7 +147,7 @@ export function ProfileAvatarSection({ user }: { user: ProfileHeaderUser }) {
           <FontAwesomeIcon icon={faCamera} className="me-1" />
           {uploading ? t("uploading") : t("change_profile_photo")}
         </button>
-        {user.avatarUrl && (
+        {user.avatarUrl || user.image ? (
           <button
             type="button"
             onClick={removeAvatar}
@@ -141,7 +157,7 @@ export function ProfileAvatarSection({ user }: { user: ProfileHeaderUser }) {
             <FontAwesomeIcon icon={faTrash} />
             {t("remove_photo")}
           </button>
-        )}
+        ) : null}
       </div>
 
       <input
@@ -151,6 +167,13 @@ export function ProfileAvatarSection({ user }: { user: ProfileHeaderUser }) {
         className="hidden"
         onChange={handleFileChange}
         disabled={uploading}
+      />
+
+      <Lightbox
+        src={avatarSrc}
+        alt={user.name}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
       />
     </div>
   );
