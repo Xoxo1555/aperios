@@ -10,3 +10,8 @@ node_modules/
 Aperio.rar
 dist/ 
 *.tsbuildinfo
+/public/uploads/
+/storage/
+.opencode/
+ECC/
+skills/

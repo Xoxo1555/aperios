@@ -58,7 +58,7 @@ export default async function RootLayout({
   const initialLang: LangCode =
     langCookie && (SUPPORTED_LANGS as readonly string[]).includes(langCookie)
       ? (langCookie as LangCode)
-      : "en";
+      : "fr";
 
   return (
     <html lang={initialLang} data-scroll-behavior="smooth" suppressHydrationWarning>

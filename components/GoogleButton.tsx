@@ -2,17 +2,21 @@
 
 import { usePathname } from "next/navigation";
 import { useLanguage } from "lib/i18n";
+import { resolveCallbackUrl } from "lib/navigation";
 
 export default function GoogleButton() {
   const { t } = useLanguage();
   const pathname = usePathname();
 
-  // Prefer an explicit ?next= return path (e.g. /login?next=/photo/...);
-  // otherwise return the user to the page they are currently on.
+  // Prefer the callback the proxy or a caller asked for (callbackUrl, then
+  // next); otherwise return the user to the page they are currently on.
   const next = (() => {
     if (typeof window === "undefined") return pathname;
-    const p = new URLSearchParams(window.location.search).get("next");
-    return p && p.startsWith("/") && !p.startsWith("//") ? p : pathname;
+    const params = new URLSearchParams(window.location.search);
+    const explicit = params.get("callbackUrl") ?? params.get("next");
+    if (explicit) return resolveCallbackUrl(explicit);
+    if (pathname === "/login" || pathname === "/register") return "/";
+    return pathname;
   })();
 
   // Use a native anchor so the browser performs a full navigation to the API

@@ -109,15 +109,15 @@ export default function CommentDrawer({ photo, isOpen, onClose, onCommentAdded }
 
   if (!isOpen) return null;
 
-  const commentsTitle = mounted ? t("comments_title") : "Comments";
-  const closeLabel = mounted ? t("close") : "Close";
-  const noCommentsYet = mounted ? t("no_comments_yet") : "No comments yet";
-  const noCommentsYetSub = mounted ? t("no_comments_yet_sub") : "Be the first to share your thoughts!";
-  const writeComment = mounted ? t("write_a_comment") : "Write a comment…";
-  const loginToComment = mounted ? t("login_to_comment") : "Log in to comment";
-  const loginLabel = mounted ? t("login") : "Log in";
-  const sending = mounted ? t("sending") : "Sending…";
-  const send = mounted ? t("send") : "Send";
+  const commentsTitle = mounted ? t("comments_title") : "Commentaires";
+  const closeLabel = mounted ? t("close") : "Fermer";
+  const noCommentsYet = mounted ? t("no_comments_yet") : "Aucun commentaire";
+  const noCommentsYetSub = mounted ? t("no_comments_yet_sub") : "Soyez le premier à partager votre avis !";
+  const writeComment = mounted ? t("write_a_comment") : "Écrire un commentaire…";
+  const loginToComment = mounted ? t("login_to_comment") : "Connectez-vous pour commenter";
+  const loginLabel = mounted ? t("login") : "Connexion";
+  const sending = mounted ? t("sending") : "Envoi…";
+  const send = mounted ? t("send") : "Envoyer";
 
   return (
     <>

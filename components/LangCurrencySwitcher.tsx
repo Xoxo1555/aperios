@@ -54,7 +54,7 @@ export default function LangCurrencySwitcher() {
   const currentCurrency = ALL_CURRENCIES.find((c) => c.code === currency) ?? ALL_CURRENCIES[0];
 
   const displayCurrency = mounted ? currentCurrency.code.toUpperCase() : "EUR";
-  const displayLang = mounted ? currentLang.code.toUpperCase() : "EN";
+  const displayLang = mounted ? currentLang.code.toUpperCase() : "FR";
 
   function selectLang(code: string) {
     setLang(code as LangCode);
@@ -74,7 +74,7 @@ export default function LangCurrencySwitcher() {
         aria-label={t("change_language")}
         aria-expanded={open}
       >
-        <FlagImg code={LANG_FLAG[mounted ? currentLang.code : "en"] ?? "gb"} alt={currentLang.name} />
+        <FlagImg code={LANG_FLAG[mounted ? currentLang.code : "fr"] ?? "fr"} alt={currentLang.name} />
         <span suppressHydrationWarning>{displayLang} / {displayCurrency}</span>
         <FontAwesomeIcon icon={faChevronDown} style={{ fontSize: 14, opacity: 0.7 }} />
       </button>

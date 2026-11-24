@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "components/SessionProvider";
 import Image from "next/image";
@@ -98,6 +98,7 @@ export default function PayoutClient({ user }: Props) {
   const [account, setAccount] = useState(user.payoutAccount ?? "");
   const [accountName, setAccountName] = useState(user.payoutName ?? "");
   const [busy, setBusy] = useState(false);
+  const inFlight = useRef(false);
   const [msg, setMsg] = useState("");
   const [err, setErr] = useState("");
   const [success, setSuccess] = useState<any>(null);
@@ -108,11 +109,13 @@ export default function PayoutClient({ user }: Props) {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (inFlight.current) return;
     setErr(""); setMsg("");
     if (!amount || parseFloat(amount) < 10) { setErr(t("payout_min_amount", { amount: "10" })); return; }
     if (parseFloat(amount) > balance) { setErr(t("payout_available_balance", { balance: balance.toFixed(2) })); return; }
     if (!account.trim()) { setErr(t("account_number_required")); return; }
     if (!accountName.trim()) { setErr(t("account_name_required")); return; }
+    inFlight.current = true;
     setBusy(true);
     try {
       const res = await fetch("/api/payouts", {
@@ -121,7 +124,7 @@ export default function PayoutClient({ user }: Props) {
         body: JSON.stringify({ amount: parseFloat(amount), method, account: account.trim(), accountName: accountName.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) { setErr(data.error ?? t("payout_request_failed")); setBusy(false); return; }
+      if (!res.ok) { setErr(data.error ?? t("payout_request_failed")); return; }
       setSuccess(data.payout);
       /* Refresh session to get updated balance */
       const me = await fetch("/api/me");
@@ -131,7 +134,10 @@ export default function PayoutClient({ user }: Props) {
       router.refresh();
     } catch {
       setErr(t("something_went_wrong"));
-    } finally { setBusy(false); }
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
+    }
   }
 
   if (success) {
@@ -176,7 +182,7 @@ export default function PayoutClient({ user }: Props) {
           <div className="grid gap-2" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))" }}>
             {METHODS.map((m) => (
               <label key={m.id} className={`mount-option ${method === m.id ? "active" : ""}`}>
-                <input type="radio" name="method" className="form-check-input me-2" checked={method === m.id} onChange={() => setMethod(m.id)} />
+                <input type="radio" name="method" className="form-check-input me-2" checked={method === m.id} onChange={() => setMethod(m.id)} disabled={busy} />
                 <span className="me-2">{m.logo}</span>
                 <div>
                   <div className="font-bold" style={{ fontSize: "0.85rem" }}>{m.name}</div>
@@ -196,6 +202,7 @@ export default function PayoutClient({ user }: Props) {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder={`${balance.toFixed(2)} € max`}
+              disabled={busy}
               required
             />
           </div>
@@ -206,12 +213,13 @@ export default function PayoutClient({ user }: Props) {
               value={account}
               onChange={(e) => setAccount(e.target.value)}
               placeholder={methodData.placeholder}
+              disabled={busy}
               required
             />
           </div>
           <div className="col-12">
             <label className="form-label">{t("account_holder_name")}</label>
-            <input className="form-control" value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={t("full_name")} required />
+            <input className="form-control" value={accountName} onChange={(e) => setAccountName(e.target.value)} placeholder={t("full_name")} disabled={busy} required />
           </div>
         </div>
 
@@ -225,7 +233,7 @@ export default function PayoutClient({ user }: Props) {
           </div>
         </div>
 
-        <button className="btn btn-gold btn-lg w-full" type="submit" disabled={busy}>
+        <button className="btn btn-gold btn-lg w-full" type="submit" disabled={busy} aria-busy={busy}>
           {busy ? <span className="spinner-border spinner-border-sm" /> : <><FontAwesomeIcon icon={faArrowUp} className="me-2" style={{ fontSize: "18px", color: "#0b0906" }} />{t("confirm_payout")}</>}
         </button>
         <p className="text-muted-2 mt-2 mb-0 text-center" style={{ fontSize: "0.75rem" }}>

@@ -1,12 +1,14 @@
 import { SignJWT, jwtVerify } from "jose";
+import { eq } from "drizzle-orm";
+import { db } from "db";
+import { users } from "db/schema";
 import type { SessionUser } from "./types";
 
 /**
- * Edge-safe JWT session primitives (no `server-only`, no DB, no Node APIs).
- * Shared by the edge middleware (route protection) and the Node server
- * (`lib/auth.ts`). The token embeds the user's id, email and role — the
- * middleware only reads the role to apply RBAC route rules; every mutating
- * API endpoint independently re-validates the token server-side.
+ * JWT session primitives shared by the Proxy (Next 16 Node runtime) and the
+ * Node server (`lib/auth.ts`). The token embeds id, email and role; a signed
+ * token alone is not authoritative, so `resolveSessionUser` also checks the
+ * account and its role in the DB.
  */
 export const SESSION_COOKIE = "aperio_session";
 export const SESSION_TTL = "14d";
@@ -62,4 +64,21 @@ export async function verifySessionToken(token: string): Promise<SessionUser | n
   } catch {
     return null;
   }
+}
+
+/** DB-backed check: the account must still exist with the role in the token. */
+export async function resolveSessionUser(token: string): Promise<SessionUser | null> {
+  const user = await verifySessionToken(token);
+  if (!user) return null;
+  try {
+    const [account] = await db
+      .select({ id: users.id, role: users.role })
+      .from(users)
+      .where(eq(users.id, user.id))
+      .limit(1);
+    if (!account || account.role !== user.role) return null;
+  } catch {
+    return null;
+  }
+  return user;
 }

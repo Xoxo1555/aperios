@@ -3,7 +3,7 @@ import { requireCreator } from "lib/auth";
 import { db } from "db";
 import { photos } from "db/schema";
 import { eq } from "drizzle-orm";
-import { processAndSavePhotoBytes, isAllowedImageMime, assertValidImageBytes, MAX_HD_BYTES } from "lib/upload";
+import { processAndSavePhotoBytes, isAllowedImageMime, MAX_HD_BYTES } from "lib/upload";
 import { isUniqueViolation } from "lib/pg-errors";
 import { z } from "zod";
 
@@ -85,21 +85,13 @@ export async function POST(request: NextRequest) {
 
   const bytes = Buffer.from(await file.arrayBuffer());
 
-  // Zero-Trust : sniff des magic bytes réels via sharp (failOn:"error").
-  // Un attaquant peut envoyer `file.type="image/jpeg"` avec un SVG/polyglot.
-  try {
-    await assertValidImageBytes(bytes);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Fichier image invalide.";
-    return NextResponse.json({ error: message }, { status: 415 });
-  }
-
   let processed;
   try {
-    processed = await processAndSavePhotoBytes(file.type as Parameters<typeof processAndSavePhotoBytes>[0], bytes);
+    // Le format réel est déduit des magic bytes, jamais du header client.
+    processed = await processAndSavePhotoBytes(bytes);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to process image";
-    return NextResponse.json({ error: message }, { status: 400 });
+    const message = err instanceof Error ? err.message : "Échec du traitement de l'image.";
+    return NextResponse.json({ error: message }, { status: 415 });
   }
 
   const slugBase = title?.trim() || file.name.replace(/\.[^/.]+$/, "");

@@ -133,6 +133,7 @@ import {
 } from "../lib/orders";
 import { createWalletDepositIntent } from "../lib/wallet";
 import { mkdir, unlink, writeFile } from "fs/promises";
+import { createHmac } from "crypto";
 import { join } from "path";
 import { signSessionToken } from "../lib/session";
 import {
@@ -299,20 +300,20 @@ async function postMM(opts: {
   token?: string | null;
   header?: "missing" | "wrong" | "bearer" | null;
 }): Promise<{ status: number; body: Record<string, unknown> }> {
+  const raw = JSON.stringify(opts.body);
+  const timestamp = String(Math.floor(Date.now() / 1000));
+  const signature = createHmac("sha256", opts.token ?? "")
+    .update(`${timestamp}.${raw}`)
+    .digest("hex");
   const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (opts.header === "missing") {
-    /* rien */
-  } else if (opts.header === "wrong") {
-    headers["x-webhook-token"] = "token_INCORRECT";
-  } else if (opts.header === "bearer") {
-    headers.Authorization = `Bearer ${opts.token ?? "token_airtel_test"}`;
-  } else {
-    headers["x-webhook-token"] = opts.token ?? "whsec_should_not_use";
+  if (opts.header !== "missing") {
+    headers["x-webhook-timestamp"] = timestamp;
+    headers["x-webhook-signature"] = opts.header === "wrong" ? "0".repeat(64) : signature;
   }
   const req = new NextRequest(`http://localhost/api/webhooks/${opts.provider}`, {
     method: "POST",
     headers,
-    body: JSON.stringify(opts.body),
+    body: raw,
   });
   const route = opts.provider === "orange-money"
     ? "../app/api/webhooks/orange-money/route"

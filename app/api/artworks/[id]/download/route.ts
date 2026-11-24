@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createReadStream } from "fs";
-import { stat } from "fs/promises";
-import { Readable } from "stream";
 import { getSessionUser } from "lib/auth";
 import { checkArtworkDownloadAccess } from "lib/artworkAccess";
-import { resolveHdPath, extFromMime } from "lib/upload";
+import { extFromMime, openHdSource } from "lib/upload";
 import { photoIdParamSchema } from "lib/validation";
 import { slugify } from "lib/utils";
 
@@ -46,31 +43,15 @@ export async function GET(
 
   const photo = access.photo;
 
-  // 3. Résolution sécurisée du chemin privé (anti traversal)
-  let absPath: string;
-  try {
-    absPath = resolveHdPath(photo.hdPath);
-  } catch {
-    // Ne jamais logger le chemin absolu — log générique côté serveur uniquement
-    console.error(`[artworks/download] chemin invalide pour artwork ${artworkId}`);
-    return NextResponse.json({ error: "Fichier indisponible." }, { status: 500 });
+  // 3. Source HD : Blob privé ou storage/hd local, résolue côté serveur uniquement
+  const source = await openHdSource(photo.hdPath);
+  if (!source) {
+    console.error(`[artworks/download] source HD indisponible pour artwork ${artworkId}`);
+    return NextResponse.json({ error: "Fichier indisponible." }, { status: 404 });
   }
 
-  // 4. Stat + stream
-  let fileSize: number;
-  try {
-    const s = await stat(absPath);
-    if (!s.isFile()) {
-      return NextResponse.json({ error: "Fichier introuvable." }, { status: 404 });
-    }
-    fileSize = s.size;
-  } catch {
-    console.error(`[artworks/download] fichier manquant artwork ${artworkId}`);
-    return NextResponse.json({ error: "Fichier introuvable." }, { status: 404 });
-  }
-
-  // 5. Headers sécurisés
-  const mime = photo.hdMime ?? "application/octet-stream";
+  // 4. Headers sécurisés
+  const mime = source.mime ?? photo.hdMime ?? "application/octet-stream";
   const ext = extFromMime(mime);
   // slugify titre pour filename safe, sans exposer de données sensibles
   const safeBase = slugify(photo.title) || `aperio-${photo.id}`;
@@ -79,20 +60,11 @@ export async function GET(
   const encodedFilename = encodeURIComponent(filename);
 
   try {
-    const nodeStream = createReadStream(absPath);
-    // Conversion Node Readable -> Web ReadableStream pour NextResponse
-    const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream<Uint8Array>;
-
-    // Gestion d'erreur stream sans fuite de path
-    nodeStream.on("error", () => {
-      console.error(`[artworks/download] erreur stream artwork ${artworkId}`);
-    });
-
-    return new NextResponse(webStream as unknown as BodyInit, {
+    return new NextResponse(source.stream as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": mime,
-        "Content-Length": String(fileSize),
+        "Content-Length": String(source.size),
         // attachment force le téléchargement navigateur
         "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
         "X-Content-Type-Options": "nosniff",

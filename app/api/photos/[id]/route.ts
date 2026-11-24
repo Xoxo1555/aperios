@@ -5,9 +5,8 @@ import { categories, photoTags, photos, tags, users } from "@/db/schema";
 import { photoRowToDto } from "@/lib/dto";
 import { requireSession } from "@/lib/auth";
 import { canManageResource } from "@/lib/rbac";
-import { deleteHdSource } from "@/lib/upload";
-import { unlink } from "fs/promises";
-import { join, normalize } from "path";
+import { deleteHdSource, deleteStoredFile } from "@/lib/upload";
+import { photoIdParamSchema } from "lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -20,10 +19,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const numeric = /^\d+$/.test(id);
+  const parsedId = photoIdParamSchema.safeParse(id);
 
-  const conditions = numeric
-    ? [eq(photos.id, parseInt(id, 10)), eq(photos.isPublished, true)]
+  const conditions = parsedId.success
+    ? [eq(photos.id, parsedId.data), eq(photos.isPublished, true)]
     : [eq(photos.slug, id), eq(photos.isPublished, true)];
 
   const rows = await db
@@ -63,10 +62,11 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const photoId = parseInt(id, 10);
-  if (Number.isNaN(photoId) || photoId <= 0) {
+  const parsed = photoIdParamSchema.safeParse(id);
+  if (!parsed.success) {
     return NextResponse.json({ error: "Identifiant de photo invalide." }, { status: 400 });
   }
+  const photoId = parsed.data;
 
   const [photo] = await db
     .select({
@@ -90,19 +90,10 @@ export async function DELETE(
 
   await db.delete(photos).where(eq(photos.id, photoId));
 
-  /* Best-effort file cleanup — never let a failed unlink abort the delete. */
+  /* Best-effort cleanup — un fichier déjà absent ne doit pas bloquer la suppression. */
   await deleteHdSource(photo.hdPath);
-  for (const url of [photo.imageUrl, photo.thumbUrl]) {
-    if (!url?.startsWith("/uploads/")) continue;
-    try {
-      const abs = normalize(join(process.cwd(), "public", url.replace(/^\//, "")));
-      if (abs.startsWith(normalize(join(process.cwd(), "public")))) {
-        await unlink(abs);
-      }
-    } catch {
-      /* file already gone — ignore */
-    }
-  }
+  await deleteStoredFile(photo.imageUrl);
+  await deleteStoredFile(photo.thumbUrl);
 
   return new NextResponse(null, { status: 204 });
 }

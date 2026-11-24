@@ -95,7 +95,7 @@ const EDITORIAL: Record<string, string[]> = {
   andringitra: ["Pic Boby, toit de l'Andringitra", "Sommets granitiques d'Andringitra", "Andringitra dans la brume", "Crête de l'Imarivolanitra"],
   ranomafana: ["Forêt humide de Ranomafana", "Cascade de la forêt primaire", "Brouillard sur la canopée", "Namorona, rivière de Ranomafana"],
   lamba: ["Lamba landy, soie sauvage de Madagascar", "Étoffe cérémonielle betsileo", "Le Lamba, tissu de mémoire", "Soie d'Ambalavao, atelier Soalandy"],
-  "sculpture-ambositra": ["Porte sculptée Zafimaniry", "Bois précieux d'Ambositra", "Sculpture sur bois, fontaine d'H", "Masque rituel en bois dur"],
+  "sculpture-ambositra": ["Porte sculptée Zafimaniry", "Bois précieux d'Ambositra", "Sculpture sur bois, fontaine d'Ambositra", "Masque rituel en bois dur"],
   pirogue: ["Pirogue sur le canal des Pangalanes", "La Barque et le lagon", "Pêcheur au large de l'Est", "Traversée silencieuse"],
   rova: ["Le Rova d'Antananarivo", "Palais de la Reine, colline d'Analamanga", "Rova, mémoire royale", "La Colline sacrée de Tana"],
   faune: ["Zébu, bête de somme des hauts plateaux", "Zébu au cou puissant, bétail sacré", "Oiseau endémique des forêts", "Faune de l'océan Indien"],

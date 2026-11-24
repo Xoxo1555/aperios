@@ -1,6 +1,9 @@
-import { mkdir, writeFile } from "fs/promises";
+import { createReadStream } from "fs";
+import { mkdir, stat, unlink, writeFile } from "fs/promises";
 import { createHash } from "crypto";
-import { join, normalize, extname } from "path";
+import { join, normalize, extname, relative, isAbsolute, sep } from "path";
+import { Readable } from "stream";
+import { del, get, head, put } from "@vercel/blob";
 import sharp from "sharp";
 import * as exifr from "exifr";
 import { orientationFrom } from "./utils";
@@ -40,16 +43,104 @@ export function extFromMime(mime: string): string {
   }
 }
 
-/** Formats réellement autorisés après sniffing des magic bytes via sharp. */
+function requireBlobToken(): string {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) throw new Error("BLOB_READ_WRITE_TOKEN manquant.");
+  return token;
+}
+
+export function isBlobMode(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+}
+
+export function isPublicBlobUrl(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" && /\.public\.blob\.vercel-storage\.com$/i.test(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+export function isPrivateBlobPath(path: string): boolean {
+  return /^hd\/\d{4}\/[a-z0-9._-]+$/i.test(path);
+}
+
+async function putPublic(pathname: string, bytes: Buffer, contentType: string): Promise<string> {
+  const blob = await put(pathname, bytes, {
+    access: "public",
+    contentType,
+    token: requireBlobToken(),
+  });
+  return blob.url;
+}
+
+async function putPrivate(pathname: string, bytes: Buffer, contentType: string): Promise<string> {
+  const blob = await put(pathname, bytes, {
+    access: "private",
+    contentType,
+    token: requireBlobToken(),
+  });
+  return blob.pathname;
+}
+
+export interface StoredHdSource {
+  stream: ReadableStream<Uint8Array>;
+  size: number;
+  mime: string | null;
+}
+
+/** Lit la source HD depuis Blob (privé) ou depuis storage/hd (local). */
+export async function openHdSource(storedPath: string | null): Promise<StoredHdSource | null> {
+  if (!storedPath) return null;
+  try {
+    if (isPrivateBlobPath(storedPath)) {
+      const token = requireBlobToken();
+      const meta = await head(storedPath, { token });
+      const result = await get(storedPath, { access: "private", token });
+      if (!result?.stream) return null;
+      return {
+        stream: result.stream as unknown as ReadableStream<Uint8Array>,
+        size: meta.size,
+        mime: result.blob.contentType ?? null,
+      };
+    }
+
+    const absPath = resolveHdPath(storedPath);
+    const info = await stat(absPath);
+    if (!info.isFile()) return null;
+    const nodeStream = createReadStream(absPath);
+    nodeStream.on("error", () => console.error("[upload] erreur de lecture de la source HD"));
+    return {
+      stream: Readable.toWeb(nodeStream) as unknown as ReadableStream<Uint8Array>,
+      size: info.size,
+      mime: null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export interface SniffedImage {
+  mime: AllowedImageMime;
+  ext: string;
+}
+
 const ALLOWED_SHARP_FORMATS = new Set(["jpeg", "jpg", "png", "webp"]);
 
+function imageFromFormat(format: string): SniffedImage | null {
+  if (format === "jpeg" || format === "jpg") return { mime: "image/jpeg", ext: "jpg" };
+  if (format === "png") return { mime: "image/png", ext: "png" };
+  if (format === "webp") return { mime: "image/webp", ext: "webp" };
+  return null;
+}
+
 /**
- * Valide le contenu binaire réel de l'image (magic bytes) via sharp.
- * Ne fait JAMAIS confiance au header `file.type` envoyé par le navigateur.
- * `failOn:"error"` garantit qu'un SVG/polyglot ou un fichier corrompu est rejeté.
+ * Déduit le format réel des magic bytes via sharp. Le header `file.type`
+ * ou l'extension fournie par le client ne sont jamais utilisés ici.
  */
-export async function assertValidImageBytes(bytes: Buffer): Promise<void> {
-  let meta: any;
+export async function sniffImage(bytes: Buffer): Promise<SniffedImage> {
+  let meta: { format?: string; width?: number; height?: number };
   try {
     meta = await sharp(bytes, { failOn: "error" }).metadata();
   } catch {
@@ -61,6 +152,16 @@ export async function assertValidImageBytes(bytes: Buffer): Promise<void> {
   if (!meta.width || !meta.height) {
     throw new Error("Image sans dimensions valides.");
   }
+  const image = imageFromFormat(meta.format);
+  if (!image) {
+    throw new Error("Format d'image non supporté (JPEG, PNG ou WebP uniquement) — contenu réel invalide.");
+  }
+  return image;
+}
+
+/** Valide le contenu binaire réel de l'image (magic bytes) via sharp. */
+export async function assertValidImageBytes(bytes: Buffer): Promise<void> {
+  await sniffImage(bytes);
 }
 
 /** Sanitizes a filename so it can never escape its directory or collide. */
@@ -96,33 +197,64 @@ export function hdStorageRoot(): string {
 export function resolveHdPath(storedPath: string): string {
   const root = normalize(hdStorageRoot());
   const absolute = normalize(join(root, storedPath));
-  if (!absolute.startsWith(root)) {
+  const rel = relative(root, absolute);
+  if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
     throw new Error("Chemin HD invalide.");
   }
   return absolute;
 }
 
-/** Writes the original HD source into private storage and returns its relative path. */
+/** Writes the original HD source into private storage and returns its stored reference. */
 export async function saveHdSource(
   bytes: Buffer,
-  mime: string,
-): Promise<{ hdPath: string; hdMime: string; hdSize: number }> {
+  image?: SniffedImage,
+): Promise<{ hdPath: string; hdMime: AllowedImageMime; hdSize: number }> {
+  const sniffed = image ?? await sniffImage(bytes);
   const year = new Date().getFullYear();
+  const hash = createHash("sha256").update(bytes).digest("hex").slice(0, 16);
+  const filename = `${Date.now().toString(36)}-${hash}.${sniffed.ext}`;
+
+  if (isBlobMode()) {
+    // Seul le pathname est persisté : l'URL privée brute ne quitte jamais le serveur.
+    const hdPath = await putPrivate(`hd/${year}/${filename}`, bytes, sniffed.mime);
+    return { hdPath, hdMime: sniffed.mime, hdSize: bytes.length };
+  }
+
   const dir = join(hdStorageRoot(), String(year));
   await mkdir(dir, { recursive: true });
-  const hash = createHash("sha256").update(bytes).digest("hex").slice(0, 16);
-  const filename = `${Date.now().toString(36)}-${hash}.${extFromMime(mime)}`;
   const relPath = `${year}/${filename}`;
   await writeFile(join(dir, filename), bytes);
-  return { hdPath: relPath, hdMime: mime, hdSize: bytes.length };
+  return { hdPath: relPath, hdMime: sniffed.mime, hdSize: bytes.length };
 }
 
 /** Remove a stored HD source file (best-effort, used on photo deletion). */
 export async function deleteHdSource(storedPath: string | null): Promise<void> {
   if (!storedPath) return;
   try {
-    const { unlink } = await import("fs/promises");
-    await unlink(resolveHdPath(storedPath));
+    if (isPrivateBlobPath(storedPath)) {
+      await del(storedPath, { token: requireBlobToken() });
+    } else {
+      await unlink(resolveHdPath(storedPath));
+    }
+  } catch {
+    /* File already gone or unreadable — nothing to do. */
+  }
+}
+
+/** Supprime un visuel public stocké sur Blob ou sous /public (best-effort). */
+export async function deleteStoredFile(url: string | null | undefined): Promise<void> {
+  if (!url) return;
+  try {
+    if (isPublicBlobUrl(url)) {
+      await del(url, { token: requireBlobToken() });
+      return;
+    }
+    if (!url.startsWith("/uploads/")) return;
+    const publicRoot = normalize(join(process.cwd(), "public"));
+    const abs = normalize(join(publicRoot, url.replace(/^\//, "")));
+    const rel = relative(publicRoot, abs);
+    if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) return;
+    await unlink(abs);
   } catch {
     /* File already gone or unreadable — nothing to do. */
   }
@@ -136,15 +268,20 @@ export async function saveUploadedFile(
   base64: string,
   subdir: "avatars" | "covers",
   originalName?: string,
-): Promise<{ url: string; diskPath: string; sizeBytes: number }> {
-  const { mime, bytes } = decodeImageDataUrl(base64, MAX_PREVIEW_BYTES);
+): Promise<{ url: string; diskPath: string | null; sizeBytes: number }> {
+  const { bytes } = decodeImageDataUrl(base64, MAX_PREVIEW_BYTES);
   // Validation magic bytes même pour les avatars/covers (SVG polyglot bloqué)
-  await assertValidImageBytes(bytes);
-  const ext = extFromMime(mime);
+  const image = await sniffImage(bytes);
+  const ext = image.ext;
   const prefix = subdir === "avatars" ? "av" : "cv";
   const nameBase = safeFileName(originalName ?? "image").replace(/\.[a-z0-9]+$/i, "");
   const hash = createHash("sha256").update(bytes).digest("hex").slice(0, 10);
   const filename = `${prefix}-${Date.now().toString(36)}-${hash}-${nameBase.slice(0, 32)}.${ext}`;
+
+  if (isBlobMode()) {
+    const url = await putPublic(`${subdir}/${filename}`, bytes, image.mime);
+    return { url, diskPath: null, sizeBytes: bytes.length };
+  }
 
   const relDir = `public/uploads/${subdir}`;
   const absDir = join(process.cwd(), relDir);
@@ -193,22 +330,20 @@ function formatShutter(exposureTime: number | undefined): string | undefined {
  * Only JPEG/PNG/WebP are accepted, capped at 50 MB (HD source).
  */
 export async function processAndSavePhoto(base64: string): Promise<ProcessedPhoto> {
-  const { mime, bytes } = decodeImageDataUrl(base64, MAX_HD_BYTES);
-  return processAndSavePhotoBytes(mime, bytes);
+  const { bytes } = decodeImageDataUrl(base64, MAX_HD_BYTES);
+  return processAndSavePhotoBytes(bytes);
 }
 
 /** Buffer variant used by the FormData upload route (avoids re-encoding). */
 export async function processAndSavePhotoBytes(
-  mime: AllowedImageMime,
   original: Buffer,
 ): Promise<ProcessedPhoto> {
-  if (!isAllowedImageMime(mime)) throw new Error("Format d'image non supporté.");
   if (original.length === 0) throw new Error("Fichier vide.");
   if (original.length > MAX_HD_BYTES) {
     throw new Error(`Fichier trop volumineux (max ${Math.round(MAX_HD_BYTES / 1024 / 1024)} Mo).`);
   }
   // Sécurité : sniff des magic bytes — le header `file.type` est spoofable.
-  await assertValidImageBytes(original);
+  const sniffed = await sniffImage(original);
 
   // Real EXIF extraction from the untouched original bytes (re-encoding strips EXIF)
   let exif: Record<string, unknown> | null = null;
@@ -239,10 +374,6 @@ export async function processAndSavePhotoBytes(
   const orientation = orientationFrom(width, height);
 
   const year = new Date().getFullYear();
-  const dir = `public/uploads/photos/${year}`;
-  const absDir = join(process.cwd(), dir);
-  await mkdir(absDir, { recursive: true });
-
   const hash = createHash("sha256").update(original).digest("hex").slice(0, 10);
   const base = `${Date.now().toString(36)}-${hash}`;
 
@@ -254,21 +385,35 @@ export async function processAndSavePhotoBytes(
     .resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true })
     .jpeg({ quality: 88, mozjpeg: true })
     .toBuffer();
-  await writeFile(join(absDir, fullName), fullBuffer);
 
   const thumbBuffer = await sharp(original, { failOn: "error" })
     .rotate()
     .resize({ width: 640, height: 640, fit: "inside", withoutEnlargement: true })
     .jpeg({ quality: 80, mozjpeg: true })
     .toBuffer();
-  await writeFile(join(absDir, thumbName), thumbBuffer);
+
+  let fullUrl: string;
+  let thumbUrl: string;
+  if (isBlobMode()) {
+    [fullUrl, thumbUrl] = await Promise.all([
+      putPublic(`photos/${year}/${fullName}`, fullBuffer, "image/jpeg"),
+      putPublic(`photos/${year}/${thumbName}`, thumbBuffer, "image/jpeg"),
+    ]);
+  } else {
+    const absDir = join(process.cwd(), "public", "uploads", "photos", String(year));
+    await mkdir(absDir, { recursive: true });
+    await writeFile(join(absDir, fullName), fullBuffer);
+    await writeFile(join(absDir, thumbName), thumbBuffer);
+    fullUrl = `/uploads/photos/${year}/${fullName}`;
+    thumbUrl = `/uploads/photos/${year}/${thumbName}`;
+  }
 
   // Isolate the original HD source outside of /public.
-  const hd = await saveHdSource(original, mime);
+  const hd = await saveHdSource(original, sniffed);
 
   return {
-    fullUrl: `/uploads/photos/${year}/${fullName}`,
-    thumbUrl: `/uploads/photos/${year}/${thumbName}`,
+    fullUrl,
+    thumbUrl,
     width,
     height,
     orientation,

@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * any side effect.
  */
 export async function POST(req: NextRequest) {
-  const auth = verifyWebhookSecret(req, "mvola");
+  const auth = await verifyWebhookSecret(req, "mvola");
   if (!auth.ok) {
     return NextResponse.json({ error: auth.reason }, { status: auth.status });
   }

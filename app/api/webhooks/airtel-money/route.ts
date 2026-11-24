@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
  *  Signature-verified, deduplicated and audited (I6 amendments 4/8) before
  *  any side effect. */
 export async function POST(req: NextRequest) {
-  const auth = verifyWebhookSecret(req, "airtel");
+  const auth = await verifyWebhookSecret(req, "airtel");
   if (!auth.ok) {
     return NextResponse.json({ error: auth.reason }, { status: auth.status });
   }

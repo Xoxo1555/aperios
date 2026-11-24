@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createReadStream } from "fs";
-import { stat } from "fs/promises";
-import { Readable } from "stream";
 import { getSessionUser } from "lib/auth";
 import { checkArtworkDownloadAccess } from "lib/artworkAccess";
-import { resolveHdPath, extFromMime } from "lib/upload";
+import { extFromMime, openHdSource } from "lib/upload";
 import { photoIdParamSchema } from "lib/validation";
 import { slugify } from "lib/utils";
 
@@ -41,39 +38,24 @@ export async function GET(
   }
   const photo = access.photo;
 
-  let absPath: string;
-  try {
-    absPath = resolveHdPath(photo.hdPath);
-  } catch {
-    console.error(`[photos/file] chemin invalide pour photo ${photoId}`);
-    return NextResponse.json({ error: "Fichier indisponible." }, { status: 500 });
+  const source = await openHdSource(photo.hdPath);
+  if (!source) {
+    console.error(`[photos/file] source HD indisponible pour photo ${photoId}`);
+    return NextResponse.json({ error: "Fichier indisponible." }, { status: 404 });
   }
 
-  let fileSize: number;
-  try {
-    const s = await stat(absPath);
-    if (!s.isFile()) return NextResponse.json({ error: "Fichier introuvable." }, { status: 404 });
-    fileSize = s.size;
-  } catch {
-    console.error(`[photos/file] fichier manquant photo ${photoId}`);
-    return NextResponse.json({ error: "Fichier introuvable." }, { status: 404 });
-  }
-
-  const mime = photo.hdMime ?? "application/octet-stream";
+  const mime = source.mime ?? photo.hdMime ?? "application/octet-stream";
   const ext = extFromMime(mime);
   const safeBase = slugify(photo.title) || `aperio-${photo.id}`;
   const filename = `${safeBase}.${ext}`;
   const encodedFilename = encodeURIComponent(filename);
 
   try {
-    const nodeStream = createReadStream(absPath);
-    const webStream = Readable.toWeb(nodeStream) as unknown as ReadableStream<Uint8Array>;
-    nodeStream.on("error", () => console.error(`[photos/file] erreur stream photo ${photoId}`));
-    return new NextResponse(webStream as unknown as BodyInit, {
+    return new NextResponse(source.stream as unknown as BodyInit, {
       status: 200,
       headers: {
         "Content-Type": mime,
-        "Content-Length": String(fileSize),
+        "Content-Length": String(source.size),
         "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodedFilename}`,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store, must-revalidate",

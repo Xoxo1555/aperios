@@ -6,7 +6,7 @@ import { db } from "db";
 import { emailVerifications, passwordResets, users } from "db/schema";
 import { codeHash, generateNumericCode, verifyCodeAttempt } from "./auth-attempts";
 import { passwordResetEmailHtml, sendMail, verificationEmailHtml } from "./mailer";
-import { SESSION_COOKIE, signSessionToken, verifySessionToken } from "./session";
+import { resolveSessionUser, SESSION_COOKIE, signSessionToken, verifySessionToken } from "./session";
 export { SESSION_COOKIE, signSessionToken, verifySessionToken } from "./session";
 import type { Role, SessionUser } from "./types";
 
@@ -42,7 +42,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  return verifySessionToken(token);
+  return resolveSessionUser(token);
 }
 
 /**

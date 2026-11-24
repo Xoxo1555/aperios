@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "components/SessionProvider";
 import { useLanguage } from "lib/i18n";
+import { resolveCallbackUrl } from "lib/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-regular-svg-icons";
 import { faArrowsRotate, faEnvelopeCircleCheck, faShieldHalved, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
@@ -12,7 +13,7 @@ import { faArrowsRotate, faEnvelopeCircleCheck, faShieldHalved, faTriangleExclam
 function VerifyForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/";
+  const next = resolveCallbackUrl(searchParams.get("next"));
   const initialEmail = searchParams.get("email") || "";
   const { setUser } = useSession();
   const { t } = useLanguage();

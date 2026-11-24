@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE, signSessionToken } from "lib/auth";
 import { exchangeGoogleCode, fetchGoogleProfile, findOrCreateGoogleUser } from "lib/google";
+import { resolveCallbackUrl } from "lib/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
   const state = req.nextUrl.searchParams.get("state");
   const cookieState = req.cookies.get("google_oauth_state")?.value;
-  const next = req.cookies.get("google_oauth_next")?.value || "/";
+  const next = resolveCallbackUrl(req.cookies.get("google_oauth_next")?.value);
 
   if (!code || !state || !cookieState || state !== cookieState) {
     return fail("google_invalid_state");
@@ -56,8 +57,7 @@ export async function GET(req: NextRequest) {
     const sessionUser = await findOrCreateGoogleUser(profile);
     const token = await signSessionToken(sessionUser);
 
-    const target = next.startsWith("/") && !next.startsWith("//") ? next : "/";
-    const res = NextResponse.redirect(new URL(target, origin));
+    const res = NextResponse.redirect(new URL(next, origin));
     res.cookies.set(SESSION_COOKIE, token, {
       httpOnly: true,
       sameSite: "lax",

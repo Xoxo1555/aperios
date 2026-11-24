@@ -1,23 +1,23 @@
 import "server-only";
-import { timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
 
 /**
  * Vérification d'authentification des webhooks Mobile Money.
  *
  * Principe Zero-Trust : aucun webhook ne doit pouvoir marquer une commande
- * comme payée sans preuve cryptographique. On exige un secret partagé
- * configuré côté serveur et envoyé par l'opérateur dans un header.
+ * comme payée sans preuve cryptographique. La signature HMAC-SHA256 porte sur
+ * le corps brut et l'horodatage : `${timestamp}.${rawBody}`, avec le secret
+ * configuré côté serveur. Un jeton envoyé en clair ne suffit pas.
  *
  * Env supportées (par priorité) :
- *  - WEBHOOK_SECRET générique (recommandé, partagé par tous les opérateurs)
  *  - ORANGE_MONEY_WEBHOOK_TOKEN / MVOLA_WEBHOOK_TOKEN / AIRTEL_WEBHOOK_TOKEN
  *    (spécifiques par opérateur, prioritaires si définis)
+ *  - WEBHOOK_SECRET générique (partagé par tous les opérateurs)
  *
- * Headers acceptés :
- *  - x-webhook-token
- *  - x-webhook-secret
- *  - Authorization: Bearer <token>
+ * Headers requis :
+ *  - x-webhook-timestamp : secondes Unix (fenêtre de 5 minutes)
+ *  - x-webhook-signature : HMAC-SHA256 hexadécimal du corps brut horodaté
  *
  * Si aucun secret n'est configuré, la requête est toujours refusée (403) et
  * un avertissement explicite est émis : l'instance est configurée de façon
@@ -45,10 +45,10 @@ function timingEqual(a: string, b: string): boolean {
   }
 }
 
-export function verifyWebhookSecret(
+export async function verifyWebhookSecret(
   req: NextRequest,
   provider: "orange" | "mvola" | "airtel",
-): { ok: true } | { ok: false; reason: string; status: 401 | 403 } {
+): Promise<{ ok: true } | { ok: false; reason: string; status: 401 | 403 }> {
   const expected = expectedSecret(provider);
   if (!expected) {
     console.warn(
@@ -61,24 +61,19 @@ export function verifyWebhookSecret(
     };
   }
 
-  const headerToken =
-    req.headers.get("x-webhook-token") ??
-    req.headers.get("x-webhook-secret") ??
-    req.headers.get("x-callback-token") ??
-    "";
-
-  const authHeader = req.headers.get("authorization") ?? "";
-  const bearerToken = authHeader.toLowerCase().startsWith("bearer ")
-    ? authHeader.slice(7).trim()
-    : "";
-
-  const provided = headerToken || bearerToken;
-
-  if (!provided) {
-    return { ok: false, reason: "Jeton webhook manquant (header x-webhook-token ou Authorization Bearer requis).", status: 401 };
+  const timestamp = req.headers.get("x-webhook-timestamp") ?? "";
+  const signature = req.headers.get("x-webhook-signature") ?? "";
+  if (!/^\d{10}$/.test(timestamp) || !signature) {
+    return { ok: false, reason: "Signature webhook ou horodatage manquant.", status: 401 };
   }
-  if (!timingEqual(provided, expected)) {
-    return { ok: false, reason: "Jeton webhook invalide.", status: 401 };
+  if (Math.abs(Math.floor(Date.now() / 1000) - Number(timestamp)) > 300) {
+    return { ok: false, reason: "Horodatage webhook hors de la fenêtre autorisée.", status: 401 };
+  }
+
+  const rawBody = await req.clone().text();
+  const digest = createHmac("sha256", expected).update(`${timestamp}.${rawBody}`).digest("hex");
+  if (!timingEqual(signature.toLowerCase(), digest)) {
+    return { ok: false, reason: "Signature webhook invalide.", status: 401 };
   }
   return { ok: true };
 }

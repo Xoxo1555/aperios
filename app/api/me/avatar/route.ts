@@ -4,7 +4,7 @@ import { db } from "db";
 import { users } from "db/schema";
 import { getSessionUser, signSessionToken, toSessionUser } from "lib/auth";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "lib/session";
-import { saveUploadedFile } from "lib/upload";
+import { deleteStoredFile, saveUploadedFile } from "lib/upload";
 import { avatarUploadSchema } from "lib/validation";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
   try {
     const saved = await saveUploadedFile(parsed.data.image, "avatars");
     await db.update(users).set({ avatarUrl: saved.url }).where(eq(users.id, user.id));
+    if (user.avatarUrl && user.avatarUrl !== saved.url) {
+      await deleteStoredFile(user.avatarUrl);
+    }
 
     // Refresh the JWT with the new avatarUrl
     const [updated] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
@@ -52,6 +55,7 @@ export async function DELETE() {
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
 
   await db.update(users).set({ avatarUrl: null }).where(eq(users.id, user.id));
+  await deleteStoredFile(user.avatarUrl);
   const [updated] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
   if (!updated) return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
   const refreshed = toSessionUser(updated);

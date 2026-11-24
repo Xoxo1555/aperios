@@ -44,7 +44,7 @@ export default function Navbar({ categories }: Props) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const count = mounted ? cartCount(items) : 0;
-  const searchLabel = mounted ? t("search_aria") : "Search";
+  const searchLabel = mounted ? t("search_aria") : "Rechercher";
 
   const visibleSuggestions = q.trim() ? suggestions : [];
 

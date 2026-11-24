@@ -32,7 +32,7 @@ function catHref(c: CategoryDto): string {
 }
 
 const MORE_LINKS: { href: string; key: DictKey; icon: IconDefinition; fallback: string }[] = [
-  { href: "/about", key: "about", icon: faGlobe, fallback: "Ãƒâ‚¬ propos" },
+  { href: "/about", key: "about", icon: faGlobe, fallback: "À propos" },
   { href: "/help", key: "help_faq", icon: faCircleQuestion, fallback: "FAQ" },
   { href: "/contact", key: "contact", icon: faCompass, fallback: "Contact" },
   { href: "/terms", key: "nav_terms", icon: faFileLines, fallback: "Conditions" },
@@ -79,7 +79,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- fermeture du menu aprÃƒÂ¨s navigation, volontaire
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fermeture du menu après navigation, volontaire
     setGalleryOpen(false);
     setMoreOpen(false);
   }, [pathname, category]);
@@ -95,7 +95,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
 
   return (
     <div ref={rootRef} className="ap-catmenu flex items-center gap-1 w-full">
-      {/* Backdrop Ã¢â‚¬â€ isole le mega-menu du reste de la page (clic = fermeture) */}
+      {/* Backdrop — isole le méga-menu du reste de la page (clic = fermeture) */}
       {overlayOpen && (
         <div
           className="ap-mega-backdrop fixed inset-0 bg-black/40 backdrop-blur-sm"
@@ -104,7 +104,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
         />
       )}
 
-      {/* CatÃƒÂ©gories Ã¢â€“Â¾ Ã¢â‚¬â€ dÃƒÂ©clencheur du mega-menu */}
+      {/* Catégories ▾ — déclencheur du méga-menu */}
       <div className="relative" style={{ flexShrink: 0 }}>
         <button
           type="button"
@@ -114,7 +114,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
           onClick={() => setGalleryOpen((v) => !v)}
         >
           <Icon name={faFolder} size={15} />
-          <span>{mounted ? t("nav_categories") : "CatÃƒÂ©gories"}</span>
+          <span>{mounted ? t("nav_categories") : "Catégories"}</span>
           <Icon name={faChevronDown} size={14} className="ap-cat-chev" />
         </button>
 
@@ -128,7 +128,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
               {categories.map((c) => {
                 const iconName = ICONS[c.slug] ?? (c.icon ? faFromBi(c.icon) : faTableCells);
                 const labelKey = `cat_${c.slug.replace(/-/g, "_")}` as const;
-                // i18n: use t("cat_aerial"), t("cat_travel"), etc. avec fallback sur c.name si clÃƒÂ© manquante
+                // i18n: t("cat_aerial"), t("cat_travel"), etc. avec c.name si la clé manque
                 const translated = mounted ? (t as (k: string) => string)(labelKey) : c.name;
                 const displayName = translated === labelKey ? c.name : translated;
                 return (
@@ -143,7 +143,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
                     </span>
                     <span className="ap-mega-text">
                       <span className="ap-mega-name">{displayName}</span>
-                      {c.description && <span className="ap-mega-desc">{c.description}</span>}
+                      {c.description && <span className="ap-mega-desc" title={c.description}>{c.description}</span>}
                     </span>
                   </Link>
                 );
@@ -153,13 +153,13 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
         )}
       </div>
 
-      {/* Barre horizontale principale Ã¢â‚¬â€ liens fixes sur une seule ligne Ã¢â‚¬â€ traductions dynamiques FR/EN */}
+      {/* Barre horizontale principale — liens fixes sur une seule ligne, traduits dynamiquement FR/EN */}
       <nav className="ap-catbar flex items-center gap-6 lg:gap-8 px-4 py-2.5 grow">
         <Link href="/photos" className={`ap-catlink${isFreeActive ? " is-active" : ""}`}>
           {mounted ? t("nav_free") : "Gratuit"}
         </Link>
         <Link href="/prints" className={`ap-catlink${isPremiumActive ? " is-active" : ""}`}>
-          {mounted ? t("nav_limited_editions") : "Ãƒâ€°ditions LimitÃƒÂ©es"}
+          {mounted ? t("nav_limited_editions") : "Éditions Limitées"}
         </Link>
         <Link
           href="/photos?category=madagascar"
@@ -175,7 +175,7 @@ export default function CategoryMenu({ categories }: { categories: CategoryDto[]
         </Link>
       </nav>
 
-      {/* ... Plus Ã¢â€“Â¾ Ã¢â‚¬â€ pages d'information, alignÃƒÂ© ÃƒÂ  droite */}
+      {/* ... Plus ▾ — pages d'information, aligné à droite */}
       <div className="relative ms-auto" style={{ flexShrink: 0 }}>
         <button
           type="button"

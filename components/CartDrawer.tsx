@@ -45,21 +45,21 @@ export default function CartDrawer() {
     router.push("/checkout");
   }
 
-  const cartMy = mounted ? t("cart_my") : "My cart";
-  const closeLabel = mounted ? t("close") : "Close";
-  const cartEmpty = mounted ? t("cart_empty") : "Your cart is empty.";
-  const cartEmptySub = mounted ? t("cart_empty_sub") : "Browse our limited edition prints to get started.";
-  const browsePrints = mounted ? t("browse_prints") : "Browse prints";
-  const editionAssigned = mounted ? t("edition_assigned_at_payment") : "Edition number assigned at payment";
-  const removeLabel = mounted ? t("remove") : "Remove";
-  const decreaseQty = mounted ? t("decrease_qty") : "Decrease quantity";
-  const increaseQty = mounted ? t("increase_qty") : "Increase quantity";
-  const subtotalLabel = mounted ? t("subtotal") : "Subtotal";
-  const shippingLabel = mounted ? t("shipping") : "Shipping";
-  const freeLabel = mounted ? t("free_label") : "Free";
+  const cartMy = mounted ? t("cart_my") : "Mon panier";
+  const closeLabel = mounted ? t("close") : "Fermer";
+  const cartEmpty = mounted ? t("cart_empty") : "Votre panier est vide.";
+  const cartEmptySub = mounted ? t("cart_empty_sub") : "Découvrez nos tirages en édition limitée.";
+  const browsePrints = mounted ? t("browse_prints") : "Voir les tirages";
+  const editionAssigned = mounted ? t("edition_assigned_at_payment") : "Numéro d'édition attribué au paiement";
+  const removeLabel = mounted ? t("remove") : "Retirer";
+  const decreaseQty = mounted ? t("decrease_qty") : "Diminuer la quantité";
+  const increaseQty = mounted ? t("increase_qty") : "Augmenter la quantité";
+  const subtotalLabel = mounted ? t("subtotal") : "Sous-total";
+  const shippingLabel = mounted ? t("shipping") : "Livraison";
+  const freeLabel = mounted ? t("free_label") : "Gratuit";
   const totalLabel = mounted ? t("total") : "Total";
-  const checkoutLabel = mounted ? t("checkout") : "Checkout";
-  const clearCartLabel = mounted ? t("clear_cart") : "Clear cart";
+  const checkoutLabel = mounted ? t("checkout") : "Commander";
+  const clearCartLabel = mounted ? t("clear_cart") : "Vider le panier";
 
   return (
     <>

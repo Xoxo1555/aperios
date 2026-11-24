@@ -137,11 +137,11 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
       ? Math.min(photo.availableStock, photo.totalEditions)
       : photo.availableStock;
 
-  const freeLabel = mounted ? t("free_label") : "Free";
-  const downloadLabel = mounted ? t("download_for_free") : "Download for free";
-  const badgeLimited = mounted ? t("badge_limited_art") : "Limited Edition";
-  const badgeFree = mounted ? t("badge_free") : "Free";
-  const editionsLeftLabel = mounted ? t("editions_left") : "{count} left";
+  const freeLabel = mounted ? t("free_label") : "Gratuit";
+  const downloadLabel = mounted ? t("download_for_free") : "Télécharger gratuitement";
+  const badgeLimited = mounted ? t("badge_limited_art") : "Édition limitée";
+  const badgeFree = mounted ? t("badge_free") : "Gratuit";
+  const editionsLeftLabel = mounted ? t("editions_left") : "{count} restantes";
 
   return (
     <>
@@ -197,7 +197,10 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <Link href={`/photo/${photo.slug}`} className="group/title">
-              <h3 className="line-clamp-2 break-words text-[0.82rem] sm:text-sm font-bold capitalize leading-snug group-hover/title:text-amber-600 dark:group-hover/title:text-amber-500 transition-colors font-serif text-zinc-900 dark:text-zinc-100">
+              <h3
+                title={photo.title}
+                className="line-clamp-2 break-words text-[0.82rem] sm:text-sm font-bold capitalize leading-snug group-hover/title:text-amber-600 dark:group-hover/title:text-amber-500 transition-colors font-serif text-zinc-900 dark:text-zinc-100"
+              >
                 {photo.title}
               </h3>
             </Link>
@@ -229,8 +232,8 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
             <button
               className="group/btn flex h-8 items-center justify-center gap-1.5 rounded-full transition-all duration-300 hover:bg-rose-600/10 dark:hover:bg-rose-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 text-zinc-300"
               style={{ background: "#1C1C1F", border: "none", padding: "0 10px" }}
-              aria-label={liked ? (mounted ? t("unlike") : "Unlike") : (mounted ? t("like") : "Like")}
-              title={liked ? (mounted ? t("unlike") : "Unlike") : (mounted ? t("like") : "Like")}
+              aria-label={liked ? (mounted ? t("unlike") : "Ne plus aimer") : (mounted ? t("like") : "Aimer")}
+              title={liked ? (mounted ? t("unlike") : "Ne plus aimer") : (mounted ? t("like") : "Aimer")}
               onClick={toggleLike}
             >
               <span className="inline-flex items-center justify-center shrink-0">
@@ -243,8 +246,8 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
             <button
               className="group/btn flex h-8 items-center justify-center gap-1.5 rounded-full transition-all duration-300 hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-zinc-300"
               style={{ background: "#1C1C1F", border: "none", padding: "0 10px" }}
-              aria-label={mounted ? t("comment") : "Comment"}
-              title={mounted ? t("comment") : "Comment"}
+              aria-label={mounted ? t("comment") : "Commenter"}
+              title={mounted ? t("comment") : "Commenter"}
               onClick={openCommentDrawer}
             >
               <span className="inline-flex items-center justify-center shrink-0">
@@ -259,8 +262,8 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
             <button
               className="group/btn flex h-8 items-center justify-center gap-1.5 rounded-full transition-all duration-300 hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-zinc-300"
               style={{ background: "#1C1C1F", border: "none", padding: "0 10px" }}
-              aria-label={bookmarked ? (mounted ? t("unbookmark") : "Unsave") : (mounted ? t("bookmark") : "Save")}
-              title={bookmarked ? (mounted ? t("unbookmark") : "Unsave") : (mounted ? t("bookmark") : "Save")}
+              aria-label={bookmarked ? (mounted ? t("unbookmark") : "Retirer des favoris") : (mounted ? t("bookmark") : "Enregistrer")}
+              title={bookmarked ? (mounted ? t("unbookmark") : "Retirer des favoris") : (mounted ? t("bookmark") : "Enregistrer")}
               onClick={toggleBookmark}
             >
               <span className="inline-flex items-center justify-center shrink-0">
@@ -273,8 +276,8 @@ export default function PhotoCard({ photo, priority = false }: { photo: PhotoDto
             <button
               className="group/btn flex h-8 w-8 items-center justify-center rounded-full transition-all duration-300 hover:bg-amber-500/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-zinc-300"
               style={{ background: "#1C1C1F", border: "none" }}
-              aria-label={mounted ? t("share") : "Share"}
-              title={mounted ? t("share") : "Share"}
+              aria-label={mounted ? t("share") : "Partager"}
+              title={mounted ? t("share") : "Partager"}
               onClick={handleShare}
             >
               <span className="inline-flex items-center justify-center shrink-0">

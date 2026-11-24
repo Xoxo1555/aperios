@@ -28,6 +28,8 @@ export {
   type LangCode,
 };
 
+const DEFAULT_LANG: LangCode = "fr";
+
 const dict = {
   topbar_cert: {
     en: "Numbered certificates of authenticity included",
@@ -10208,9 +10210,9 @@ interface LanguageContextValue {
 }
 
 const LanguageContext = createContext<LanguageContextValue>({
-  lang: "en",
+  lang: DEFAULT_LANG,
   setLang: () => undefined,
-  t: (key) => dict[key]?.en ?? String(key),
+  t: (key) => dict[key]?.fr ?? String(key),
 });
 
 const STORAGE_KEY = "aperio-lang";
@@ -10227,19 +10229,24 @@ function subscribe(cb: () => void) {
   };
 }
 
+function hasLangCookie(): boolean {
+  if (typeof document === "undefined") return false;
+  return document.cookie.split("; ").some((c) => c.startsWith(`${COOKIE_KEY}=`));
+}
+
 function readStoredLang(): LangCode {
-  if (typeof window === "undefined") return "en";
+  if (typeof window === "undefined") return DEFAULT_LANG;
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored && (SUPPORTED_LANGS as readonly string[]).includes(stored)) return stored as LangCode;
   } catch {
-    /* localStorage unavailable — default to English */
+    /* localStorage indisponible — valeur par défaut */
   }
-  return "en";
+  return DEFAULT_LANG;
 }
 
 function readCookieLang(): LangCode {
-  if (typeof document === "undefined") return "en";
+  if (typeof document === "undefined") return DEFAULT_LANG;
   try {
     const stored = document.cookie
       .split("; ")
@@ -10247,9 +10254,9 @@ function readCookieLang(): LangCode {
       ?.slice(COOKIE_KEY.length + 1);
     if (stored && (SUPPORTED_LANGS as readonly string[]).includes(stored)) return stored as LangCode;
   } catch {
-    /* cookie unavailable — default to English */
+    /* cookie indisponible — valeur par défaut */
   }
-  return "en";
+  return DEFAULT_LANG;
 }
 
 function writeLangCookie(lang: LangCode) {
@@ -10273,7 +10280,7 @@ function notifyLangListeners() {
 
 export function LanguageProvider({
   children,
-  initialLang = "en",
+  initialLang = DEFAULT_LANG,
 }: {
   children: ReactNode;
   initialLang?: LangCode;
@@ -10292,10 +10299,13 @@ export function LanguageProvider({
   // update, adopt it after mount (no hydration mismatch, since the cookie is
   // the only source consulted during hydration).
   useEffect(() => {
+    const stored = readStoredLang();
+    const hadCookie = hasLangCookie();
     applyLang(document, lang);
     writeLangCookie(lang);
-    const stored = readStoredLang();
-    if (readCookieLang() === "en" && stored !== "en") {
+    /* Un cookie explicite reste prioritaire ; localStorage n'est récupéré
+       que pour les anciens visiteurs qui n'ont jamais choisi via le sélecteur. */
+    if (!hadCookie && stored !== DEFAULT_LANG) {
       writeLangCookie(stored);
       applyLang(document, stored);
       notifyLangListeners();
@@ -10314,7 +10324,7 @@ export function LanguageProvider({
   }
 
   function t(key: DictKey, vars?: Record<string, string>): string {
-    let text: string = dict[key]?.[lang] ?? dict[key]?.en ?? String(key);
+    let text: string = dict[key]?.[lang] ?? dict[key]?.[DEFAULT_LANG] ?? String(key);
     if (vars) {
       for (const [k, v] of Object.entries(vars)) text = text.replace(`{${k}}`, v);
     }

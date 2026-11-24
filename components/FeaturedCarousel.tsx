@@ -199,7 +199,7 @@ export default function FeaturedCarousel({ photos, variant = "landscape", accent
               )}
               <div className="carousel-gradient" />
               <div className="carousel-info">
-                <div className="carousel-title">{p.title}</div>
+                <div className="carousel-title" title={p.title}>{p.title}</div>
                 <div className="carousel-sub">
                   {p.photographer.avatarUrl ? (
                     <Image

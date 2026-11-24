@@ -3,13 +3,17 @@ import { createReadStream } from "fs";
 import { stat } from "fs/promises";
 import { Readable } from "stream";
 import { and, eq, sql } from "drizzle-orm";
-import { normalize, join, extname } from "path";
+import { normalize, join, extname, relative, isAbsolute, sep } from "path";
 import { db } from "@/db";
 import { photos } from "@/db/schema";
 import { photoIdParamSchema } from "lib/validation";
 import { slugify } from "lib/utils";
+import { sniffImage } from "lib/upload";
 
 export const dynamic = "force-dynamic";
+
+const REMOTE_FETCH_TIMEOUT_MS = 10_000;
+const MAX_REMOTE_BYTES = 50 * 1024 * 1024;
 
 /**
  * GET /api/photos/[id]/free-file — téléchargement public des photos libres.
@@ -54,18 +58,41 @@ export async function GET(
   // --- Cas URL absolue (photo importée) : récupération + re-stream en pièce jointe
   if (/^https?:\/\//i.test(photo.imageUrl)) {
     try {
-      const remote = await fetch(photo.imageUrl);
+      const remote = await fetch(photo.imageUrl, {
+        signal: AbortSignal.timeout(REMOTE_FETCH_TIMEOUT_MS),
+        cache: "no-store",
+      });
       if (!remote.ok || !remote.body) {
         return NextResponse.json({ error: "Fichier indisponible." }, { status: 502 });
       }
-      const buf = Buffer.from(await remote.arrayBuffer());
-      const remoteMime = remote.headers.get("content-type") ?? "image/jpeg";
-      const ext = remoteMime.split(";")[0].split("/")[1] ?? "jpg";
-      const filename = `${safeBase}.${ext}`;
+
+      const declaredSize = Number(remote.headers.get("content-length"));
+      if (Number.isFinite(declaredSize) && declaredSize > MAX_REMOTE_BYTES) {
+        await remote.body.cancel();
+        return NextResponse.json({ error: "Fichier indisponible." }, { status: 502 });
+      }
+
+      const chunks: Buffer[] = [];
+      let total = 0;
+      const reader = remote.body.getReader();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > MAX_REMOTE_BYTES) {
+          await reader.cancel();
+          return NextResponse.json({ error: "Fichier indisponible." }, { status: 502 });
+        }
+        chunks.push(Buffer.from(value));
+      }
+
+      const buf = Buffer.concat(chunks, total);
+      const image = await sniffImage(buf);
+      const filename = `${safeBase}.${image.ext}`;
       return new NextResponse(new Uint8Array(buf), {
         status: 200,
         headers: {
-          "Content-Type": remoteMime,
+          "Content-Type": image.mime,
           "Content-Disposition": `attachment; filename="${filename}"; filename*=UTF-8''${encodeURIComponent(filename)}`,
           "X-Content-Type-Options": "nosniff",
           "Cache-Control": "private, no-store, must-revalidate",
@@ -80,7 +107,8 @@ export async function GET(
   // --- Cas URL relative Aperio (/uploads/...) : stream depuis /public
   const publicRoot = normalize(join(process.cwd(), "public"));
   const absolute = normalize(join(publicRoot, photo.imageUrl.replace(/^\/+/g, "")));
-  if (!absolute.startsWith(publicRoot)) {
+  const rel = relative(publicRoot, absolute);
+  if (rel === ".." || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
     return NextResponse.json({ error: "Fichier indisponible." }, { status: 404 });
   }
 

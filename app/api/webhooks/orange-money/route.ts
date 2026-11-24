@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * (I6 amendments 4/8) before any side effect.
  */
 export async function POST(req: NextRequest) {
-  const auth = verifyWebhookSecret(req, "orange");
+  const auth = await verifyWebhookSecret(req, "orange");
   if (!auth.ok) {
     return NextResponse.json({ error: auth.reason }, { status: auth.status });
   }

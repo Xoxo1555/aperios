@@ -107,7 +107,7 @@ export default function RegisterPage() {
           <div className="z-50 relative select-none">
             <Logo />
           </div>
-          <div className="auth-quote"><p>{t("quote_single_glance")}</p><span>Â· Aperio Studio</span></div>
+          <div className="auth-quote"><p>{t("quote_single_glance")}</p><span>· Aperio Studio</span></div>
           <div className="auth-credit">{t("auth_credit_rice")}</div>
         </div>
         <div className="auth-form-col">

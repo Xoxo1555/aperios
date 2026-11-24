@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { buildGoogleAuthUrl, isGoogleConfigured } from "lib/google";
+import { resolveCallbackUrl } from "lib/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const next = req.nextUrl.searchParams.get("next") || "/";
+  const next = resolveCallbackUrl(req.nextUrl.searchParams.get("next"));
   const state = randomUUID();
 
   const res = NextResponse.redirect(buildGoogleAuthUrl(state));

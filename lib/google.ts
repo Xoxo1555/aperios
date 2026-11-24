@@ -52,7 +52,7 @@ export interface GoogleProfile {
   email: string;
   name: string;
   picture: string | null;
-  email_verified?: boolean;
+  email_verified: boolean;
 }
 
 export async function exchangeGoogleCode(code: string): Promise<string> {
@@ -88,10 +88,12 @@ export async function fetchGoogleProfile(accessToken: string): Promise<GooglePro
 
 /**
  * Finds an existing Aperio account by email or creates a new buyer account
- * from the Google profile. Google-issued emails are treated as verified, so
- * the user lands directly in a signed-in session (no confirmation email).
+ * from a verified Google profile. No confirmation email is sent.
  */
 export async function findOrCreateGoogleUser(profile: GoogleProfile): Promise<SessionUser> {
+  if (profile.email_verified !== true) {
+    throw new Error("Adresse e-mail Google non vérifiée — connexion refusée.");
+  }
   const email = profile.email.toLowerCase().trim();
   const [existing] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 

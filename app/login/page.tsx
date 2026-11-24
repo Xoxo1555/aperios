@@ -8,6 +8,7 @@ import Logo from "components/Logo";
 import PasswordField from "components/PasswordField";
 import GoogleButton from "components/GoogleButton";
 import { useLanguage } from "lib/i18n";
+import { resolveCallbackUrl } from "lib/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
@@ -38,7 +39,10 @@ export default function LoginPage() {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
+    if (loading) return;
     setLoading(true); setError("");
+    const params = new URLSearchParams(window.location.search);
+    const callbackUrl = resolveCallbackUrl(params.get("callbackUrl") ?? params.get("next"));
     try {
       const res = await fetch("/api/auth", {
         method: "POST",
@@ -47,17 +51,16 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.needsVerification) { router.push(`/verify-email?email=${encodeURIComponent(data.email)}`); return; }
+        if (data.needsVerification) {
+          const verifyUrl = new URLSearchParams({ email: data.email, next: callbackUrl });
+          router.push(`/verify-email?${verifyUrl.toString()}`);
+          return;
+        }
         setError(data.error ?? t("unable_log_in")); setLoading(false); return;
       }
-      setUser(data.user); router.refresh();
-      const params = new URLSearchParams(window.location.search);
-      const callbackUrl = params.get("callbackUrl") ?? params.get("next");
-      if (callbackUrl?.startsWith("/") && !callbackUrl.startsWith("//")) {
-        router.push(callbackUrl);
-      } else {
-        router.push("/");
-      }
+      setUser(data.user);
+      router.replace(callbackUrl);
+      router.refresh();
     } catch { setError(t("something_went_wrong")); setLoading(false); }
   }
 

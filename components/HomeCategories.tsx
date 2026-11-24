@@ -50,7 +50,7 @@ export default function HomeCategories({ categories }: Props) {
             <div className="cat-label">
               <span className="cat-icon"><FontAwesomeIcon icon={faFromBi(c.icon)} /></span>
               <div className="font-semibold" style={{ fontSize: "0.98rem", fontFamily: "var(--font-sans)" }}>{c.name}</div>
-              <div className="line-clamp-1" style={{ fontSize: "0.76rem", opacity: 0.85, color: "#D6D3D1" }}>{c.description}</div>
+              <div className="line-clamp-1" title={c.description ?? undefined} style={{ fontSize: "0.76rem", opacity: 0.85, color: "#D6D3D1" }}>{c.description}</div>
             </div>
           </Link>
         ))}

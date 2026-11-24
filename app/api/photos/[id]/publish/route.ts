@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "db";
 import { photos } from "db/schema";
 import { getSessionUser } from "lib/auth";
+import { photoIdParamSchema } from "lib/validation";
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +17,12 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const photoId = parseInt(id, 10);
-
-  if (isNaN(photoId)) {
-    return NextResponse.json({ error: "Invalid photo id" }, { status: 400 });
+  const { id: rawId } = await params;
+  const parsed = photoIdParamSchema.safeParse(rawId);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Identifiant de photo invalide." }, { status: 400 });
   }
+  const photoId = parsed.data;
 
   const rows = await db
     .select()
