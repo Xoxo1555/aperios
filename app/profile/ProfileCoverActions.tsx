@@ -10,8 +10,10 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 /** Compress an image file if it exceeds maxSizeMB, using canvas draw + JPEG re-encode.
  * Returns a data URL string suitable for JSON body { image: dataUrl }.
+ * Threshold lowered to 800KB; images > 800KB resized to max 1600px long edge.
+ * Quality 0.78 keeps JSON Base64 payload under ~1.2MB (well under Vercel 4.5MB limit).
  */
-function compressImageFile(file: File, maxSizeMB = 3): Promise<string> {
+function compressImageFile(file: File, maxSizeMB = 0.8): Promise<string> {
   return new Promise((resolve) => {
     if (file.size <= maxSizeMB * 1024 * 1024) {
       // No compression needed — read directly as data URL
@@ -27,10 +29,10 @@ function compressImageFile(file: File, maxSizeMB = 3): Promise<string> {
     reader.onload = async (e) => {
       const img = document.createElement("img") as HTMLImageElement;
       img.onload = () => {
-        // Scale down while preserving aspect ratio; max 1500px on long edge
+        // Scale down while preserving aspect ratio; max 1600px on long edge
         let { width, height } = img;
         const longEdge = Math.max(width, height);
-        const scale = Math.min(1500 / longEdge, 1);
+        const scale = Math.min(1600 / longEdge, 1);
         width = Math.round(width * scale);
         height = Math.round(height * scale);
 
@@ -40,8 +42,9 @@ function compressImageFile(file: File, maxSizeMB = 3): Promise<string> {
         const ctx = canvas.getContext("2d")!;
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Encode as JPEG at 70% quality for maximum compression
-        const compressedDataURL = canvas.toDataURL("image/jpeg", 0.7);
+        // Encode as JPEG at 78% quality for maximum compression
+        // keeps JSON Base64 payload under ~1.2MB (well under Vercel 4.5MB limit)
+        const compressedDataURL = canvas.toDataURL("image/jpeg", 0.78);
         resolve(compressedDataURL);
       };
       img.onerror = () => resolve(e.target?.result as string || "");
@@ -75,7 +78,13 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ image: dataUrl }),
         });
-        const data = await res.json();
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          data = { error: `HTTP ${res.status}: ${text.slice(0, 120)}` };
+        }
         if (!res.ok) {
           alert(data.error ?? "Erreur inconnue");
           setUploading(false);
@@ -84,8 +93,8 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
         setUser(data.user);
         setUploading(false);
         router.refresh();
-      } catch {
-        alert("Erreur: connexion impossible");
+      } catch (err) {
+        alert(err instanceof Error ? err.message : String(err));
         setUploading(false);
       }
     } catch {
@@ -108,15 +117,21 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
     setUploading(true);
     try {
       const res = await fetch("/api/me/cover", { method: "DELETE" });
-      const data = await res.json();
+      const text = await res.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { error: `HTTP ${res.status}: ${text.slice(0, 120)}` };
+      }
       if (res.ok) {
         setUser(data.user);
         router.refresh();
       } else {
         alert(data.error ?? "Erreur inconnue");
       }
-    } catch {
-      alert("Erreur: connexion impossible");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : String(err));
     }
     setUploading(false);
   }
