@@ -8,6 +8,50 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCamera } from "@fortawesome/free-regular-svg-icons";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
+/** Compress an image file if it exceeds maxSizeMB, using canvas draw + JPEG re-encode.
+ * Returns a data URL string suitable for JSON body { image: dataUrl }.
+ */
+function compressImageFile(file: File, maxSizeMB = 3): Promise<string> {
+  return new Promise((resolve) => {
+    if (file.size <= maxSizeMB * 1024 * 1024) {
+      // No compression needed — read directly as data URL
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Too large — compress via canvas
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const img = document.createElement("img") as HTMLImageElement;
+      img.onload = () => {
+        // Scale down while preserving aspect ratio; max 1500px on long edge
+        let { width, height } = img;
+        const longEdge = Math.max(width, height);
+        const scale = Math.min(1500 / longEdge, 1);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Encode as JPEG at 70% quality for maximum compression
+        const compressedDataURL = canvas.toDataURL("image/jpeg", 0.7);
+        resolve(compressedDataURL);
+      };
+      img.onerror = () => resolve(e.target?.result as string || "");
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
+
 interface ProfileCoverActionsProps {
   coverImage: string | null;
 }
@@ -24,33 +68,30 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
     if (!file) return;
     setUploading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        try {
-          const res = await fetch("/api/me/cover", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: dataUrl }),
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            alert(data.error ?? t("upload_failed"));
-            setUploading(false);
-            return;
-          }
-          setUser(data.user);
+      const dataUrl = await compressImageFile(file);
+      try {
+        const res = await fetch("/api/me/cover", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: dataUrl }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error ?? "Erreur inconnue");
           setUploading(false);
-          router.refresh();
-        } catch {
-          alert(t("upload_failed"));
-          setUploading(false);
+          return;
         }
-      };
-      reader.readAsDataURL(file);
+        setUser(data.user);
+        setUploading(false);
+        router.refresh();
+      } catch {
+        alert("Erreur: connexion impossible");
+        setUploading(false);
+      }
     } catch {
-      alert(t("unsupported_file"));
+      alert("Erreur lors de la compression de l'image");
       setUploading(false);
+      return;
     }
     // Reset input so same file can be selected again
     if (e.target) e.target.value = "";
@@ -72,10 +113,10 @@ export default function ProfileCoverActions({ coverImage }: ProfileCoverActionsP
         setUser(data.user);
         router.refresh();
       } else {
-        alert(data.error ?? t("unable_save"));
+        alert(data.error ?? "Erreur inconnue");
       }
     } catch {
-      alert(t("unable_save"));
+      alert("Erreur: connexion impossible");
     }
     setUploading(false);
   }

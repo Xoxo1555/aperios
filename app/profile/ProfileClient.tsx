@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { useRouter } from "next/navigation";import { useSession } from "components/SessionProvider";
+import { useRouter } from "next/navigation";
+import { useSession } from "components/SessionProvider";
 import { langLocale, useLanguage } from "lib/i18n";
 import { formatDate } from "lib/utils";
 import Image from "next/image";
@@ -9,6 +10,50 @@ import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalendar, faCamera, faHeart, faUser } from "@fortawesome/free-regular-svg-icons";
 import { faCheck, faHeartPulse, faLocationDot, faPalette, faPencil, faShieldHalved, faTableCells, faTrash } from "@fortawesome/free-solid-svg-icons";
+
+/** Compress an image file if it exceeds maxSizeMB, using canvas draw + JPEG re-encode.
+ * Returns a data URL string suitable for JSON body { image: dataUrl }.
+ */
+function compressImageFile(file: File, maxSizeMB = 3): Promise<string> {
+  return new Promise((resolve) => {
+    if (file.size <= maxSizeMB * 1024 * 1024) {
+      // No compression needed — read directly as data URL
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Too large — compress via canvas
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const img = document.createElement("img") as HTMLImageElement;
+      img.onload = () => {
+        // Scale down while preserving aspect ratio; max 1500px on long edge
+        let { width, height } = img;
+        const longEdge = Math.max(width, height);
+        const scale = Math.min(1500 / longEdge, 1);
+        width = Math.round(width * scale);
+        height = Math.round(height * scale);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d")!;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Encode as JPEG at 70% quality for maximum compression
+        const compressedDataURL = canvas.toDataURL("image/jpeg", 0.7);
+        resolve(compressedDataURL);
+      };
+      img.onerror = () => resolve(e.target?.result as string || "");
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
 
 interface FullUser {
   id: number;
@@ -42,32 +87,17 @@ const SPECIALTIES = [
   "Contemporary art", "Black & white", "Sport",
 ];
 
-export default function ProfileClient({
-  user,
-  stats,
-  onAvatarClick,
-}: {
-  user: FullUser;
-  stats?: {
-    photoCount: number;
-    views: number;
-    likes: number;
-  };
-  onAvatarClick?: () => void;
-}) {
+export default function ProfileClient({ user, stats, onAvatarClick }: { user: FullUser; stats?: { photoCount: number; views: number; likes: number }; onAvatarClick?: () => void }) {
   const router = useRouter();
   const { t, lang } = useLanguage();
   const { setUser, user: sessionUser } = useSession();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
-    name: user.name, bio: user.bio ?? "", location: user.location ?? "",
-    website: user.website ?? "", phone: user.phone ?? "", country: user.country ?? "",
-    instagram: user.instagram ?? "",
-    specialties: user.specialties ?? "",
-    interests: user.interests ?? "",
+    name: user.name, bio: user.bio ?? "", location: user.location ?? "", website: user.website ?? "", phone: user.phone ?? "", country: user.country ?? "", instagram: user.instagram ?? "", specialties: user.specialties ?? "", interests: user.interests ?? "",
   });
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [msg, setMsg] = useState("");
+  const [coverUploading, setCoverUploading] = useState(false);
 
   const isCreator = user.role === "photographer" || user.role === "admin";
   const roleLabel = user.role === "photographer" ? t("role_artist_creator") : user.role === "admin" ? t("administrator") : t("collector");
@@ -77,33 +107,25 @@ export default function ProfileClient({
     ? { background: "rgba(214,117,117,0.16)", color: "var(--ap-red)" }
     : { background: "rgba(125,189,140,0.16)", color: "var(--ap-green-ink)" };
 
-  const [coverUploading, setCoverUploading] = useState(false);
-
   async function uploadAvatar(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setAvatarUploading(true);
     setMsg("");
+    const dataUrl = await compressImageFile(file);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        try {
-          const res = await fetch("/api/me/avatar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: dataUrl }),
-          });
-          const data = await res.json();
-          if (!res.ok) { setMsg(data.error ?? t("upload_failed")); setAvatarUploading(false); return; }
-          setUser(data.user);
-          setMsg(t("profile_photo_updated"));
-          setAvatarUploading(false);
-          router.refresh();
-        } catch { setMsg(t("upload_failed")); setAvatarUploading(false); }
-      };
-      reader.readAsDataURL(file);
-    } catch { setMsg(t("unsupported_file")); setAvatarUploading(false); }
+      const res = await fetch("/api/me/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setMsg(data.error ?? "Erreur inconnue"); setAvatarUploading(false); return; }
+      setUser(data.user);
+      setMsg(t("profile_photo_updated"));
+      setAvatarUploading(false);
+      router.refresh();
+    } catch { setMsg("Erreur: connexion impossible"); setAvatarUploading(false); }
   }
 
   async function removeAvatar() {
@@ -119,26 +141,20 @@ export default function ProfileClient({
     if (!file) return;
     setCoverUploading(true);
     setMsg("");
+    const dataUrl = await compressImageFile(file);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        try {
-          const res = await fetch("/api/me/cover", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ image: dataUrl }),
-          });
-          const data = await res.json();
-          if (!res.ok) { setMsg(data.error ?? t("upload_failed")); setCoverUploading(false); return; }
-          setUser(data.user);
-          setMsg(t("cover_photo_updated"));
-          setCoverUploading(false);
-          router.refresh();
-        } catch { setMsg(t("upload_failed")); setCoverUploading(false); }
-      };
-      reader.readAsDataURL(file);
-    } catch { setMsg(t("unsupported_file")); setCoverUploading(false); }
+      const res = await fetch("/api/me/cover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: dataUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setMsg(data.error ?? "Erreur inconnue"); setCoverUploading(false); return; }
+      setUser(data.user);
+      setMsg(t("cover_photo_updated"));
+      setCoverUploading(false);
+      router.refresh();
+    } catch { setMsg("Erreur: connexion impossible"); setCoverUploading(false); }
   }
 
   async function removeCover() {
@@ -258,9 +274,7 @@ export default function ProfileClient({
           <>
             {user.bio && <p className="text-muted-foreground mt-1 mb-0 italic text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.9rem", maxWidth: 640, lineHeight: 1.65 }}>{user.bio}</p>}
             {!user.bio && !isCreator && (
-              <p className="text-muted-foreground mt-1 mb-0 italic text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.85rem" }}>
-                {t("introduce_yourself")}
-              </p>
+              <p className="text-muted-foreground mt-1 mb-0 italic text-left sm:text-justify hyphens-auto" style={{ fontSize: "0.85rem" }}>{t("introduce_yourself")}</p>
             )}
             {user.interests && (
               <div className="mt-2">
@@ -271,31 +285,23 @@ export default function ProfileClient({
             )}
           </>
         )}
-
-        <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
-          {editing ? (
-            <>
-              <button className="btn btn-gold btn-sm" onClick={save}><FontAwesomeIcon icon={faCheck} className="me-1" />{t("save")}</button>
-              <button className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>{t("cancel")}</button>
-            </>
-          ) : (
-            <>
-              <button className="btn btn-gold btn-sm" onClick={() => setEditing(true)}><FontAwesomeIcon icon={faPencil} className="me-1" />{t("edit_profile")}</button>
-              {user.avatarUrl && <button className="btn btn-ghost btn-sm" onClick={removeAvatar}><FontAwesomeIcon icon={faTrash} className="me-1" />{t("remove_photo")}</button>}
-              {isCreator && <a href="/dashboard" className="btn btn-ghost btn-sm inline-flex items-center"><FontAwesomeIcon icon={faTableCells} className="me-1" style={{ fontSize: "16px" }} />{t("dashboard")}</a>}
-            </>
-          )}
-        </div>
-        {msg && <div className="mt-2 text-gold" style={{ fontSize: "0.82rem" }}>{msg}</div>}
       </div>
 
-      {isCreator && stats && (
-        <div className="profile-stats">
-          <div className="ps-item"><div className="ps-value">{stats.photoCount}</div><div className="ps-label">{t("photos_short")}</div></div>
-          <div className="ps-item"><div className="ps-value">{stats.views.toLocaleString()}</div><div className="ps-label">{t("stat_views")}</div></div>
-          <div className="ps-item"><div className="ps-value">{stats.likes.toLocaleString()}</div><div className="ps-label">{t("stat_likes")}</div></div>
-        </div>
-      )}
+      <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-border">
+        {editing ? (
+          <>
+            <button className="btn btn-gold btn-sm" onClick={save}><FontAwesomeIcon icon={faCheck} className="me-1" />{t("save")}</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => setEditing(false)}>{t("cancel")}</button>
+          </>
+        ) : (
+          <>
+            <button className="btn btn-gold btn-sm" onClick={() => setEditing(true)}><FontAwesomeIcon icon={faPencil} className="me-1" />{t("edit_profile")}</button>
+            {user.avatarUrl && <button className="btn btn-ghost btn-sm" onClick={removeAvatar}><FontAwesomeIcon icon={faTrash} className="me-1" />{t("remove_photo")}</button>}
+            {isCreator && <a href="/dashboard" className="btn btn-ghost btn-sm inline-flex items-center"><FontAwesomeIcon icon={faTableCells} className="me-1" style={{ fontSize: "16px" }} />{t("dashboard")}</a>}
+          </>
+        )}
+      </div>
+      {msg && <div className="mt-2 text-gold" style={{ fontSize: "0.82rem" }}>{msg}</div>}
     </div>
   );
 }
