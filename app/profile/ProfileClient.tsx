@@ -15,11 +15,12 @@ import { faCheck, faHeartPulse, faLocationDot, faPalette, faPencil, faShieldHalv
  * Returns a data URL string suitable for JSON body { image: dataUrl }.
  * Threshold lowered to 800KB; images > 800KB resized to max 1600px long edge.
  * Quality 0.78 keeps JSON Base64 payload under ~1.2MB (well under Vercel 4.5MB limit).
+ * Works with JPEG, PNG, and WebP formats.
  */
 function compressImageFile(file: File, maxSizeMB = 0.8): Promise<string> {
   return new Promise((resolve) => {
     if (file.size <= maxSizeMB * 1024 * 1024) {
-      // No compression needed — read directly as data URL
+      // No compression needed — read directly as data URL, preserve original format
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
       reader.onerror = () => resolve("");
@@ -30,6 +31,7 @@ function compressImageFile(file: File, maxSizeMB = 0.8): Promise<string> {
     // Too large — compress via canvas
     const reader = new FileReader();
     reader.onload = async (e) => {
+      const readerResult = e.target?.result as string;
       const img = document.createElement("img") as HTMLImageElement;
       img.onload = () => {
         // Scale down while preserving aspect ratio; max 1600px on long edge
@@ -50,8 +52,9 @@ function compressImageFile(file: File, maxSizeMB = 0.8): Promise<string> {
         const compressedDataURL = canvas.toDataURL("image/jpeg", 0.78);
         resolve(compressedDataURL);
       };
-      img.onerror = () => resolve(e.target?.result as string || "");
-      img.src = e.target?.result as string;
+      // Properly handle img load error — resolve with reader result fallback
+      img.onerror = () => resolve(readerResult || "");
+      img.src = readerResult;
     };
     reader.onerror = () => resolve("");
     reader.readAsDataURL(file);
@@ -115,7 +118,16 @@ export default function ProfileClient({ user, stats, onAvatarClick }: { user: Fu
     if (!file) return;
     setAvatarUploading(true);
     setMsg("");
-    const dataUrl = await compressImageFile(file);
+    let dataUrl: string;
+    try {
+      dataUrl = await compressImageFile(file);
+    } catch {
+      setMsg("Erreur lors de la compression de l'image");
+      setAvatarUploading(false);
+      // Reset input so same file can be selected again
+      if (e.target) e.target.value = "";
+      return;
+    }
     try {
       const res = await fetch("/api/me/avatar", {
         method: "POST",
@@ -138,6 +150,8 @@ export default function ProfileClient({ user, stats, onAvatarClick }: { user: Fu
       setMsg(err instanceof Error ? err.message : String(err));
       setAvatarUploading(false);
     }
+    // Reset input so same file can be selected again
+    if (e.target) e.target.value = "";
   }
 
   async function removeAvatar() {
@@ -153,7 +167,16 @@ export default function ProfileClient({ user, stats, onAvatarClick }: { user: Fu
     if (!file) return;
     setCoverUploading(true);
     setMsg("");
-    const dataUrl = await compressImageFile(file);
+    let dataUrl: string;
+    try {
+      dataUrl = await compressImageFile(file);
+    } catch {
+      setMsg("Erreur lors de la compression de l'image");
+      setCoverUploading(false);
+      // Reset input so same file can be selected again
+      if (e.target) e.target.value = "";
+      return;
+    }
     try {
       const res = await fetch("/api/me/cover", {
         method: "POST",
@@ -176,6 +199,8 @@ export default function ProfileClient({ user, stats, onAvatarClick }: { user: Fu
       setMsg(err instanceof Error ? err.message : String(err));
       setCoverUploading(false);
     }
+    // Reset input so same file can be selected again
+    if (e.target) e.target.value = "";
   }
 
   async function removeCover() {

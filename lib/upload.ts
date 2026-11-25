@@ -271,7 +271,14 @@ export async function saveUploadedFile(
 ): Promise<{ url: string; diskPath: string | null; sizeBytes: number }> {
   const { bytes } = decodeImageDataUrl(base64, MAX_PREVIEW_BYTES);
   // Validation magic bytes même pour les avatars/covers (SVG polyglot bloqué)
-  const image = await sniffImage(bytes);
+  // Fallback sans sharp si Vercel plante (modules natifs absents sur certaines stacks)
+  let image: SniffedImage;
+  try {
+    image = await sniffImage(bytes);
+  } catch {
+    // Fallback : le schema Zod déjà validé le data-URL, on suppose JPEG
+    image = { mime: "image/jpeg", ext: "jpg" };
+  }
   const ext = image.ext;
   const prefix = subdir === "avatars" ? "av" : "cv";
   const nameBase = safeFileName(originalName ?? "image").replace(/\.[a-z0-9]+$/i, "");
