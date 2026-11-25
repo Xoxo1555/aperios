@@ -54,17 +54,22 @@ export async function DELETE() {
   const user = await getSessionUser();
   if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
 
-  await db.update(users).set({ avatarUrl: null }).where(eq(users.id, user.id));
-  await deleteStoredFile(user.avatarUrl);
-  const [updated] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
-  if (!updated) return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
-  const refreshed = toSessionUser(updated);
-  const token = await signSessionToken(refreshed);
-  const res = NextResponse.json({ user: refreshed });
-  res.cookies.set(SESSION_COOKIE, token, {
-    httpOnly: true, sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/", maxAge: SESSION_MAX_AGE,
-  });
-  return res;
+  try {
+    await db.update(users).set({ avatarUrl: null }).where(eq(users.id, user.id));
+    await deleteStoredFile(user.avatarUrl);
+    const [updated] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
+    if (!updated) return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
+    const refreshed = toSessionUser(updated);
+    const token = await signSessionToken(refreshed);
+    const res = NextResponse.json({ user: refreshed });
+    res.cookies.set(SESSION_COOKIE, token, {
+      httpOnly: true, sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/", maxAge: SESSION_MAX_AGE,
+    });
+    return res;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Erreur serveur";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }
