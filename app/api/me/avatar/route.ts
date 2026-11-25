@@ -11,16 +11,16 @@ export const dynamic = "force-dynamic";
 
 /** Upload a new avatar image for the current user */
 export async function POST(req: NextRequest) {
-  const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-
-  const raw = await req.json().catch(() => ({}));
-  const parsed = avatarUploadSchema.safeParse(raw);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Image invalide." }, { status: 400 });
-  }
-
   try {
+    const user = await getSessionUser();
+    if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+
+    const raw = await req.json().catch(() => ({}));
+    const parsed = avatarUploadSchema.safeParse(raw);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Image invalide." }, { status: 400 });
+    }
+
     const saved = await saveUploadedFile(parsed.data.image, "avatars");
     await db.update(users).set({ avatarUrl: saved.url }).where(eq(users.id, user.id));
     if (user.avatarUrl && user.avatarUrl !== saved.url) {
@@ -44,17 +44,16 @@ export async function POST(req: NextRequest) {
     });
     return res;
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Upload failed.";
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Upload failed." }, { status: 500 });
   }
 }
 
 /** Delete the user's avatar */
 export async function DELETE() {
-  const user = await getSessionUser();
-  if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
-
   try {
+    const user = await getSessionUser();
+    if (!user) return NextResponse.json({ error: "Authentication required." }, { status: 401 });
+
     await db.update(users).set({ avatarUrl: null }).where(eq(users.id, user.id));
     await deleteStoredFile(user.avatarUrl);
     const [updated] = await db.select().from(users).where(eq(users.id, user.id)).limit(1);
@@ -69,7 +68,6 @@ export async function DELETE() {
     });
     return res;
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Erreur serveur";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : "Erreur serveur" }, { status: 500 });
   }
 }
